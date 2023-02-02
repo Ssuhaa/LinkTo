@@ -56,13 +56,36 @@ private:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	TArray<class UInputAction*> rightInputs; // 오른손 인풋들 배열
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
-	float walkSpeed = 600.f;
+	class UMoveComponent* moveComp;
 
 private:
-	// 왼쪽 트리거 함수
+	// 트리거
 	void OnTriggerLeft(const struct FInputActionValue& value);
-
-	// 왼쪽 thumbstick 함수
+	// thumbstick
 	void OnThumbstickLeft(const struct FInputActionValue& value);
+	// grip
+	void OnGripLeft(const struct FInputActionValue& value);
+	// X
+	void On_X_ButtonLeft(const struct FInputActionValue& value);
+	// Y
+	void On_Y_ButtonLeft(const struct FInputActionValue& value);
+	// 메뉴
+	void OnMenuLeft(const struct FInputActionValue& value);
+	// 왼쪽 로그
+	void OnLogLeft(FString value);
 
+	// 오른쪽 
+	
+	// 트리거
+	void OnTriggerRight(const struct FInputActionValue& value);
+	// thumbstick
+	void OnThumbstickRight(const struct FInputActionValue& value);
+	// grip
+	void OnGripRight(const struct FInputActionValue& value);
+	// A
+	void On_A_ButtonRight(const struct FInputActionValue& value);
+	// B
+	void On_B_ButtonRight(const struct FInputActionValue& value);
+	// 로그
+	void OnLogRight(FString value);
 };

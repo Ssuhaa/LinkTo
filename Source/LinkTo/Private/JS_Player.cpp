@@ -11,6 +11,7 @@
 #include "InputAction.h"
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
+#include "MoveComponent.h"
 
 
 AJS_Player::AJS_Player()
@@ -59,6 +60,10 @@ AJS_Player::AJS_Player()
 	rightHand->SetRelativeRotation(FRotator(25.0f, 0.0f, 90.0f));
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	bUseControllerRotationYaw = true;
+
+	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
+	
 
 }
 
@@ -98,25 +103,90 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	
 	if (enhancedInputComponent != nullptr)
 	{
+		//왼손 바인딩
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Triggered, this, &AJS_Player::OnTriggerLeft);
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AJS_Player::OnTriggerLeft);
-		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AJS_Player::OnThumbstickLeft);
+		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &AJS_Player::OnThumbstickLeft);
+		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AJS_Player::OnGripLeft);
+		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Triggered, this, &AJS_Player::On_X_ButtonLeft);
+		enhancedInputComponent->BindAction(leftInputs[4], ETriggerEvent::Triggered, this, &AJS_Player::On_Y_ButtonLeft);
+		enhancedInputComponent->BindAction(leftInputs[5], ETriggerEvent::Triggered, this, &AJS_Player::OnMenuLeft);
+
+		// 오른손 바인딩 
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &AJS_Player::OnTriggerRight);
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AJS_Player::OnTriggerRight);
+		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &AJS_Player::OnThumbstickRight);
+		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AJS_Player::OnGripRight);
+		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AJS_Player::On_A_ButtonRight);
+		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AJS_Player::On_B_ButtonRight);
+
+
+		moveComp->SetupPlayerInputComponent(enhancedInputComponent);
 	}
+	
 }
-void AJS_Player::OnTriggerLeft(const struct FInputActionValue& value)
+
+// 왼손
+void AJS_Player::OnTriggerLeft(const FInputActionValue& value)
 {
 	float val = value.Get<float>();
 
 	// 왼손 로그에 값을 출력
-	FString msg = FString::Printf(TEXT("%3.f"), val);
-	leftLog->SetText(FText::FromString(msg));
+	FString msg = FString::Printf(TEXT("%.2f"), val);
+	OnLogLeft(msg);
+}
+void AJS_Player::OnThumbstickLeft(const FInputActionValue& value)
+{
+	FVector2D val = value.Get<FVector2D>();
+	FString valX = FString::Printf(TEXT("X : %.2f"),val.X);
+	FString valY = FString::Printf(TEXT("Y : %.2f"),val.Y);
+	OnLogLeft(valX + valY);
+}
+void AJS_Player::OnGripLeft(const FInputActionValue& value)
+{
+	OnLogLeft("Grip");
+}
+void AJS_Player::On_X_ButtonLeft(const FInputActionValue& value)
+{
+	OnLogLeft("X");
+}
+void AJS_Player::On_Y_ButtonLeft(const FInputActionValue& value)
+{
+	OnLogLeft("Y");
+}
+void AJS_Player::OnMenuLeft(const FInputActionValue& value)
+{
+	OnLogLeft("Menu");
+}
+void AJS_Player::OnLogLeft(FString value)
+{
+	leftLog->SetText(FText::FromString(value));
 }
 
-void AJS_Player::OnThumbstickLeft(const struct FInputActionValue& value)
+// 오른쪽
+void AJS_Player::OnTriggerRight(const FInputActionValue& value)
 {
-	FVector2D axis = value.Get<FVector2D>();
-	FVector dir = FVector(axis.X, axis.Y, 0);
-	dir.GetSafeNormal();
-	AddMovementInput(dir*walkSpeed);
-	
+	OnLogRight("Trigger");
+}
+
+void AJS_Player::OnThumbstickRight(const FInputActionValue& value)
+{
+	OnLogRight("Thumbstick");
+}
+
+void AJS_Player::OnGripRight(const FInputActionValue& value)
+{
+	OnLogRight("Grip");
+}
+void AJS_Player::On_A_ButtonRight(const FInputActionValue& value)
+{
+	OnLogRight("A");
+}
+void AJS_Player::On_B_ButtonRight(const FInputActionValue& value)
+{
+	OnLogRight("B");
+}
+void AJS_Player::OnLogRight(FString value)
+{
+	rightLog->SetText(FText::FromString(value));
 }
