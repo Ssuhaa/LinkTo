@@ -25,3 +25,16 @@ void AobstacleBase::Tick(float DeltaTime)
 
 }
 
+bool AobstacleBase::isDelay(float DelayTime)
+{
+	currentTime += GetWorld()->DeltaTimeSeconds;
+	if (currentTime > DelayTime)
+	{
+		currentTime = 0;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}

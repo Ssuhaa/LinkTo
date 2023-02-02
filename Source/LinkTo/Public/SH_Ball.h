@@ -3,24 +3,33 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "obstacleBase.generated.h"
+#include "obstacleBase.h"
+#include "SH_Ball.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class LINKTO_API AobstacleBase : public AActor
+class LINKTO_API ASH_Ball : public AobstacleBase
 {
 	GENERATED_BODY()
-	
-public:	
+public:
 	// Sets default values for this actor's properties
-	AobstacleBase();
+	ASH_Ball();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* BallMesh;
+
+	void SetActiveBall(bool isActive);
+
+	FVector OriginPos;
 
 };
