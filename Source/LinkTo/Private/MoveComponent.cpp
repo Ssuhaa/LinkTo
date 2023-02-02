@@ -8,6 +8,7 @@
 #include "Components/InputComponent.h"
 #include "InputAction.h"
 #include "InputActionValue.h"
+#include <GameFramework/CharacterMovementComponent.h>
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -18,7 +19,6 @@ UMoveComponent::UMoveComponent()
 
 	// ...
 }
-
 
 // Called when the game starts
 void UMoveComponent::BeginPlay()
@@ -41,10 +41,19 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction(thumbstickLeft,ETriggerEvent::Triggered, this, &UMoveComponent::Move);
+	PlayerInputComponent->BindAction(bRight,ETriggerEvent::Triggered, this, &UMoveComponent::Jump);
 }
 void UMoveComponent::Move(const FInputActionValue& value)
 {
 	FVector2D axis = value.Get<FVector2D>();
 	FVector dir = FVector(axis.Y, axis.X, 0);
-	player->AddMovementInput(dir.GetSafeNormal(), 1,false);
+	player->AddMovementInput(dir.GetSafeNormal(), 1, false);
+	if(axis.X + axis.Y / 2 >= 0.8)
+		player->OnDash();
+	else
+		player->OnWalk();
+}
+void UMoveComponent::Jump()
+{
+	player->Jump();
 }

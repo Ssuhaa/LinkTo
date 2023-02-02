@@ -30,8 +30,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	class UInputAction* thumbstickLeft;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	class UInputAction* bRight;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	float walkSpeed = 600.f;
 
 private:
 	void Move(const struct FInputActionValue& value);
+	void Jump();
 };

@@ -12,6 +12,7 @@
 #include "InputMappingContext.h"
 #include "InputActionValue.h"
 #include "MoveComponent.h"
+#include <GameFramework/CharacterMovementComponent.h>
 
 
 AJS_Player::AJS_Player()
@@ -21,7 +22,7 @@ AJS_Player::AJS_Player()
 
 
 	compCam = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
-	compCam->SetupAttachment(RootComponent);
+	SetRootComponent(compCam);
 
 	meshHead = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HEAD"));
 	meshHead->SetupAttachment(compCam);
@@ -33,10 +34,19 @@ AJS_Player::AJS_Player()
 
 	leftLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LEFT LOG"));
 	leftLog->SetupAttachment(leftController);
+	moveLog->SetRelativeScale3D(FVector(0.5));
 	leftLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
 	leftLog->SetTextRenderColor(FColor::Yellow);
 	leftLog->SetHorizontalAlignment(EHTA_Center);
 	leftLog->SetVerticalAlignment(EVRTA_TextTop);
+
+	moveLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("MOVE LOG"));
+	moveLog->SetupAttachment(leftController);
+	moveLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
+	moveLog->SetRelativeScale3D(FVector(0.3));
+	moveLog->SetTextRenderColor(FColor::Green);
+	moveLog->SetHorizontalAlignment(EHTA_Center);
+	moveLog->SetVerticalAlignment(EVRTA_TextBottom);
 	
 	leftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LEFT HAND"));
 	leftHand->SetupAttachment(leftController);
@@ -50,6 +60,7 @@ AJS_Player::AJS_Player()
 	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("RIGHT LOG"));
 	rightLog->SetupAttachment(rightController);
 	rightLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
+	moveLog->SetRelativeScale3D(FVector(0.5));
 	rightLog->SetTextRenderColor(FColor::Yellow);
 	rightLog->SetHorizontalAlignment(EHTA_Center);
 	rightLog->SetVerticalAlignment(EVRTA_TextTop);
@@ -62,9 +73,12 @@ AJS_Player::AJS_Player()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = true;
 
+	GetCharacterMovement()->JumpZVelocity = 500.0f; // 점프 높이.
+	JumpMaxCount = 1;
+
 	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
 	
-
+	
 }
 
 // Called when the game starts or when spawned
@@ -84,13 +98,14 @@ void AJS_Player::BeginPlay()
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	subsys->AddMappingContext(myMapping, 0);
 
+	deltaTime = GetWorld()->DeltaTimeSeconds;
 }
 
 // Called every frame
 void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	currTime += DeltaTime;
 }
 
 // Called to bind functionality to input
@@ -189,4 +204,37 @@ void AJS_Player::On_B_ButtonRight(const FInputActionValue& value)
 void AJS_Player::OnLogRight(FString value)
 {
 	rightLog->SetText(FText::FromString(value));
+}
+void AJS_Player::OnDash()
+{
+	if (stamina > 0)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 800;
+		stamina -= deltaTime * 5;
+	}
+	else
+	{
+		stamina = 0;
+		OnWalk();
+	}
+	OnLogMove(FString::Printf(TEXT("%f.2"),stamina));
+
+}
+void AJS_Player::OnWalk()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 300;
+	if (currTime >= 3.0f)
+	{
+		if (stamina < 100)
+		{
+			stamina += deltaTime * 5;
+		}
+		else
+			stamina = 100;
+	}
+	OnLogMove(FString::Printf(TEXT("%f.2"),stamina));
+}
+void AJS_Player::OnLogMove(FString value)
+{
+	moveLog->SetText(FText::FromString(value));
 }

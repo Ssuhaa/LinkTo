@@ -56,7 +56,18 @@ private:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	TArray<class UInputAction*> rightInputs; // 오른손 인풋들 배열
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
-	class UMoveComponent* moveComp;
+	class UMoveComponent* moveComp; // 움직임 컴포넌트
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
+	class UTextRenderComponent* moveLog;
+
+	UPROPERTY(EditAnywhere,Category = "CharStatus")
+	float HP = 10; // 1당 하트 1칸
+	UPROPERTY(EditAnywhere, Category = "CharStatus")
+	float stamina = 100; // 스테미나
+	UPROPERTY(EditAnywhere,Category = "WorldStatus")
+	float currTime = 0;
+	UPROPERTY(EditAnywhere, Category = "WorldStatus")
+	float deltaTime = 0;
 
 private:
 	// 트리거
@@ -88,4 +99,10 @@ private:
 	void On_B_ButtonRight(const struct FInputActionValue& value);
 	// 로그
 	void OnLogRight(FString value);
+
+public:
+	void OnDash();
+	void OnWalk();
+	void OnLogMove(FString value);
+	
 };
