@@ -22,7 +22,7 @@ AJS_Player::AJS_Player()
 
 
 	compCam = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
-	SetRootComponent(compCam);
+	compCam->SetupAttachment(RootComponent);
 
 	meshHead = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HEAD"));
 	meshHead->SetupAttachment(compCam);

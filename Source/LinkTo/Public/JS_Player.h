@@ -32,6 +32,8 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
+	class UCapsuleComponent* compRoot;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UCameraComponent* compCam; // 카메라 컴프
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UStaticMeshComponent* meshHead; // 머리 메쉬
