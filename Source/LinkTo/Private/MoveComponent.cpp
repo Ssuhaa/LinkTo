@@ -9,6 +9,8 @@
 #include "InputAction.h"
 #include "InputActionValue.h"
 #include <GameFramework/CharacterMovementComponent.h>
+#include <Components/CapsuleComponent.h>
+#include <Camera/CameraComponent.h>
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -41,18 +43,49 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
 {
 	PlayerInputComponent->BindAction(thumbstickLeft,ETriggerEvent::Triggered, this, &UMoveComponent::Move);
+	PlayerInputComponent->BindAction(thumbstickRight,ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
 	PlayerInputComponent->BindAction(bRight,ETriggerEvent::Triggered, this, &UMoveComponent::Jump);
+}
+void UMoveComponent::RotateCamera(const FInputActionValue& value)
+{
+	FVector2D axis = value.Get<FVector2D>();
+	player->AddControllerPitchInput(axis.Y * -1.0f);
+	player->AddControllerYawInput(axis.X);
+	
 }
 void UMoveComponent::Move(const FInputActionValue& value)
 {
 	FVector2D axis = value.Get<FVector2D>();
 	FVector dir = FVector(axis.Y, axis.X, 0);
-	player->AddMovementInput(dir.GetSafeNormal(), 1, false);
-	if(axis.X + axis.Y / 2 >= 0.8)
-		player->OnDash();
+	dir.Normalize();
+	
+	player->AddMovementInput(dir, 1, false);
+	if(FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7)
+		OnDash();
 	else
-		player->OnWalk();
+		OnWalk();
 }
+
+void UMoveComponent::OnDash()
+{
+	if (player->stamina > 0)
+	{
+		player->GetCharacterMovement()->MaxWalkSpeed = 1000;
+		player->bUseStamina = true;
+	}
+	else
+	{
+		OnWalk();
+	}
+
+
+}
+void UMoveComponent::OnWalk()
+{
+	player->ResetCurrTime();
+	player->GetCharacterMovement()->MaxWalkSpeed = 300;
+}
+
 void UMoveComponent::Jump()
 {
 	player->Jump();

@@ -34,7 +34,7 @@ AJS_Player::AJS_Player()
 
 	leftLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LEFT LOG"));
 	leftLog->SetupAttachment(leftController);
-	moveLog->SetRelativeScale3D(FVector(0.5));
+	leftLog->SetRelativeScale3D(FVector(0.5));
 	leftLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
 	leftLog->SetTextRenderColor(FColor::Yellow);
 	leftLog->SetHorizontalAlignment(EHTA_Center);
@@ -72,6 +72,7 @@ AJS_Player::AJS_Player()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = true;
+	bUseControllerRotationPitch = true;
 
 	GetCharacterMovement()->JumpZVelocity = 500.0f; // 점프 높이.
 	JumpMaxCount = 1;
@@ -98,14 +99,26 @@ void AJS_Player::BeginPlay()
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	subsys->AddMappingContext(myMapping, 0);
 
-	deltaTime = GetWorld()->DeltaTimeSeconds;
+	
 }
 
 // Called every frame
 void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	currTime += DeltaTime;
+	
+	
+	if (bUseStamina)
+	{
+		StaminaStatus(bUseStamina,DeltaTime);
+	}
+	else
+	{
+		currTime += DeltaTime;
+		if (currTime >= 3.0f)
+		StaminaStatus(bUseStamina, DeltaTime);
+	}
+
 }
 
 // Called to bind functionality to input
@@ -205,36 +218,37 @@ void AJS_Player::OnLogRight(FString value)
 {
 	rightLog->SetText(FText::FromString(value));
 }
-void AJS_Player::OnDash()
-{
-	if (stamina > 0)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = 800;
-		stamina -= deltaTime * 5;
-	}
-	else
-	{
-		stamina = 0;
-		OnWalk();
-	}
-	OnLogMove(FString::Printf(TEXT("%f.2"),stamina));
 
-}
-void AJS_Player::OnWalk()
-{
-	GetCharacterMovement()->MaxWalkSpeed = 300;
-	if (currTime >= 3.0f)
-	{
-		if (stamina < 100)
-		{
-			stamina += deltaTime * 5;
-		}
-		else
-			stamina = 100;
-	}
-	OnLogMove(FString::Printf(TEXT("%f.2"),stamina));
-}
+
 void AJS_Player::OnLogMove(FString value)
 {
 	moveLog->SetText(FText::FromString(value));
+}
+void AJS_Player::StaminaStatus(bool value, float deltaTime)
+{
+
+	if (value)
+	{
+		if(stamina > 0)
+			stamina -= deltaTime * 20;
+		else
+			stamina = 0;
+	}
+	else
+	{
+		{ 
+			if (stamina < 100)
+				stamina += deltaTime * 10;
+			else
+				stamina = 100.f;
+		}
+	}
+
+	FString currStamina = FString::Printf(TEXT("%.2f"), stamina);
+	OnLogMove(currStamina);
+}
+void AJS_Player::ResetCurrTime()
+{
+	bUseStamina = false;
+	currTime = 0;
 }

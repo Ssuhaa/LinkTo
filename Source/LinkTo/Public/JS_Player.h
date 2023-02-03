@@ -30,9 +30,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-private:
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
-	class UCapsuleComponent* compRoot;
+public:
+	UPROPERTY(EditAnywhere, Category = "CharStatus")
+	float HP = 10; // 1당 하트 1칸
+	UPROPERTY(EditAnywhere, Category = "CharStatus")
+	float stamina = 100; // 스테미나
+	UPROPERTY(EditAnywhere, Category = "CharStatus")
+	bool bUseStamina = false;
+	UPROPERTY(EditAnywhere, Category = "CharStatus")
+	float currTime = 0;
+
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UCameraComponent* compCam; // 카메라 컴프
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
@@ -62,14 +69,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UTextRenderComponent* moveLog;
 
-	UPROPERTY(EditAnywhere,Category = "CharStatus")
-	float HP = 10; // 1당 하트 1칸
-	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	float stamina = 100; // 스테미나
-	UPROPERTY(EditAnywhere,Category = "WorldStatus")
-	float currTime = 0;
-	UPROPERTY(EditAnywhere, Category = "WorldStatus")
-	float deltaTime = 0;
+
+	
 
 private:
 	// 트리거
@@ -103,8 +104,8 @@ private:
 	void OnLogRight(FString value);
 
 public:
-	void OnDash();
-	void OnWalk();
-	void OnLogMove(FString value);
 	
+	void OnLogMove(FString value);
+	void StaminaStatus(bool value, float deltaTime);
+	void ResetCurrTime();
 };
