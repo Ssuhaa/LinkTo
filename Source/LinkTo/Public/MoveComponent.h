@@ -25,16 +25,18 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent);
 	
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+
 	class AJS_Player* player;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
-	class UInputAction* thumbstickLeft;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
-	class UInputAction* thumbstickRight;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
-	class UInputAction* bRight;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	float walkSpeed = 600.f;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	class UInputMappingContext* moveMapping;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	TArray <class UInputAction*> leftInputs;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	TArray <class UInputAction*> rightInputs;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	bool bInAir = false;
 
 private:
 	void Move(const struct FInputActionValue& value);
@@ -42,5 +44,6 @@ private:
 	void OnWalk();
 	void Jump();
 	void RotateCamera(const struct FInputActionValue& value);
+/*	void IsInAir();*/
 	
 };

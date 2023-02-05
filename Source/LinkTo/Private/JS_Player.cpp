@@ -50,6 +50,7 @@ AJS_Player::AJS_Player()
 	
 	leftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LEFT HAND"));
 	leftHand->SetupAttachment(leftController);
+	leftLog->SetRelativeScale3D(FVector(0.5));
 	leftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	leftHand->SetRelativeRotation(FRotator(-25.0f, 180.0f, 90.0f));
 
@@ -77,7 +78,7 @@ AJS_Player::AJS_Player()
 	GetCharacterMovement()->JumpZVelocity = 500.0f; // 점프 높이.
 	JumpMaxCount = 1;
 
-	moveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
+	compMove = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
 	
 	
 }
@@ -107,18 +108,6 @@ void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	
-	if (bUseStamina)
-	{
-		StaminaStatus(bUseStamina,DeltaTime);
-	}
-	else
-	{
-		currTime += DeltaTime;
-		if (currTime >= 3.0f)
-		StaminaStatus(bUseStamina, DeltaTime);
-	}
-
 }
 
 // Called to bind functionality to input
@@ -148,8 +137,8 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AJS_Player::On_A_ButtonRight);
 		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AJS_Player::On_B_ButtonRight);
 
+		compMove->SetupPlayerInputComponent(enhancedInputComponent);
 
-		moveComp->SetupPlayerInputComponent(enhancedInputComponent);
 	}
 	
 }
@@ -223,32 +212,4 @@ void AJS_Player::OnLogRight(FString value)
 void AJS_Player::OnLogMove(FString value)
 {
 	moveLog->SetText(FText::FromString(value));
-}
-void AJS_Player::StaminaStatus(bool value, float deltaTime)
-{
-
-	if (value)
-	{
-		if(stamina > 0)
-			stamina -= deltaTime * 20;
-		else
-			stamina = 0;
-	}
-	else
-	{
-		{ 
-			if (stamina < 100)
-				stamina += deltaTime * 10;
-			else
-				stamina = 100.f;
-		}
-	}
-
-	FString currStamina = FString::Printf(TEXT("%.2f"), stamina);
-	OnLogMove(currStamina);
-}
-void AJS_Player::ResetCurrTime()
-{
-	bUseStamina = false;
-	currTime = 0;
 }

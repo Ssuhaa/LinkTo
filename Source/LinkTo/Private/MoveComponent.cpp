@@ -11,6 +11,8 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Camera/CameraComponent.h>
+#include <CollisionQueryParams.h>
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -28,7 +30,13 @@ void UMoveComponent::BeginPlay()
 	Super::BeginPlay();
 
 	player = Cast<AJS_Player>(GetOwner());
-	// ...
+
+	APlayerController* moveCon = GetWorld()->GetFirstPlayerController();
+	// 2. 플레이어 컨트롤러에서 EnhancedInputLocalPlayerSubsystem을 가져오기
+	UEnhancedInputLocalPlayerSubsystem* moveSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(moveCon->GetLocalPlayer());
+	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
+	moveSubsys->AddMappingContext(moveMapping, 0);
+	
 	
 }
 
@@ -37,14 +45,17 @@ void UMoveComponent::BeginPlay()
 void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	
+	IsInAir();
 }
+
 void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction(thumbstickLeft,ETriggerEvent::Triggered, this, &UMoveComponent::Move);
-	PlayerInputComponent->BindAction(thumbstickRight,ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
-	PlayerInputComponent->BindAction(bRight,ETriggerEvent::Triggered, this, &UMoveComponent::Jump);
+	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::Move);
+	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UMoveComponent::Move);
+	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::Jump);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::Jump);
 }
 void UMoveComponent::RotateCamera(const FInputActionValue& value)
 {
@@ -88,5 +99,33 @@ void UMoveComponent::OnWalk()
 
 void UMoveComponent::Jump()
 {
+	
 	player->Jump();
+
+	if(player->GetCharacterMovement()->IsFalling() == true)
+		player->GetCharacterMovement()->GravityScale = 0.5;
 }
+
+// void UMoveComponent::IsInAir()
+// {
+// 	
+// 	FHitResult hitInfo; // hitresult
+// 	FCollisionQueryParams params; // 탐색 방법 설정값 모아놓은 구조체
+// 	params.AddIgnoredActor(player); // 내 액터 제외
+// 
+// 	// 캡슐 컴포넌트의 끝을 시작지점으로 (액터의 높이 - 캡슐 컴포넌트의 높이/2)
+// 	FVector lineStart = FVector(0,0,player->GetActorLocation().Z - player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()); 
+// 	
+// 	FVector lineEnd = FVector::UpVector * 1000.0f;
+// 
+// 	GetWorld()->LineTraceSingleByChannel(hitInfo,lineStart,lineEnd,ECC_Visibility,params);
+// 	
+// 	// 맞은곳의 거리에 따라 공중상태인지 판별
+// 	if(hitInfo.Location.Z - lineStart.Z < 50.f)
+// 		bInAir = false;
+// 	else
+// 		bInAir = true;
+// 	
+// 	// 공중이면 1, 지상이면 0을 뷰포트에 띄워줌
+// 	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Red,FString::Printf(TEXT("%d"),bInAir));
+/*}*/

@@ -31,15 +31,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	float HP = 10; // 1당 하트 1칸
-	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	float stamina = 100; // 스테미나
-	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	bool bUseStamina = false;
-	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	float currTime = 0;
-
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UCameraComponent* compCam; // 카메라 컴프
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
@@ -65,7 +56,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	TArray<class UInputAction*> rightInputs; // 오른손 인풋들 배열
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
-	class UMoveComponent* moveComp; // 움직임 컴포넌트
+	class UMoveComponent* compMove; // 움직임 컴포넌트
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UTextRenderComponent* moveLog;
 
@@ -106,6 +97,5 @@ private:
 public:
 	
 	void OnLogMove(FString value);
-	void StaminaStatus(bool value, float deltaTime);
-	void ResetCurrTime();
+	
 };
