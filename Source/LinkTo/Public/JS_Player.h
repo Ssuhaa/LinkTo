@@ -59,7 +59,8 @@ public:
 	class UMoveComponent* compMove; // 움직임 컴포넌트
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UTextRenderComponent* moveLog;
-
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
+	class UPlayerStateComponent* compState;
 
 	
 

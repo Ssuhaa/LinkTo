@@ -7,6 +7,14 @@
 #include "PlayerStateComponent.generated.h"
 
 
+UENUM(BlueprintType)
+enum class EPlayerState : uint8
+{
+	bLanding,
+	bFalling,
+	bCliming
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LINKTO_API UPlayerStateComponent : public UActorComponent
 {
@@ -26,6 +34,10 @@ public:
 
 	
 public:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FSM)
+	EPlayerState currState = EPlayerState::bLanding;
+
 	class AJS_Player* player;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
 	float HP = 10; // 1´ç ÇÏÆ® 1Ä­
@@ -35,8 +47,15 @@ public:
 	bool bUseStamina = false;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
 	float currTime = 0;
+	UPROPERTY(EditAnywhere, Category = "CharStatus")
+	bool bInAir = false;
 
+	void FallingState();
+	void LandsingState();
+	void ClimbingState();
+	void ChangeState(EPlayerState currState);
 
+	void IsInAir();
 	void StaminaStatus(bool value, float deltaTime);
 	void ResetCurrTime();
 };

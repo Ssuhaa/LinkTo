@@ -13,6 +13,7 @@
 #include "InputActionValue.h"
 #include "MoveComponent.h"
 #include <GameFramework/CharacterMovementComponent.h>
+#include "PlayerStateComponent.h"
 
 
 AJS_Player::AJS_Player()
@@ -75,10 +76,11 @@ AJS_Player::AJS_Player()
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
 
-	GetCharacterMovement()->JumpZVelocity = 500.0f; // 점프 높이.
+	GetCharacterMovement()->JumpZVelocity = 400.f; 
 	JumpMaxCount = 1;
 
 	compMove = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
+	compState = CreateDefaultSubobject<UPlayerStateComponent>(TEXT("STATE COMP"));
 	
 	
 }
@@ -108,6 +110,7 @@ void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow, FString::Printf(TEXT("%f"),GetCharacterMovement()->GravityScale));
 }
 
 // Called to bind functionality to input

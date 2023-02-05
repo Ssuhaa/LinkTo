@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PlayerStateComponent.h"
 #include "MoveComponent.generated.h"
 
 
@@ -36,14 +37,23 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	TArray <class UInputAction*> rightInputs;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
-	bool bInAir = false;
+	EPlayerState playerState;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	bool canJump = true;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	bool canParasale = false;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	bool bParasale = true;
 
 private:
+	void RotateCamera(const struct FInputActionValue& value);
 	void Move(const struct FInputActionValue& value);
 	void OnDash();
 	void OnWalk();
-	void Jump();
-	void RotateCamera(const struct FInputActionValue& value);
-/*	void IsInAir();*/
+	void TriggerButtonB();
+	void ReleaseButtonB();
+	void JumpPlayer(const struct FInputActionValue& value);
+	void Parasale(bool value);
+	
 	
 };

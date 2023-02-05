@@ -13,6 +13,8 @@
 #include <Camera/CameraComponent.h>
 #include <CollisionQueryParams.h>
 #include "GameFramework/CharacterMovementComponent.h"
+#include "PlayerStateComponent.h"
+#include <Engine/EngineTypes.h>
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -36,7 +38,8 @@ void UMoveComponent::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* moveSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(moveCon->GetLocalPlayer());
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	moveSubsys->AddMappingContext(moveMapping, 0);
-	
+
+	player = Cast<AJS_Player>(GetOwner());
 	
 }
 
@@ -45,8 +48,8 @@ void UMoveComponent::BeginPlay()
 void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	IsInAir();
+
+	playerState = player->compState->currState;
 }
 
 void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
@@ -54,8 +57,11 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
-	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::Jump);
-	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::Jump);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::ReleaseButtonB);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::JumpPlayer);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::JumpPlayer);
+
 }
 void UMoveComponent::RotateCamera(const FInputActionValue& value)
 {
@@ -71,18 +77,27 @@ void UMoveComponent::Move(const FInputActionValue& value)
 	dir.Normalize();
 	
 	player->AddMovementInput(dir, 1, false);
-	if(FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7)
-		OnDash();
-	else
-		OnWalk();
+	if ((int32)(playerState) == 0)
+	{
+		if (FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7)
+			OnDash();
+		else
+			OnWalk();
+	}
+	else if ((int32)(playerState) == 1)
+	{
+		player->compState->bUseStamina = false;
+		player->GetCharacterMovement()->MaxWalkSpeed = 600;
+	}
+		
 }
 
 void UMoveComponent::OnDash()
 {
-	if (player->stamina > 0)
+	if (player->compState->stamina > 0)
 	{
 		player->GetCharacterMovement()->MaxWalkSpeed = 1000;
-		player->bUseStamina = true;
+		player->compState->bUseStamina = true;
 	}
 	else
 	{
@@ -93,39 +108,51 @@ void UMoveComponent::OnDash()
 }
 void UMoveComponent::OnWalk()
 {
-	player->ResetCurrTime();
+	player->compState->ResetCurrTime();
 	player->GetCharacterMovement()->MaxWalkSpeed = 300;
 }
 
-void UMoveComponent::Jump()
+void UMoveComponent::TriggerButtonB()
 {
-	
-	player->Jump();
+	if ((int32)(playerState) == 0)
+	{
+		JumpPlayer(1);
+		Parasale(false);
+	}
+ 
+ 	else if ((int32)(playerState) == 1)
+ 	{
+		JumpPlayer(0);
+ 		Parasale(true);
+ 	}
 
-	if(player->GetCharacterMovement()->IsFalling() == true)
-		player->GetCharacterMovement()->GravityScale = 0.5;
 }
-
-// void UMoveComponent::IsInAir()
-// {
-// 	
-// 	FHitResult hitInfo; // hitresult
-// 	FCollisionQueryParams params; // 탐색 방법 설정값 모아놓은 구조체
-// 	params.AddIgnoredActor(player); // 내 액터 제외
-// 
-// 	// 캡슐 컴포넌트의 끝을 시작지점으로 (액터의 높이 - 캡슐 컴포넌트의 높이/2)
-// 	FVector lineStart = FVector(0,0,player->GetActorLocation().Z - player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()); 
-// 	
-// 	FVector lineEnd = FVector::UpVector * 1000.0f;
-// 
-// 	GetWorld()->LineTraceSingleByChannel(hitInfo,lineStart,lineEnd,ECC_Visibility,params);
-// 	
-// 	// 맞은곳의 거리에 따라 공중상태인지 판별
-// 	if(hitInfo.Location.Z - lineStart.Z < 50.f)
-// 		bInAir = false;
-// 	else
-// 		bInAir = true;
-// 	
-// 	// 공중이면 1, 지상이면 0을 뷰포트에 띄워줌
-// 	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Red,FString::Printf(TEXT("%d"),bInAir));
-/*}*/
+void UMoveComponent::ReleaseButtonB()
+{
+	JumpPlayer(0);
+	Parasale(false);
+}
+void UMoveComponent::JumpPlayer(const FInputActionValue& value)
+{
+	if(value.Get<float>() == 1)
+	player->Jump();
+}
+void UMoveComponent::Parasale(bool value)
+{
+	player->StopJumping();
+	if (value)
+		if (player->compState->stamina > 0)
+		{
+			player->GetCharacterMovement()->GravityScale = 0.2;
+			player->compState->bUseStamina = true;
+		}
+		else
+		{
+			player->compState->ResetCurrTime();
+			player->GetCharacterMovement()->GravityScale = 1;
+		}
+			
+	else if(!value)
+		player->GetCharacterMovement()->GravityScale = 1;
+	
+}
