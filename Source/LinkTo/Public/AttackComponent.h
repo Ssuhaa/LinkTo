@@ -23,6 +23,15 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	void SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent);
 		
+	class AJS_Player* player;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
+	class UInputMappingContext* attackMapping;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
+	TArray <class UInputAction*> leftInputs;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
+	TArray <class UInputAction*> rightInputs;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
+	EPlayerState playerState;
 };

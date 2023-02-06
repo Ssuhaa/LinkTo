@@ -81,7 +81,7 @@ AJS_Player::AJS_Player()
 
 	compMove = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
 	compState = CreateDefaultSubobject<UPlayerStateComponent>(TEXT("STATE COMP"));
-	
+	compAttack = CreateDefaultSubobject<UAttackComponent>(TEXT("MOVE COMP"));
 	
 }
 
@@ -141,6 +141,7 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AJS_Player::On_B_ButtonRight);
 
 		compMove->SetupPlayerInputComponent(enhancedInputComponent);
+		compAttack->SetupPlayerInputComponent(enhancedInputComponent);
 
 	}
 	

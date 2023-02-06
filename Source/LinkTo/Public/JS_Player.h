@@ -61,6 +61,8 @@ public:
 	class UTextRenderComponent* moveLog;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UPlayerStateComponent* compState;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
+	class UAttackComponent* compAttack;
 
 	
 

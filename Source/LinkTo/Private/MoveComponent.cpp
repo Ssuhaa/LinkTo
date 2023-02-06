@@ -40,7 +40,6 @@ void UMoveComponent::BeginPlay()
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	moveSubsys->AddMappingContext(moveMapping, 0);
 
-	player = Cast<AJS_Player>(GetOwner());
 
 }
 
@@ -61,8 +60,9 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::ReleaseButtonB);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::JumpPlayer);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::JumpPlayer);
-	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::JumpPlayer);
+	
 
 }
 void UMoveComponent::RotateCamera(const FInputActionValue& value)
@@ -88,7 +88,7 @@ void UMoveComponent::Move(const FInputActionValue& value)
 	}
 	else if ((int32)(playerState) == 1)
 	{
-		player->compState->SetStaminaState(false);
+		OnWalk();
 		player->GetCharacterMovement()->MaxWalkSpeed = 600;
 	}
 
