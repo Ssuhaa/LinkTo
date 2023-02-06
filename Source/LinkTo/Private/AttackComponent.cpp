@@ -55,7 +55,10 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 	case EAttackState::AttackIdle:
 		IdleState();
-	break;
+		break;
+	case EAttackState::AttackSwitch:
+		WeaponUIState();
+		break;
 	case EAttackState::AttackSword:
 		SwordState();
 		break;
@@ -68,35 +71,71 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
 {
-	
+	PlayerInputComponent->BindAction(leftInputs[5], ETriggerEvent::Started, this, &UAttackComponent::WeaponUIState);
+	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UAttackComponent::OnButtonA);
+	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerRight);
+	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseRight);
+}
+
+void UAttackComponent::OnButtonA()
+{
+	switch ((int32)(currAttackState))
+	{
+		case 0:
+		break;
+		case 1:
+		ChangeWeapon();
+		break;
+		case 2:
+		// 검 공격
+		break;
+		case 3:
+		// 활 공격
+		break;
+	}
 }
 
 void UAttackComponent::ChangeWeapon()
 {
-
+	
 }
 
 void UAttackComponent::IdleState()
 {
+	
+}
 
+void UAttackComponent::WeaponUIState()
+{
+	currAttackState = EAttackState::AttackSwitch;
 }
 
 void UAttackComponent::SwordState()
 {
-
+	
 }
 
 void UAttackComponent::BowState()
 {
-
+	
 }
 
-void UAttackComponent::TriggerArrow()
+void UAttackComponent::FireArrow()
 {
 
 }
 
-void UAttackComponent::ReleaseArrow()
+void UAttackComponent::FireSword()
+{
+
+}
+
+void UAttackComponent::OnTriggerRight()
+{
+
+}
+
+void UAttackComponent::OnReleaseRight()
 {
 
 }

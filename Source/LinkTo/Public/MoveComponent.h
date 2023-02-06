@@ -41,9 +41,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	bool canJump = true;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
-	bool canParasale = false;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	bool bParasale = true;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	bool canParasale = true;
 
 private:
 	void RotateCamera(const struct FInputActionValue& value);

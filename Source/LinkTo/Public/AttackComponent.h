@@ -12,6 +12,7 @@ UENUM()
 enum class EAttackState : int8
 {
 	AttackIdle,
+	AttackSwitch,
 	AttackSword,
 	AttackBow
 };
@@ -48,10 +49,14 @@ public:
 	EAttackState currAttackState = EAttackState::AttackIdle;
 
 private:
+	void OnButtonA();
 	void ChangeWeapon();
 	void IdleState();
 	void SwordState();
 	void BowState();
-	void TriggerArrow();
-	void ReleaseArrow();
+	void WeaponUIState();
+	void FireArrow();
+	void FireSword();
+	void OnTriggerRight();
+	void OnReleaseRight();
 };

@@ -149,16 +149,20 @@ void UMoveComponent::Parasale(bool value)
 		{
 			player->GetCharacterMovement()->GravityScale = 0.2;
 			player->compState->SetStaminaState(true);
+			bParasale = true;
+
 		}
 		else
 		{
 			player->GetCharacterMovement()->GravityScale = 1;
 			player->compState->SetStaminaState(false);
+			bParasale = false;
 		}
 	}
 	else
 	{
 		player->compState->SetStaminaState(false);
+		bParasale = false;
 		player->GetCharacterMovement()->GravityScale = 1;
 	}
 
