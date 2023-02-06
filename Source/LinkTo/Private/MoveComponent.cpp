@@ -88,7 +88,7 @@ void UMoveComponent::Move(const FInputActionValue& value)
 	}
 	else if ((int32)(playerState) == 1)
 	{
-		player->compState->bUseStamina = false;
+		player->compState->SetStaminaState(false);
 		player->GetCharacterMovement()->MaxWalkSpeed = 600;
 	}
 
@@ -99,7 +99,7 @@ void UMoveComponent::OnDash()
 	if (player->compState->stamina > 0)
 	{
 		player->GetCharacterMovement()->MaxWalkSpeed = 1000;
-		player->compState->bUseStamina = true;
+		player->compState->SetStaminaState(true);
 	}
 	else
 	{
@@ -110,7 +110,7 @@ void UMoveComponent::OnDash()
 }
 void UMoveComponent::OnWalk()
 {
-	player->compState->ResetCurrTime();
+	player->compState->SetStaminaState(false);
 	player->GetCharacterMovement()->MaxWalkSpeed = 300;
 }
 
@@ -150,7 +150,7 @@ void UMoveComponent::Parasale(bool value)
 		if (player->compState->stamina > 0)
 		{
 			player->GetCharacterMovement()->GravityScale = 0.2;
-			player->compState->bUseStamina = true;
+			player->compState->SetStaminaState(true);
 		}
 		else
 		{
@@ -159,7 +159,7 @@ void UMoveComponent::Parasale(bool value)
 	}
 	else if (value == false)
 	{
-		player->compState->ResetCurrTime();
+		player->compState->SetStaminaState(false);
 		player->GetCharacterMovement()->GravityScale = 1;
 	}
 

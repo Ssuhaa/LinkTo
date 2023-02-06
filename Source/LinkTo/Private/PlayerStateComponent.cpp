@@ -113,3 +113,16 @@ void UPlayerStateComponent::CurrStamina(bool value)
 
 	player->OnLogMove(FString::Printf(TEXT("%.2f"), stamina));
 }
+void UPlayerStateComponent::IsInAir()
+{
+	if (player->GetCharacterMovement()->IsFalling() == true)
+		ChangeState(EPlayerState::bFalling);
+	else
+		ChangeState(EPlayerState::bLanding);
+}
+
+void UPlayerStateComponent::SetStaminaState(bool value)
+{
+	bUseStamina = value;
+	currTime = 0;
+}

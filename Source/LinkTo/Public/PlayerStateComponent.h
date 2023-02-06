@@ -40,9 +40,9 @@ public:
 
 	class AJS_Player* player;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	float HP = 10; // 1´ç ÇÏÆ® 1Ä­
+	float HP = 10;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	float stamina = 100; // ½ºÅ×¹Ì³ª
+	float stamina = 100;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
 	bool bUseStamina = false;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
@@ -59,6 +59,6 @@ public:
 	void ChargeStamina();
 	void CurrStamina(bool value);
 	void IsInAir();
-	/*void StaminaStatus(bool value, float deltaTime);*/
-	void ResetCurrTime();
+	void SetStaminaState(bool value);
+	
 };
