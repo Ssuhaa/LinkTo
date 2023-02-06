@@ -52,7 +52,7 @@ private:
 	void OnWalk();
 	void TriggerButtonB();
 	void ReleaseButtonB();
-	void JumpPlayer(const struct FInputActionValue& value);
+	void JumpPlayer();
 	void Parasale(bool value);
 	
 	

@@ -50,10 +50,53 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	playerState = player->compState->currState;
+
+	switch (currAttackState)
+	{
+	case EAttackState::AttackIdle:
+		IdleState();
+	break;
+	case EAttackState::AttackSword:
+		SwordState();
+		break;
+	case EAttackState::AttackBow:
+		BowState();
+		break;
+	}
 	// ...
 }
 
 void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
+{
+	
+}
+
+void UAttackComponent::ChangeWeapon()
+{
+
+}
+
+void UAttackComponent::IdleState()
+{
+
+}
+
+void UAttackComponent::SwordState()
+{
+
+}
+
+void UAttackComponent::BowState()
+{
+
+}
+
+void UAttackComponent::TriggerArrow()
+{
+
+}
+
+void UAttackComponent::ReleaseArrow()
 {
 
 }

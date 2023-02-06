@@ -4,7 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PlayerStateComponent.h"
 #include "AttackComponent.generated.h"
+
+
+UENUM()
+enum class EAttackState : int8
+{
+	AttackIdle,
+	AttackSword,
+	AttackBow
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -34,4 +44,14 @@ public:
 	TArray <class UInputAction*> rightInputs;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
 	EPlayerState playerState;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
+	EAttackState currAttackState = EAttackState::AttackIdle;
+
+private:
+	void ChangeWeapon();
+	void IdleState();
+	void SwordState();
+	void BowState();
+	void TriggerArrow();
+	void ReleaseArrow();
 };

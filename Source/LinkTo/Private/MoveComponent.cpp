@@ -9,6 +9,7 @@
 #include "Components/InputComponent.h"
 #include "InputAction.h"
 #include "InputActionValue.h"
+#include "Components/TextRenderComponent.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <Camera/CameraComponent.h>
@@ -40,6 +41,7 @@ void UMoveComponent::BeginPlay()
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	moveSubsys->AddMappingContext(moveMapping, 0);
 
+	player = Cast<AJS_Player>(GetOwner());
 
 }
 
@@ -50,7 +52,6 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	playerState = player->compState->currState;
-
 }
 
 void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
@@ -58,10 +59,10 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::JumpPlayer);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::ReleaseButtonB);
-	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::JumpPlayer);
-	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::JumpPlayer);
+
 	
 
 }
@@ -131,20 +132,17 @@ void UMoveComponent::ReleaseButtonB()
 {
 	Parasale(false);
 }
-void UMoveComponent::JumpPlayer(const FInputActionValue& value)
+
+void UMoveComponent::JumpPlayer()
 {
-	if (value.Get<float>() == 1)
-	{
-		player->Jump();
-	}
-	else if (value.Get<float>() == 0)
-	{
-		player->StopJumping();
-	}
+
+	if(playerState != EPlayerState::bFalling)
+	player->Jump();
+
 }
 void UMoveComponent::Parasale(bool value)
 {
-	player->StopJumping();
+
 	if (value)
 	{
 		if (player->compState->stamina > 0)
@@ -155,9 +153,10 @@ void UMoveComponent::Parasale(bool value)
 		else
 		{
 			player->GetCharacterMovement()->GravityScale = 1;
+			player->compState->SetStaminaState(false);
 		}
 	}
-	else if (value == false)
+	else
 	{
 		player->compState->SetStaminaState(false);
 		player->GetCharacterMovement()->GravityScale = 1;

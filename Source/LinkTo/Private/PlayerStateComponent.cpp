@@ -26,6 +26,8 @@ void UPlayerStateComponent::BeginPlay()
 	player = Cast<AJS_Player>(GetOwner());
 	// ...
 
+	stamina = 100;
+
 }
 
 

@@ -14,6 +14,7 @@
 #include "MoveComponent.h"
 #include <GameFramework/CharacterMovementComponent.h>
 #include "PlayerStateComponent.h"
+#include "AttackComponent.h"
 
 
 AJS_Player::AJS_Player()
@@ -81,7 +82,7 @@ AJS_Player::AJS_Player()
 
 	compMove = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
 	compState = CreateDefaultSubobject<UPlayerStateComponent>(TEXT("STATE COMP"));
-	compAttack = CreateDefaultSubobject<UAttackComponent>(TEXT("MOVE COMP"));
+	compAttack = CreateDefaultSubobject<UAttackComponent>(TEXT("ATTACK COMP"));
 	
 }
 
