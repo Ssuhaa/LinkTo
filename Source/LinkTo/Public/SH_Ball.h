@@ -13,23 +13,30 @@ UCLASS()
 class LINKTO_API ASH_Ball : public AobstacleBase
 {
 	GENERATED_BODY()
-public:
-	// Sets default values for this actor's properties
+
+private:
+
 	ASH_Ball();
+	FVector OriginPos;
+	// Sets default values for this actor's properties
+
+	FVector CurrentPos;
+	
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* BallMesh;
+
+	virtual void InteractionTimeLock(bool isOn) override;
+
+public:
+
 
 	void SetActiveBall(bool isActive);
-
-	FVector OriginPos;
+	virtual void OnTimeLock() override;
+	virtual void releasedTimeLock() override;
 
 };

@@ -29,15 +29,43 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EObstacleType interationType = EObstacleType::None;
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 	virtual bool isDelay(float DelayTime);
 	float currentTime = 0;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	bool bTimeLock = false;
+	bool bcount = false;
 
+	float defaultEmissive = 0.5f;
+	float CountEmissive = 1.0f;
+
+	UPROPERTY(EditAnywhere)
+	class USceneComponent* rootComp;
+
+public:	
+
+	UPROPERTY(EditAnywhere, Category = Material)
+	TArray<UMaterialInstance*> MatArray;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UStaticMeshComponent* InteractionMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EObstacleType interationType = EObstacleType::None;
+
+	virtual void InteractionTimeLock(bool isOn);
+	virtual void LookInTimeLock();
+	virtual void LookOutTimeLock();
+	virtual void OnTimeLock();
+	virtual void releasedTimeLock();
+
+	bool FindOnTimeLockActor();
+
+private:
+	
+	class ASH_Player* player;
+
+	UPROPERTY(EditAnywhere)
+	class UMaterialParameterCollection*  timeLockParm;
 
 };

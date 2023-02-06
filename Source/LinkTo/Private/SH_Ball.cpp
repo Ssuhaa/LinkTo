@@ -3,31 +3,33 @@
 
 #include "SH_Ball.h"
 #include <Components/StaticMeshComponent.h>
+#include <Materials/MaterialParameterCollection.h>
+#include <Kismet/KismetMaterialLibrary.h>
 
 ASH_Ball::ASH_Ball()
 {
-	PrimaryActorTick.bCanEverTick = true;
 	interationType = EObstacleType::Timelock;
-
-	BallMesh = CreateDefaultSubobject<UStaticMeshComponent> (TEXT("Ball"));
-	BallMesh->SetupAttachment(RootComponent);
-	BallMesh->SetCollisionProfileName(TEXT("BlockAll"));
+	SetRootComponent(InteractionMesh);
+	rootComp->DestroyComponent();
 	ConstructorHelpers::FObjectFinder <UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
 	if (TempMesh.Succeeded())
 	{
-		BallMesh->SetStaticMesh(TempMesh.Object);
+		InteractionMesh->SetStaticMesh(TempMesh.Object);
 	}
+	InteractionMesh->SetMassOverrideInKg(FName(TEXT("NAME_None")),500.0f, true);
 }
 
 void ASH_Ball:: BeginPlay()
 {
 	Super::BeginPlay();
+
 	OriginPos = GetActorLocation();
 }
 
 void ASH_Ball::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 void ASH_Ball::SetActiveBall(bool isActive)
@@ -41,7 +43,25 @@ void ASH_Ball::SetActiveBall(bool isActive)
 	{
 	  SetActorLocation(OriginPos);
 	}
-	BallMesh->SetSimulatePhysics(isActive);
-	BallMesh->SetVisibility(isActive);
+	InteractionMesh->SetSimulatePhysics(isActive);
+	InteractionMesh->SetVisibility(isActive);
 
 }
+
+void ASH_Ball::OnTimeLock()
+{
+	Super::OnTimeLock();
+	InteractionMesh->SetSimulatePhysics(false);
+}
+
+void ASH_Ball::releasedTimeLock()
+{
+	Super::releasedTimeLock();
+	InteractionMesh->SetSimulatePhysics(true);
+}
+
+void  ASH_Ball ::InteractionTimeLock(bool isON)
+{
+	Super::InteractionTimeLock(isON);
+}
+
