@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "MoveComponent.h"
@@ -40,7 +41,7 @@ void UMoveComponent::BeginPlay()
 	moveSubsys->AddMappingContext(moveMapping, 0);
 
 	player = Cast<AJS_Player>(GetOwner());
-	
+
 }
 
 
@@ -50,6 +51,7 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	playerState = player->compState->currState;
+
 }
 
 void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
@@ -68,14 +70,14 @@ void UMoveComponent::RotateCamera(const FInputActionValue& value)
 	FVector2D axis = value.Get<FVector2D>();
 	player->AddControllerPitchInput(axis.Y * -1.0f);
 	player->AddControllerYawInput(axis.X);
-	
+
 }
 void UMoveComponent::Move(const FInputActionValue& value)
 {
 	FVector2D axis = value.Get<FVector2D>();
 	FVector dir = FVector(axis.Y, axis.X, 0);
 	dir.Normalize();
-	
+
 	player->AddMovementInput(dir, 1, false);
 	if ((int32)(playerState) == 0)
 	{
@@ -89,7 +91,7 @@ void UMoveComponent::Move(const FInputActionValue& value)
 		player->compState->bUseStamina = false;
 		player->GetCharacterMovement()->MaxWalkSpeed = 600;
 	}
-		
+
 }
 
 void UMoveComponent::OnDash()
@@ -114,33 +116,37 @@ void UMoveComponent::OnWalk()
 
 void UMoveComponent::TriggerButtonB()
 {
-	if ((int32)(playerState) == 0)
-	{
-		JumpPlayer(1);
-		Parasale(false);
-	}
- 
- 	else if ((int32)(playerState) == 1)
- 	{
-		JumpPlayer(0);
- 		Parasale(true);
- 	}
 
+	switch ((int32)(playerState))
+	{
+	case 0:
+		Parasale(false);
+		break;
+	case 1:
+		Parasale(true);
+		break;
+	}
 }
 void UMoveComponent::ReleaseButtonB()
 {
-	JumpPlayer(0);
 	Parasale(false);
 }
 void UMoveComponent::JumpPlayer(const FInputActionValue& value)
 {
-	if(value.Get<float>() == 1)
-	player->Jump();
+	if (value.Get<float>() == 1)
+	{
+		player->Jump();
+	}
+	else if (value.Get<float>() == 0)
+	{
+		player->StopJumping();
+	}
 }
 void UMoveComponent::Parasale(bool value)
 {
 	player->StopJumping();
 	if (value)
+	{
 		if (player->compState->stamina > 0)
 		{
 			player->GetCharacterMovement()->GravityScale = 0.2;
@@ -148,11 +154,14 @@ void UMoveComponent::Parasale(bool value)
 		}
 		else
 		{
-			player->compState->ResetCurrTime();
 			player->GetCharacterMovement()->GravityScale = 1;
 		}
-			
-	else if(!value)
+	}
+	else if (value == false)
+	{
+		player->compState->ResetCurrTime();
 		player->GetCharacterMovement()->GravityScale = 1;
-	
+	}
+
+
 }

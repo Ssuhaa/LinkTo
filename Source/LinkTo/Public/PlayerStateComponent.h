@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -12,15 +12,15 @@ enum class EPlayerState : uint8
 {
 	bLanding,
 	bFalling,
-	bCliming
+	bCliming,
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class LINKTO_API UPlayerStateComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UPlayerStateComponent();
 
@@ -28,21 +28,21 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	
+
 public:
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FSM)
 	EPlayerState currState = EPlayerState::bLanding;
 
 	class AJS_Player* player;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	float HP = 10; // 1�� ��Ʈ 1ĭ
+	float HP = 10; // 1´ç ÇÏÆ® 1Ä­
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
-	float stamina = 100; // ���׹̳�
+	float stamina = 100; // ½ºÅ×¹Ì³ª
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
 	bool bUseStamina = false;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
@@ -50,12 +50,15 @@ public:
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
 	bool bInAir = false;
 
-	void FallingState();
+
 	void LandsingState();
+	void FallingState();
 	void ClimbingState();
 	void ChangeState(EPlayerState currState);
-
+	void UseStamina();
+	void ChargeStamina();
+	void CurrStamina(bool value);
 	void IsInAir();
-	void StaminaStatus(bool value, float deltaTime);
+	/*void StaminaStatus(bool value, float deltaTime);*/
 	void ResetCurrTime();
 };

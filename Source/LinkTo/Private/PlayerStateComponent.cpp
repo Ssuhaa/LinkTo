@@ -25,7 +25,7 @@ void UPlayerStateComponent::BeginPlay()
 
 	player = Cast<AJS_Player>(GetOwner());
 	// ...
-	
+
 }
 
 
@@ -34,7 +34,7 @@ void UPlayerStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
- 	switch (currState)
+	switch (currState)
 	{
 	case EPlayerState::bLanding:
 	{
@@ -48,26 +48,16 @@ void UPlayerStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 		break;
 	}
 
-
-	if (bUseStamina)
-	{
-		StaminaStatus(bUseStamina, DeltaTime);
-	}
-	else
-	{
-		currTime += DeltaTime;
-		if (currTime >= 3.0f)
-			StaminaStatus(bUseStamina, DeltaTime);
-	}
+	CurrStamina(bUseStamina);
 	// ...
-	
+
 }
 
 void UPlayerStateComponent::FallingState()
 {
 	player->compMove->canParasale = true;
 	UE_LOG(LogTemp, Warning, TEXT("currState = Falling"))
-	IsInAir();
+		IsInAir();
 }
 
 void UPlayerStateComponent::LandsingState()
@@ -75,7 +65,7 @@ void UPlayerStateComponent::LandsingState()
 	player->compMove->canParasale = false;
 
 	UE_LOG(LogTemp, Warning, TEXT("currState = Landing"))
-	IsInAir();
+		IsInAir();
 }
 
 void UPlayerStateComponent::ClimbingState()
@@ -89,60 +79,37 @@ void UPlayerStateComponent::ChangeState(EPlayerState state)
 }
 
 
-void UPlayerStateComponent::StaminaStatus(bool value, float deltaTime)
+void UPlayerStateComponent::UseStamina()
 {
+	if (stamina > 0)
+		stamina -= GetWorld()->DeltaTimeSeconds * 20;
+	else
+		stamina = 0;
+}
 
-	if (value)
+void UPlayerStateComponent::ChargeStamina()
+{
+	currTime += GetWorld()->DeltaTimeSeconds;
+	if (currTime >= 3.0f)
 	{
-		if (stamina > 0)
-			stamina -= deltaTime * 20;
+		if (stamina < 100)
+			stamina += GetWorld()->DeltaTimeSeconds * 10;
 		else
-			stamina = 0;
+			stamina = 100.f;
 	}
-	else
+
+}
+
+void UPlayerStateComponent::CurrStamina(bool value)
+{
+	if (value == true)
 	{
-		{
-			if (stamina < 100)
-				stamina += deltaTime * 10;
-			else
-				stamina = 100.f;
-		}
+		UseStamina();
+	}
+	else if (value == false)
+	{
+		ChargeStamina();
 	}
 
-	FString currStamina = FString::Printf(TEXT("%.2f"), stamina);
-	player->OnLogMove(currStamina);
-}
-void UPlayerStateComponent::ResetCurrTime()
-{
-	bUseStamina = false;
-	currTime = 0;
-}
-void UPlayerStateComponent::IsInAir()
-{
-	if (player->GetCharacterMovement()->IsFalling() == true)
-		ChangeState(EPlayerState::bFalling);
-	else
-		ChangeState(EPlayerState::bLanding);
-
-// 	FHitResult hitInfo; // hitresult
-// 	FCollisionQueryParams params; // 탐색 방법 설정값 모아놓은 구조체
-// 	params.AddIgnoredActor(player); // 내 액터 제외
-// 	FVector actorLoc = player->GetActorLocation();
-// 
-// 	// 캡슐 컴포넌트의 끝을 시작지점으로 (액터의 높이 - 캡슐 컴포넌트의 높이/2)
-// 	FVector lineStart = FVector(actorLoc.X,actorLoc.Y, actorLoc.Z - player->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-// 
-// 	FVector lineEnd = player->GetActorUpVector() * -1000.f;
-// 
-// 	GetWorld()->LineTraceSingleByChannel(hitInfo, lineStart, lineEnd, ECC_Visibility, params);
-// 
-// 	// 맞은곳의 거리에 따라 공중상태인지 판별
-// 	if (hitInfo.GetActor() != nullptr)
-// 	{
-// 		if (hitInfo.Location.Z - lineStart.Z < 50.f)
-// 			currState = EPlayerState::bLanding;
-// 		else
-// 			currState = EPlayerState::bFalling;
-// 	}
-
+	player->OnLogMove(FString::Printf(TEXT("%.2f"), stamina));
 }
