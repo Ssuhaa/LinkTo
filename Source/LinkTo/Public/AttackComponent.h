@@ -12,7 +12,6 @@ UENUM()
 enum class EAttackState : int8
 {
 	AttackIdle,
-	AttackSwitch,
 	AttackSword,
 	AttackBow
 };
@@ -47,6 +46,11 @@ public:
 	EPlayerState playerState;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
 	EAttackState currAttackState = EAttackState::AttackIdle;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
+	bool bSwitch = false;
+
+	/*UPROPERTY(EditAnywhere, Category = "VR_Settings|UI")*/
+	
 
 private:
 	void OnButtonA();
@@ -54,9 +58,11 @@ private:
 	void IdleState();
 	void SwordState();
 	void BowState();
-	void WeaponUIState();
+
+	void OnButtonMenu();
 	void FireArrow();
 	void FireSword();
 	void OnTriggerRight();
 	void OnReleaseRight();
+	void OnWeaponUI();
 };

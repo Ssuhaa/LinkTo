@@ -63,7 +63,10 @@ public:
 	class UPlayerStateComponent* compState;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UAttackComponent* compAttack;
-
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
+	class UJS_WidgetWeaponSwitch* weaponWidget;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
+	TSubclassOf<UJS_WidgetWeaponSwitch> weaponUIFactory;
 	
 
 private:

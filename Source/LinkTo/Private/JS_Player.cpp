@@ -15,6 +15,7 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include "PlayerStateComponent.h"
 #include "AttackComponent.h"
+#include "JS_WidgetWeaponSwitch.h"
 
 
 AJS_Player::AJS_Player()
@@ -84,6 +85,12 @@ AJS_Player::AJS_Player()
 	compState = CreateDefaultSubobject<UPlayerStateComponent>(TEXT("STATE COMP"));
 	compAttack = CreateDefaultSubobject<UAttackComponent>(TEXT("ATTACK COMP"));
 	
+	// 무기 스위치 UI 찾아오기
+	ConstructorHelpers::FClassFinder<UJS_WidgetWeaponSwitch>tempWeaponWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchWeapon.JS_SwitchWeapon_c'"));
+	if (tempWeaponWidget.Succeeded())
+	{
+		weaponUIFactory = tempWeaponWidget.Class;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -103,6 +110,7 @@ void AJS_Player::BeginPlay()
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	subsys->AddMappingContext(myMapping, 0);
 
+	weaponWidget = CreateWidget<UJS_WidgetWeaponSwitch>(GetWorld(),weaponUIFactory);
 	
 }
 
