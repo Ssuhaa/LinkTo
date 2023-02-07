@@ -24,10 +24,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category = "Componont")
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UStaticMeshComponent* Mesh; 
 
-	UPROPERTY(EditAnywhere,  Category = "Componont")
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class USceneComponent* SpawnPos;
 
 	UPROPERTY(EditAnywhere, Category = "Ball")
@@ -39,6 +39,6 @@ public:
 
 	float currentTime = 0.0f;
 	
-	UPROPERTY(EditAnywhere, Category = "Timer")
+	UPROPERTY(EditAnywhere, Category = "SpawnTime")
 	float SpawnDelayTime = 3;
 };

@@ -2,12 +2,20 @@
 
 
 #include "obstacleBase.h"
+#include <Kismet/KismetMaterialLibrary.h>
+#include "SH_Player.h"
+#include <Kismet/GameplayStatics.h>
+#include "CharacterBase.h"
+
 
 // Sets default values
 AobstacleBase::AobstacleBase()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	rootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	InteractionMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("interationMesh"));
+	InteractionMesh->SetCollisionProfileName(TEXT("BlockAll"));
 
 }
 
@@ -15,7 +23,7 @@ AobstacleBase::AobstacleBase()
 void AobstacleBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	player = Cast <ASH_Player>(UGameplayStatics::GetActorOfClass(GetWorld(), ACharacterBase::StaticClass()));
 }
 
 // Called every frame
@@ -24,6 +32,7 @@ void AobstacleBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
 
 bool AobstacleBase::isDelay(float DelayTime)
 {
@@ -38,3 +47,15 @@ bool AobstacleBase::isDelay(float DelayTime)
 		return false;
 	}
 }
+
+
+void AobstacleBase::ChangeMaterial(TArray<UMaterialInstance*> MatArray, int32 Arrayindex, UStaticMeshComponent* Mesh)
+{
+	if (MatArray.IsValidIndex(Arrayindex))
+	{
+
+		Mesh->SetMaterial(0, MatArray[Arrayindex]);
+	
+	}
+}
+

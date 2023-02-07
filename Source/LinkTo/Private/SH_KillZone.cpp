@@ -10,12 +10,10 @@
 
 ASH_KillZone::ASH_KillZone()
 {
-	PrimaryActorTick.bCanEverTick = true;
 	KillBox = CreateDefaultSubobject<UBoxComponent>(TEXT("KillBox"));
 	KillBox->SetupAttachment(RootComponent);
 	KillBox->SetCollisionProfileName(TEXT("OverlapAll"));
 	KillBox->SetBoxExtent(FVector(1000,1000,200));
-
 }
 
 void ASH_KillZone::BeginPlay()

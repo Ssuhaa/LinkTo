@@ -21,23 +21,28 @@ class LINKTO_API AobstacleBase : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
 	// Sets default values for this actor's properties
-	AobstacleBase();
 
 protected:
+	AobstacleBase();
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EObstacleType interationType = EObstacleType::None;
-
-	virtual bool isDelay(float DelayTime);
-	float currentTime = 0;
-
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual bool isDelay(float DelayTime);
+	virtual void ChangeMaterial(TArray<UMaterialInstance*> MatArray, int32 Arrayindex, UStaticMeshComponent* Mesh);
+	float currentTime = 0;
 
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class USceneComponent* rootComp;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
+	class UStaticMeshComponent* InteractionMesh;
+
+	class ASH_Player* player;
+
+public:	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	EObstacleType interationType = EObstacleType::None;
 
 };
