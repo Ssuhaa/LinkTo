@@ -9,7 +9,7 @@
 
 
 UENUM(BlueprintType)
-enum class EPlayerState : uint8
+enum class EPlayerState1 : uint8
 {
 	Defalt,
 	TimeLock,
@@ -92,7 +92,7 @@ public:
 	bool bParasailing = false;
 	
 	UPROPERTY(EditAnywhere, Category = Player)
-	EPlayerState PlayerInterState = EPlayerState::Defalt; 
+	EPlayerState1 PlayerInterState = EPlayerState1::Defalt; 
 
 	void WindUp(float WindValue);
 

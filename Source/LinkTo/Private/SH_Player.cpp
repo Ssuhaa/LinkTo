@@ -122,17 +122,17 @@ void ASH_Player::OnG(const FInputActionValue& value)
 {
 	switch (PlayerInterState)
 	{
-	case EPlayerState::Defalt:
+	case EPlayerState1::Defalt:
 		break;
-	case EPlayerState::TimeLock:
+	case EPlayerState1::TimeLock:
 		LookTimeLock();
 		break;
-	case EPlayerState::IceMaker:
+	case EPlayerState1::IceMaker:
 		LookIceMaker();
 		break;
-	case EPlayerState::Margnet:
+	case EPlayerState1::Margnet:
 		break;
-	case EPlayerState::Boomb:
+	case EPlayerState1::Boomb:
 		break;
 	}
 }
@@ -141,17 +141,17 @@ void  ASH_Player::OffG(const FInputActionValue& value)
 {
 	switch (PlayerInterState)
 	{
-	case EPlayerState::Defalt:
+	case EPlayerState1::Defalt:
 		break;
-	case EPlayerState::TimeLock:
+	case EPlayerState1::TimeLock:
 		OffTimeLock();
 		break;
-	case EPlayerState::IceMaker:
+	case EPlayerState1::IceMaker:
 		OffIceMaker();
 		break;
-	case EPlayerState::Margnet:
+	case EPlayerState1::Margnet:
 		break;
-	case EPlayerState::Boomb:
+	case EPlayerState1::Boomb:
 		break;
 	}
 }
@@ -160,12 +160,12 @@ void ASH_Player::OnLeftMouse(const FInputActionValue& value)
 {
 	switch (PlayerInterState)
 	{
-	case EPlayerState::Defalt:
+	case EPlayerState1::Defalt:
 		break;
-	case EPlayerState::TimeLock:
+	case EPlayerState1::TimeLock:
 		TimeLock();
 		break;
-	case EPlayerState::IceMaker:
+	case EPlayerState1::IceMaker:
 		if (hitIMActor != nullptr)
 		{
 		IceMaker();
@@ -176,9 +176,9 @@ void ASH_Player::OnLeftMouse(const FInputActionValue& value)
 		}
 
 		break;
-	case EPlayerState::Margnet:
+	case EPlayerState1::Margnet:
 		break;
-	case EPlayerState::Boomb:
+	case EPlayerState1::Boomb:
 		break;
 	}
 }
