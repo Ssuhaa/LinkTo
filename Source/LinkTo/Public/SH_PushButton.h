@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "obstacleBase.h"
+#include "TimeLockBase.h"
 #include "SH_PushButton.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LINKTO_API ASH_PushButton : public AobstacleBase
+class LINKTO_API ASH_PushButton : public ATimeLockBase
 {
 	GENERATED_BODY()
 
@@ -25,21 +25,21 @@ protected:
 	virtual void OnTimeLock() override;
 	virtual void releasedTimeLock() override;
 
+	void PressedButton(float DeltaTime);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UBoxComponent* BoxCollision;
 
-	UPROPERTY(EditAnywhere)
-	class ASH_Push* PushActor;
-
 	FVector OriginPos;
+	float currZ = 0;
+	UPROPERTY(EditAnywhere, Category = Value)
 	float pressZ = -30.0f;
-	float ratioZ = 0;
-	float Z;
-
-
 
 public:
 
+	float Z;
+	float ratioZ = 0;
 	bool binButton = false;
+	bool bTimeLockInButton = false;
+	
 };

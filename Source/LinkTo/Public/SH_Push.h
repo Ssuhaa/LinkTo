@@ -22,23 +22,18 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
-	virtual void OnTimeLock() override;
-	virtual void releasedTimeLock() override;
 
+	void PushActor(float DeltaTime);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class ASH_PushButton* ConButton;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = Component)
 	class ASH_Ball* Target;
-	UPROPERTY(EditAnywhere)
-	float pushZ = 50.0f;
+	UPROPERTY(EditAnywhere, Category = Value)
+	float pushZ = 80.0f;
+
 	float Z = 0.0f;
-	FVector OriginPos;
-
-public:
-
 	float ratioZ = 0.0f;
-
-
+	FVector OriginPos;
 };

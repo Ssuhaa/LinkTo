@@ -13,7 +13,6 @@
 
 ASH_MovingWalk::ASH_MovingWalk()
 {
-	interationType = EObstacleType::Timelock;
 	SetRootComponent(rootComp);
 	ConstructorHelpers::FObjectFinder <UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	if (tempMesh.Succeeded())
@@ -39,23 +38,28 @@ ASH_MovingWalk::ASH_MovingWalk()
 		panParm = tempParm.Object;
 	}
 
-	MatArray.Empty();
 	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_MovingWalk.MI_MovingWalk'"));
 	if (TempMat.Succeeded())
 	{
+		TimeLockMatArray.Add(TempMat.Object);
 		InteractionMesh->SetMaterial(0, TempMat.Object);
-		MatArray.Add(TempMat.Object);
 	}
 	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat1(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_MovingWalk_TimeLcokOn.MI_MovingWalk_TimeLcokOn'"));
 	if (TempMat1.Succeeded())
 	{
-		MatArray.Add(TempMat1.Object);
+		TimeLockMatArray.Add(TempMat1.Object);
 	}
 	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat2(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_MovingWalk_TimeLcokSelect.MI_MovingWalk_TimeLcokSelect'"));
 	if (TempMat2.Succeeded())
 	{
-		MatArray.Add(TempMat2.Object);
+		TimeLockMatArray.Add(TempMat2.Object);
 	}
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat3(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_MovingWalk_TimeLcokCount.MI_MovingWalk_TimeLcokCount'"));
+	if (TempMat3.Succeeded())
+	{
+		TimeLockMatArray.Add(TempMat3.Object);
+	}
+
 }
 
 void ASH_MovingWalk::BeginPlay()

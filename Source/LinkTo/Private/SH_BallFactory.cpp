@@ -6,7 +6,6 @@
 
 ASH_BallFactory::ASH_BallFactory()
 {
-	PrimaryActorTick.bCanEverTick = true;
 	SetRootComponent(rootComp);
 	ConstructorHelpers::FClassFinder <ASH_Ball> tempBall(TEXT("/Script/CoreUObject.Class'/Script/LinkTo.SH_Ball'"));
 	if (tempBall.Succeeded())
@@ -19,6 +18,7 @@ ASH_BallFactory::ASH_BallFactory()
 	{
 		InteractionMesh->SetStaticMesh(TempMesh.Object);
 	}
+	InteractionMesh->SetupAttachment(RootComponent);
 
 	SpawnPos = CreateDefaultSubobject<USceneComponent>(TEXT("SpawnPos"));
 	SpawnPos->SetupAttachment(InteractionMesh);

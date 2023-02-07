@@ -8,7 +8,6 @@
 
 ASH_Push::ASH_Push()
 {
-	interationType = EObstacleType::Timelock;
 	SetRootComponent(rootComp);
 	ConstructorHelpers::FObjectFinder <UStaticMesh> tempMash(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	if (tempMash.Succeeded())
@@ -16,8 +15,6 @@ ASH_Push::ASH_Push()
 		InteractionMesh->SetStaticMesh(tempMash.Object);
 	}
 	InteractionMesh->SetupAttachment(RootComponent);
-
-
 }
 
 void ASH_Push::BeginPlay()
@@ -31,31 +28,7 @@ void ASH_Push::BeginPlay()
 void ASH_Push::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (!bTimeLock)
-	{
-		if (ConButton->binButton)
-		{
-			ratioZ += (DeltaTime * 10);
-			if (ratioZ > 1)
-			{
-				ratioZ = 1;
-			}
-			Z = FMath::Lerp(OriginPos.Z, pushZ, ratioZ);
-			InteractionMesh->SetRelativeLocation(FVector(OriginPos.X, OriginPos.Y, Z));
-
-		}
-		else if (!ConButton->binButton)
-		{
-			ratioZ += (DeltaTime * 10);
-			if (ratioZ > 1)
-			{
-				ratioZ = 1;
-			}
-			Z = FMath::Lerp( pushZ, OriginPos.Z, ratioZ);
-			InteractionMesh->SetRelativeLocation(FVector(OriginPos.X, OriginPos.Y, Z));
-		}
-
-	}
+	PushActor(DeltaTime);
 }
 
 void ASH_Push::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -69,14 +42,30 @@ void ASH_Push::NotifyActorEndOverlap(AActor* OtherActor)
 	Target = nullptr;
 }
 
-void ASH_Push::OnTimeLock()
+void ASH_Push::PushActor(float DeltaTime)
 {
-	Super::OnTimeLock();
+	if (!ConButton->bTimeLock)
+	{
+		if (ConButton->binButton)
+		{
+			ratioZ += (DeltaTime * 10);
+			if (ratioZ > 1)
+			{
+				ratioZ = 1;
+			}
+			Z = FMath::Lerp(OriginPos.Z, pushZ, ratioZ);
+			InteractionMesh->SetRelativeLocation(FVector(OriginPos.X, OriginPos.Y, Z));
+		}
+		else if (!ConButton->binButton)
+		{
+			ratioZ -= (DeltaTime * 10);
+			if (ratioZ < 0)
+			{
+				ratioZ = 0;
+			}
+			Z = FMath::Lerp(OriginPos.Z, pushZ, ratioZ);
+			InteractionMesh->SetRelativeLocation(FVector(OriginPos.X, OriginPos.Y, Z));
+		}
+	}
 }
-
-void ASH_Push::releasedTimeLock()
-{
-	Super::releasedTimeLock();
-}
-
 

@@ -39,7 +39,7 @@ void ASH_Wind::Tick(float DeltaTime)
 	{
 		if (Target->bParasailing)
 		{
-			Target->WindUp();
+			Target->WindUp(WindValue);
 
 		}
 	}

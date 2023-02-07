@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "obstacleBase.h"
+#include "TimeLockBase.h"
 #include "SH_Ball.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LINKTO_API ASH_Ball : public AobstacleBase
+class LINKTO_API ASH_Ball : public ATimeLockBase
 {
 	GENERATED_BODY()
 

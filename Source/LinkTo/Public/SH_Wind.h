@@ -23,12 +23,15 @@ protected:
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UArrowComponent* dirComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UBoxComponent* BoxCollision;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = Component)
 	class ASH_Player* Target;
+
+	UPROPERTY(EditAnywhere, Category = Wind)
+	float WindValue = 80.0f;
 };

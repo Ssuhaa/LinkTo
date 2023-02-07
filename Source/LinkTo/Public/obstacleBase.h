@@ -21,51 +21,28 @@ class LINKTO_API AobstacleBase : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
 	// Sets default values for this actor's properties
-	AobstacleBase();
 
 protected:
+	AobstacleBase();
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 	virtual bool isDelay(float DelayTime);
+	virtual void ChangeMaterial(TArray<UMaterialInstance*> MatArray, int32 Arrayindex, UStaticMeshComponent* Mesh);
 	float currentTime = 0;
 
-	bool bTimeLock = false;
-	bool bcount = false;
-
-	float defaultEmissive = 0.5f;
-	float CountEmissive = 1.0f;
-
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class USceneComponent* rootComp;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
+	class UStaticMeshComponent* InteractionMesh;
+
+	class ASH_Player* player;
 
 public:	
 
-	UPROPERTY(EditAnywhere, Category = Material)
-	TArray<UMaterialInstance*> MatArray;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* InteractionMesh;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	EObstacleType interationType = EObstacleType::None;
-
-	virtual void InteractionTimeLock(bool isOn);
-	virtual void LookInTimeLock();
-	virtual void LookOutTimeLock();
-	virtual void OnTimeLock();
-	virtual void releasedTimeLock();
-
-	bool FindOnTimeLockActor();
-
-private:
-	
-	class ASH_Player* player;
-
-	UPROPERTY(EditAnywhere)
-	class UMaterialParameterCollection*  timeLockParm;
 
 };

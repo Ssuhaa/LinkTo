@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "obstacleBase.h"
+#include "TimeLockBase.h"
 #include "SH_MovingWalk.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LINKTO_API ASH_MovingWalk : public AobstacleBase
+class LINKTO_API ASH_MovingWalk : public ATimeLockBase
 {
 	GENERATED_BODY()
 
@@ -26,25 +26,25 @@ protected:
 	virtual void releasedTimeLock() override;
 
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UBoxComponent* BoxCollision;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UArrowComponent* dirComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class ASH_MWButton* ConButton;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = Component)
 	class AActor* Target;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UMaterialParameterCollection* panParm;
 
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = Material)
 	float force = 500;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = MovingWalk)
 	float MovingWalkSpeed = 0.1;
 };

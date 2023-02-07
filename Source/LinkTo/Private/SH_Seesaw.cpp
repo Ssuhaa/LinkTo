@@ -7,32 +7,28 @@
 
 ASH_Seesaw::ASH_Seesaw()
 {
-	interationType = EObstacleType::Timelock;
-
 	SetRootComponent(rootComp);
 
 	AxisComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AxisMesh"));
-	AxisComp->SetupAttachment(RootComponent);
-	AxisComp->SetRelativeLocation(FVector(0,0,-38));
-	AxisComp->SetRelativeRotation(FRotator(0,0,90));
-	AxisComp->SetRelativeScale3D(FVector(0.5,0.5,2.0));
-
 	ConstructorHelpers::FObjectFinder <UStaticMesh> tempAxis(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
 	if(tempAxis.Succeeded())
 	{
 		AxisComp->SetStaticMesh(tempAxis.Object);
 	}
+	AxisComp->SetupAttachment(RootComponent);
+	AxisComp->SetRelativeLocation(FVector(0,0,-38));
+	AxisComp->SetRelativeRotation(FRotator(0,0,90));
+	AxisComp->SetRelativeScale3D(FVector(0.5,0.5,2.0));
 
+	InteractionMesh->SetupAttachment(RootComponent);
 	ConstructorHelpers::FObjectFinder <UStaticMesh> tempMash(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	if (tempMash.Succeeded())
 	{
 		InteractionMesh->SetStaticMesh(tempMash.Object);
 	}
-	InteractionMesh->SetupAttachment(RootComponent);
 	InteractionMesh->SetRelativeScale3D(FVector(1.5, 4.0, 0.25));
 	InteractionMesh->SetRelativeRotation(FRotator(0,90,0));
 	InteractionMesh->SetSimulatePhysics(true);
-
 
 
 	PhyComp = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsConstraint"));
@@ -51,18 +47,78 @@ ASH_Seesaw::ASH_Seesaw()
 	PhyComp->SetOrientationDriveTwistAndSwing(false, true);
 	PhyComp->SetAngularDriveParams(20, 2, 0);
 
-	
-
-	
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_Ball.MI_Ball'"));
+	if (TempMat.Succeeded())
+	{
+		TimeLockMatArray.Add(TempMat.Object);
+		InteractionMesh->SetMaterial(0, TempMat.Object);
+		AxisComp->SetMaterial(0, TempMat.Object);
+	}
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat1(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_BallTimeLockOn.MI_BallTimeLockOn'"));
+	if (TempMat1.Succeeded())
+	{
+		TimeLockMatArray.Add(TempMat1.Object);
+	}
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat2(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_BallTimeLockSelect.MI_BallTimeLockSelect'"));
+	if (TempMat2.Succeeded())
+	{
+		TimeLockMatArray.Add(TempMat2.Object);
+	}
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat3(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_BallTimeLockCount.MI_BallTimeLockCount'"));
+	if (TempMat3.Succeeded())
+	{
+		TimeLockMatArray.Add(TempMat3.Object);
+	}
 }
 
 
 void ASH_Seesaw::BeginPlay()
 {
-
+	Super::BeginPlay();
 }
 
 void ASH_Seesaw::Tick(float DeltaTime)
 {
-
+	Super::Tick(DeltaTime);
 }
+
+void ASH_Seesaw::InteractionTimeLock(bool isOn)
+{
+	Super::InteractionTimeLock(isOn);
+	if (!bTimeLock)
+	{
+		if (isOn)
+		{
+			ChangeMaterial(TimeLockMatArray, 1, AxisComp);
+		}
+		else
+		{
+			ChangeMaterial(TimeLockMatArray, 0, AxisComp);
+		}
+	}
+}
+
+void ASH_Seesaw::LookInTimeLock()
+{
+	Super::LookInTimeLock();
+
+	ChangeMaterial(TimeLockMatArray, 2, AxisComp);
+}
+
+void ASH_Seesaw::OnTimeLock()
+{
+	Super::OnTimeLock();
+	if (bLookin)
+	{
+		ChangeMaterial(TimeLockMatArray, 2, AxisComp);
+		InteractionMesh->SetSimulatePhysics(false);
+	}
+}
+
+void ASH_Seesaw::releasedTimeLock()
+{
+	Super::releasedTimeLock();
+	ChangeMaterial(TimeLockMatArray, 0, AxisComp);
+	InteractionMesh->SetSimulatePhysics(true);
+}
+

@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "obstacleBase.h"
+#include "TimeLockBase.h"
 #include "SH_Seesaw.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class LINKTO_API ASH_Seesaw : public AobstacleBase
+class LINKTO_API ASH_Seesaw : public ATimeLockBase
 {
 	GENERATED_BODY()
 
@@ -21,10 +21,16 @@ protected:
 	virtual void BeginPlay() override;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	UPROPERTY(EditAnywhere)
+	virtual void OnTimeLock()override;
+	virtual void releasedTimeLock()override;
+	virtual void InteractionTimeLock(bool isOn)override;
+	virtual void LookInTimeLock()override;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UPhysicsConstraintComponent* PhyComp;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UStaticMeshComponent* AxisComp;
 
 
