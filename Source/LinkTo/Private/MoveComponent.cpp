@@ -84,13 +84,14 @@ void UMoveComponent::Move(const FInputActionValue& value)
 	{
 		if (FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7)
 			OnDash();
-		else
+		else if (FMath::Abs(axis.X) >= 0.1 || FMath::Abs(axis.Y) >= 0.1)
 			OnWalk();
+		else
+		player->GetCharacterMovement()->MaxWalkSpeed = 0;
 	}
-	else if ((int32)(playerState) == 1)
+	else 
 	{
 		OnWalk();
-		player->GetCharacterMovement()->MaxWalkSpeed = 600;
 	}
 
 }

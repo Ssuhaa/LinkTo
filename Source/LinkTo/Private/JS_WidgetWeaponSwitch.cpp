@@ -47,9 +47,9 @@ void UJS_WidgetWeaponSwitch::NativeTick(const FGeometry& MyGeometry, float InDel
 	
 }
 
-void UJS_WidgetWeaponSwitch::SetUIInitPos(EAttackState currAttackState)
+void UJS_WidgetWeaponSwitch::SetUIInitPos(int32 value)
 {
-	float locX = -350.f * (int32)(currAttackState) + 350.f;
+	float locX = -350.f * value + 350.f;
 	FVector2D currWeapon = FVector2D(locX, -130.f);
 	slotPos->SetPosition(currWeapon);
 }

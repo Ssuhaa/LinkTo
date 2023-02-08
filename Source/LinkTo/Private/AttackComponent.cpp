@@ -16,6 +16,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerStateComponent.h"
 #include "JS_WidgetWeaponSwitch.h"
+#include <Components/CanvasPanelSlot.h>
+#include <Components/CanvasPanel.h>
 
 // Sets default values for this component's properties
 UAttackComponent::UAttackComponent()
@@ -44,7 +46,7 @@ void UAttackComponent::BeginPlay()
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	attackSubsys->AddMappingContext(attackMapping, 0);
 	// ...
-	bSwitch = false;
+	bWeaponMenu = false;
 }
 
 
@@ -74,27 +76,46 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 {
 	PlayerInputComponent->BindAction(leftInputs[5], ETriggerEvent::Started, this, &UAttackComponent::OnButtonMenu);
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UAttackComponent::OnButtonA); 
+	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UAttackComponent::OnThumbstickLeft);
+	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UAttackComponent::OnThumbstickLeft);
 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerRight);
 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseRight);
 }
 
 void UAttackComponent::OnButtonA()
 {
+	if(!bWeaponMenu) // 만일 메뉴가 안열려 있으면
 	switch ((int32)(currAttackState))
 	{
 		case 0:
 		break;
 		case 1:
+		FireSword(); // 칼 공격
 		break;
 		case 2:
 		break;
-	
+	}
+	else // 메뉴가 열려있으면 
+	{
+		ChangeWeapon();
 	}
 }
 
 void UAttackComponent::ChangeWeapon()
 {
-	
+	float targetWeapon = player->weaponWidget->slotPos->GetPosition().X;
+	if (targetWeapon == 0)
+	{
+		currAttackState = EAttackState::AttackSword;
+	}
+	else if (targetWeapon == -350.f)
+	{
+		currAttackState = EAttackState::AttackBow;
+	}
+	else
+		currAttackState = EAttackState::AttackIdle;
+
+	player->weaponWidget->RemoveFromParent();
 }
 
 void UAttackComponent::IdleState()
@@ -104,7 +125,6 @@ void UAttackComponent::IdleState()
 
 void UAttackComponent::OnButtonMenu()
 {	
-	bSwitch = !bSwitch;
 	OnWeaponUI();
 }
 
@@ -140,22 +160,30 @@ void UAttackComponent::OnReleaseRight()
 
 void UAttackComponent::OnWeaponUI()
 {
-//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
-	// 현재 메뉴가 열려있으면 (bSwitch)
-	if (bSwitch)
-	{
-		// 뷰포트에서 UI제거
-		player->weaponWidget->RemoveFromParent();
-	}
-	// 메뉴가 안열려 있으면 (!bSwitch)
-	else
+
+	// 현재 메뉴가 열려있을때 (bSwitch)
+
+	if (!bWeaponMenu)
 	{
 		// 뷰포트에 UI 띄우기
-		
 		player->weaponWidget->AddToViewport();
+		//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
+		player->weaponWidget->SetUIInitPos((int32)(currAttackState));
 	}
-	
-	// switch weapon UI 띄운다
-	// 현재 상태를 switch 상태로 전환한다
+	if (bWeaponMenu)
+	{
+		// 뷰포트에서 UI제거 (취소)
+		player->weaponWidget->RemoveFromParent();
+	}
+	// 메뉴가 안열려 있을때 (!bSwitch)
+	bWeaponMenu = !bWeaponMenu;
+}
+
+void UAttackComponent::OnThumbstickLeft(const FInputActionValue& value)
+{
+	float dir = value.Get<FVector2D>().X;
+	// 
+	if(bWeaponMenu)
+	player->weaponWidget->MoveUI(dir);
 }
 

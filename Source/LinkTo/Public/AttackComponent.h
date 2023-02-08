@@ -47,7 +47,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
 	EAttackState currAttackState = EAttackState::AttackIdle;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
-	bool bSwitch = false;
+	bool bWeaponMenu = false;
 
 	/*UPROPERTY(EditAnywhere, Category = "VR_Settings|UI")*/
 	
@@ -65,4 +65,6 @@ private:
 	void OnTriggerRight();
 	void OnReleaseRight();
 	void OnWeaponUI();
+	void OnThumbstickLeft(const struct FInputActionValue& value);
+
 };
