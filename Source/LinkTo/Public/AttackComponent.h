@@ -61,10 +61,9 @@ private:
 	void BowState();
 
 	void OnButtonMenu();
-	void FireArrow();
 	void FireSword();
-	void OnTriggerRight();
-	void OnReleaseRight();
+	void OnTriggerArrow();
+	void OnReleaseArrow();
 	void OnWeaponUI();
 	void OnThumbstickLeft(const struct FInputActionValue& value);
 	void OnGrabRight();

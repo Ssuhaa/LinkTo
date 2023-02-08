@@ -26,4 +26,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
+
+public:
+	class AJS_Player* player;
+	UPROPERTY(EditAnywhere, Category = Arrow)
+	class UCapsuleComponent* compCapsule;
+	UPROPERTY(EditAnywhere, Category = Arrow)
+	class UStaticMeshComponent* compMesh;
+	UPROPERTY(EditAnywhere, Category = Arrow)
+	class UProjectileMovementComponent* compProjectile;
 };

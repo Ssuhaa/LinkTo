@@ -82,8 +82,8 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UAttackComponent::OnThumbstickLeft);
 	PlayerInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabRight);
 	PlayerInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabLeft);
-	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerRight);
-	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseRight);
+	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerArrow);
+	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseArrow);
 }
 
 void UAttackComponent::OnButtonA()
@@ -145,11 +145,6 @@ void UAttackComponent::BowState()
 	player->compBow->SetVisibility(true);
 }
 
-void UAttackComponent::FireArrow()
-{
-	
-}
-
 void UAttackComponent::FireSword()
 {
 	FHitResult hitInfo;
@@ -169,14 +164,21 @@ void UAttackComponent::FireSword()
 // 	}
 }
 
-void UAttackComponent::OnTriggerRight()
+void UAttackComponent::OnTriggerArrow()
 {
+	// 공격 상태가 Bow일때 (Bow를 들고있을때)
+	// 조준을 한다 (화살에 힘을 더해준다)
+
+	// 만약 플레이어가 공중에 있는 상태면
+	// 스태미너를 감소시키고, 시간을 천천히 흐르게 한다.
 
 }
 
-void UAttackComponent::OnReleaseRight()
+void UAttackComponent::OnReleaseArrow()
 {
-
+	// 화살을 스폰한다.
+	// 화살을 발사한다.
+	// 오브젝트 풀에 화살을 넣는다.
 }
 
 void UAttackComponent::OnWeaponUI()
