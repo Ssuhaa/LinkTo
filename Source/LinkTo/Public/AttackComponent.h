@@ -35,6 +35,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent);
 		
+	class AobstacleBase* obstacleBase;
 	class AJS_Player* player;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
 	class UInputMappingContext* attackMapping;
@@ -66,5 +67,7 @@ private:
 	void OnReleaseRight();
 	void OnWeaponUI();
 	void OnThumbstickLeft(const struct FInputActionValue& value);
+	void OnGrabRight();
+	void OnGrabLeft();
 
 };

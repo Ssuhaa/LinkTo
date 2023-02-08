@@ -57,6 +57,8 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	playerState = player->compState->currState;
 
+	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow, FString::Printf(TEXT("%d"),(int32)(currAttackState)));
+
 	switch (currAttackState)
 	{
 	case EAttackState::AttackIdle:
@@ -78,6 +80,8 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UAttackComponent::OnButtonA); 
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UAttackComponent::OnThumbstickLeft);
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UAttackComponent::OnThumbstickLeft);
+	PlayerInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabRight);
+	PlayerInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabLeft);
 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerRight);
 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseRight);
 }
@@ -120,7 +124,8 @@ void UAttackComponent::ChangeWeapon()
 
 void UAttackComponent::IdleState()
 {
-	
+	player->compSword->SetVisibility(false);
+	player->compBow->SetVisibility(false);
 }
 
 void UAttackComponent::OnButtonMenu()
@@ -130,22 +135,38 @@ void UAttackComponent::OnButtonMenu()
 
 void UAttackComponent::SwordState()
 {
-	
+	player->compSword->SetVisibility(true);
+	player->compBow->SetVisibility(false);
 }
 
 void UAttackComponent::BowState()
 {
-	
+	player->compSword->SetVisibility(false);
+	player->compBow->SetVisibility(true);
 }
 
 void UAttackComponent::FireArrow()
 {
-
+	
 }
 
 void UAttackComponent::FireSword()
 {
+	FHitResult hitInfo;
+	FVector startLoc = player->GetActorLocation();
+	FVector endLoc = player->GetActorForwardVector() * 100;
+	GetWorld()->LineTraceSingleByChannel(hitInfo,startLoc, endLoc, ECC_Visibility);
+	DrawDebugLine(GetWorld(),startLoc,endLoc,FColor::Blue, 1.0f, 1.0f, 1.0f);
 
+// 	if (hitInfo.GetActor() == obstacleBase)
+// 	{
+// 		if(obstacleBase->)
+// 			GEngine->AddOnScreenDebugMessage(1, 1.0, FColor::Red, FString::Printf(TEXT("ATTACK SUCCEDED")));
+// 	}
+// 	else
+// 	{
+// 
+// 	}
 }
 
 void UAttackComponent::OnTriggerRight()
@@ -181,9 +202,19 @@ void UAttackComponent::OnWeaponUI()
 
 void UAttackComponent::OnThumbstickLeft(const FInputActionValue& value)
 {
-	float dir = value.Get<FVector2D>().X;
-	// 
-	if(bWeaponMenu)
-	player->weaponWidget->MoveUI(dir);
+
 }
+
+void UAttackComponent::OnGrabRight()
+{
+	if(bWeaponMenu)
+	player->weaponWidget->MoveUI(-1);
+}
+
+void UAttackComponent::OnGrabLeft()
+{
+	if(bWeaponMenu)
+	player->weaponWidget->MoveUI(1);
+}
+
 

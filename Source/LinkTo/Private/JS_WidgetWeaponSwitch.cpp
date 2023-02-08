@@ -57,7 +57,7 @@ void UJS_WidgetWeaponSwitch::SetUIInitPos(int32 value)
 void UJS_WidgetWeaponSwitch::MoveUI(int32 thumbstickAxis)
 {
 	
-	float locX = -350.f * thumbstickAxis + 350.f;
+	float locX = slotPos->GetPosition().X + thumbstickAxis * 350.f;
 	float clampX = FMath::Clamp(locX,-350.f,350.f);
 	FVector2D currWeapon = FVector2D(clampX, -130.f);
 	slotPos->SetPosition(currWeapon);

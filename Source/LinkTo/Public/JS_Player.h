@@ -31,6 +31,11 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
+	class UStaticMeshComponent* compSword;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
+	class UStaticMeshComponent* compBow;
+
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UCameraComponent* compCam; // 카메라 컴프
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")

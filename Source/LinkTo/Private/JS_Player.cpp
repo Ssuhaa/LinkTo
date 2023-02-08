@@ -74,12 +74,22 @@ AJS_Player::AJS_Player()
 	rightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	rightHand->SetRelativeRotation(FRotator(25.0f, 0.0f, 90.0f));
 
+	compBow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BOW"));
+	compBow->SetupAttachment(RootComponent);
+	compBow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	compSword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SWORD"));
+	compSword->SetupAttachment(RootComponent);
+	compSword->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
 
 	GetCharacterMovement()->JumpZVelocity = 400.f; 
 	JumpMaxCount = 1;
+
+	
 
 	compMove = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
 	compState = CreateDefaultSubobject<UPlayerStateComponent>(TEXT("STATE COMP"));
@@ -119,7 +129,7 @@ void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow, FString::Printf(TEXT("%f"),GetCharacterMovement()->GravityScale));
+	
 }
 
 // Called to bind functionality to input
