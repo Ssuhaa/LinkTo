@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CharacterBase.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
+#include "Camera/CameraComponent.h"
 #include "JS_Player.generated.h"
 
 /**

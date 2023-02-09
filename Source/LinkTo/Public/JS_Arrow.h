@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class LINKTO_API AJS_Arrow : public AJS_WeaponBase
 {
@@ -28,11 +29,22 @@ public:
 	
 
 public:
+	
 	class AJS_Player* player;
 	UPROPERTY(EditAnywhere, Category = Arrow)
 	class UCapsuleComponent* compCapsule;
 	UPROPERTY(EditAnywhere, Category = Arrow)
 	class UStaticMeshComponent* compMesh;
 	UPROPERTY(EditAnywhere, Category = Arrow)
+	float accSpeed = 0;
+	UPROPERTY(EditAnywhere, Category = Arrow)
 	class UProjectileMovementComponent* compProjectile;
+	UPROPERTY(EditAnywhere, Category = Arrow)
+	class USceneComponent* compRoot;
+// 
+// 	UFUNCTION()
+//  	void OnDestroy();
+// 	UFUNCTION()
+// 	void SetActive(bool value);
+void FireInDirection(const FVector& ShootDirection);
 };

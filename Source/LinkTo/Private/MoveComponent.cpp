@@ -82,28 +82,24 @@ void UMoveComponent::Move(const FInputActionValue& value)
 	player->AddMovementInput(dir, 1, false);
 	if ((int32)(playerState) == 0)
 	{
-		if (FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7)
+		if (FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7) // X,Y의 절대값에 따라 달리기, 걷기 전환
 			OnDash();
-// 		else if (FMath::Abs(axis.X) >= 0.1 || FMath::Abs(axis.Y) >= 0.1)
-// 			OnWalk();
-// 		else
-// 		player->GetCharacterMovement()->MaxWalkSpeed = 0;
 		else
 			OnWalk();
 	}
 	else 
 	{
-		OnWalk();
+		OnWalk(); // 땅 외의 상태에서는 걷기의 이동속도로 움직임
 	}
 
 }
 
-void UMoveComponent::OnDash()
+void UMoveComponent::OnDash() // 달리기
 {
-	if (player->compState->stamina > 0)
+	if (player->compState->stamina > 0) // 스태미너가 남아있으면
 	{
-		player->GetCharacterMovement()->MaxWalkSpeed = 1000;
-		player->compState->SetStaminaState(true);
+		player->GetCharacterMovement()->MaxWalkSpeed = 1000; 
+		player->compState->SetStaminaState(true); // 스태미나의 상태를 사용으로
 	}
 	else
 	{
@@ -112,59 +108,59 @@ void UMoveComponent::OnDash()
 
 
 }
-void UMoveComponent::OnWalk()
+void UMoveComponent::OnWalk() // 걷기
 {
-	player->compState->SetStaminaState(false);
 	player->GetCharacterMovement()->MaxWalkSpeed = 300;
+	player->compState->SetStaminaState(false); // 스태미나의 상태를 사용 안함으로
 }
 
-void UMoveComponent::TriggerButtonB()
+void UMoveComponent::TriggerButtonB() // B버튼 누르고 있을때
 {
 
 	switch ((int32)(playerState))
 	{
 	case 0:
-		Parasale(false);
+		Parasale(false); // 땅이면 패러세일 사용 안함
 		break;
 	case 1:
-		Parasale(true);
+		Parasale(true); // 공중이면 사용함
 		break;
 	}
 }
-void UMoveComponent::ReleaseButtonB()
+void UMoveComponent::ReleaseButtonB() // B버튼 떼면
 {
-	Parasale(false);
+	Parasale(false); // 패러세일 사용 안함
 }
 
-void UMoveComponent::JumpPlayer()
+void UMoveComponent::JumpPlayer() // 점프
 {
 
-	if(playerState != EPlayerState::bFalling)
-	player->Jump();
+	if(playerState != EPlayerState::bFalling) // 공중이 아니면
+	player->Jump(); // 점프
 
 }
-void UMoveComponent::Parasale(bool value)
+void UMoveComponent::Parasale(bool value) // 패러세일
 {
 
-	if (value)
+	if (value) // 패러세일을 사용중이면
 	{
-		if (player->compState->stamina > 0)
+		if (player->compState->stamina > 0) // 스태미너가 남아있으면
 		{
-			player->GetCharacterMovement()->GravityScale = 0.2;
-			player->compState->SetStaminaState(true);
-			bParasale = true;
+			player->GetCharacterMovement()->GravityScale = 0.2; // 느리게 떨어짐
+			player->compState->SetStaminaState(true); // 스태미너 사용상태로 전환
+			bParasale = true; // 현재 패러세일 상태
 
 		}
-		else
+		else // 스테미너가 없으면
 		{
-			player->GetCharacterMovement()->GravityScale = 1;
-			player->compState->SetStaminaState(false);
-			bParasale = false;
+			player->GetCharacterMovement()->GravityScale = 1; // 보통 속도로 떨어짐
+			player->compState->SetStaminaState(false); // 스태미너 사용 안함
+			bParasale = false; // 패러세일 끄기
 		}
 	}
-	else
+	else // 패러세일을 사용하지 않으면
 	{
-		player->compState->SetStaminaState(false);
+		player->compState->SetStaminaState(false); // 스태미너 사용안함
 		bParasale = false;
 		player->GetCharacterMovement()->GravityScale = 1;
 	}

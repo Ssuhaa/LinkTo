@@ -26,7 +26,7 @@ void UPlayerStateComponent::BeginPlay()
 	player = Cast<AJS_Player>(GetOwner());
 	// ...
 
-	stamina = 100;
+	stamina = 100; // 스태미나 100으로 초기화
 
 }
 
@@ -50,55 +50,63 @@ void UPlayerStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 		break;
 	}
 
-	CurrStamina(bUseStamina);
+	CurrStamina(bUseStamina); // 현재 스태미나 사용하는지 판별
 	// ...
 
 }
 
-void UPlayerStateComponent::FallingState()
+void UPlayerStateComponent::FallingState() // 떨어지고 있는 상태
 {
 	player->compMove->canParasale = true;
-	UE_LOG(LogTemp, Warning, TEXT("currState = Falling"))
-		IsInAir();
+		IsInAir();// 땅/공중 판별
 }
 
-void UPlayerStateComponent::LandsingState()
+void UPlayerStateComponent::LandsingState() // 땅 상태
 {
-	player->compMove->canParasale = false;
-
-	UE_LOG(LogTemp, Warning, TEXT("currState = Landing"))
-		IsInAir();
+	player->compMove->canParasale = false; // 패러세일 사용 가능 여부
+		IsInAir(); // 땅/공중 판별
 }
 
-void UPlayerStateComponent::ClimbingState()
+void UPlayerStateComponent::ClimbingState() // 벽타기 상태
 {
 
 }
 
 void UPlayerStateComponent::ChangeState(EPlayerState state)
 {
-	currState = state;
+	currState = state; // 상태 전환 함수
 }
 
 
-void UPlayerStateComponent::UseStamina()
+void UPlayerStateComponent::UseStamina() // 스태미나 사용하는 함수
 {
 	if (stamina > 0)
-		stamina -= GetWorld()->DeltaTimeSeconds * 20;
+		stamina -= GetWorld()->DeltaTimeSeconds * 10;
 	else
 		stamina = 0;
 }
 
-void UPlayerStateComponent::ChargeStamina()
+void UPlayerStateComponent::ChargeStamina()//스태미나 차는 함수
 {
-	currTime += GetWorld()->DeltaTimeSeconds;
-	if (currTime >= 3.0f)
+
+	if (stamina < 100) // 100보다 작을때
 	{
-		if (stamina < 100)
-			stamina += GetWorld()->DeltaTimeSeconds * 10;
-		else
-			stamina = 100.f;
+		if(stamina > 0) // 남아있으면 
+			stamina += GetWorld()->DeltaTimeSeconds * 20;// 바로 채움
+		else // 다쓰면
+		{
+			currTime += GetWorld()->DeltaTimeSeconds;
+			if (currTime >= 3.0f)
+			{
+				stamina += GetWorld()->DeltaTimeSeconds * 10; // 3초후에 채움
+			}
+		}
+
 	}
+	else
+		stamina = 100.f;  // 100넘어가면 100으로 고정
+	
+
 
 }
 

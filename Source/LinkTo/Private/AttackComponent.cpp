@@ -18,6 +18,9 @@
 #include "JS_WidgetWeaponSwitch.h"
 #include <Components/CanvasPanelSlot.h>
 #include <Components/CanvasPanel.h>
+#include "JS_Arrow.h"
+#include <Kismet/GameplayStatics.h>
+#include <GameFramework/ProjectileMovementComponent.h>
 
 // Sets default values for this component's properties
 UAttackComponent::UAttackComponent()
@@ -26,10 +29,11 @@ UAttackComponent::UAttackComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-
-	
-	
-
+ 	ConstructorHelpers::FClassFinder<AJS_Arrow>tempArrow(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Weapons/BP_Arrow.BP_Arrow_c'"));
+ 	if (tempArrow.Succeeded())
+ 	{
+ 		arrowFactory = tempArrow.Class;
+ 	}
 }
 
 
@@ -39,13 +43,14 @@ void UAttackComponent::BeginPlay()
 	Super::BeginPlay();
 
 	player = Cast<AJS_Player>(GetOwner());
-	
+	/*arrow = GetWorld()->SpawnActor<AJS_Arrow>(player->compCam->GetComponentLocation(), FRotator(0));*/
+
 	APlayerController* attackCon = GetWorld()->GetFirstPlayerController();
 	// 2. 플레이어 컨트롤러에서 EnhancedInputLocalPlayerSubsystem을 가져오기
 	UEnhancedInputLocalPlayerSubsystem* attackSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(attackCon->GetLocalPlayer());
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	attackSubsys->AddMappingContext(attackMapping, 0);
-	// ...
+	// 무기 변경 메뉴 초기화
 	bWeaponMenu = false;
 }
 
@@ -57,7 +62,7 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	playerState = player->compState->currState;
 
-	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow, FString::Printf(TEXT("%d"),(int32)(currAttackState)));
+	/*GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow, FString::Printf(TEXT("%d"),(int32)(currAttackState)));*/
 
 	switch (currAttackState)
 	{
@@ -78,8 +83,6 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 {
 	PlayerInputComponent->BindAction(leftInputs[5], ETriggerEvent::Started, this, &UAttackComponent::OnButtonMenu);
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UAttackComponent::OnButtonA); 
-	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UAttackComponent::OnThumbstickLeft);
-	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UAttackComponent::OnThumbstickLeft);
 	PlayerInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabRight);
 	PlayerInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabLeft);
 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerArrow);
@@ -89,7 +92,7 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 void UAttackComponent::OnButtonA()
 {
 	if(!bWeaponMenu) // 만일 메뉴가 안열려 있으면
-	switch ((int32)(currAttackState))
+	switch ((int32)(currAttackState)) // 상태에 따른 행동
 	{
 		case 0:
 		break;
@@ -105,8 +108,9 @@ void UAttackComponent::OnButtonA()
 	}
 }
 
-void UAttackComponent::ChangeWeapon()
+void UAttackComponent::ChangeWeapon() // 무기 바꾸는 함수
 {
+	// 위젯의 X축에 따라 무기 바꿈
 	float targetWeapon = player->weaponWidget->slotPos->GetPosition().X;
 	if (targetWeapon == 0)
 	{
@@ -119,33 +123,34 @@ void UAttackComponent::ChangeWeapon()
 	else
 		currAttackState = EAttackState::AttackIdle;
 
+	// UI 끔
 	player->weaponWidget->RemoveFromParent();
 }
 
-void UAttackComponent::IdleState()
+void UAttackComponent::IdleState() // 기본 상태일때
 {
 	player->compSword->SetVisibility(false);
 	player->compBow->SetVisibility(false);
 }
 
-void UAttackComponent::OnButtonMenu()
+void UAttackComponent::OnButtonMenu() // 메뉴버튼 눌렀을시
 {	
 	OnWeaponUI();
 }
 
-void UAttackComponent::SwordState()
+void UAttackComponent::SwordState() // 무기 상태일때
 {
 	player->compSword->SetVisibility(true);
 	player->compBow->SetVisibility(false);
 }
 
-void UAttackComponent::BowState()
+void UAttackComponent::BowState() // 활 상태일때
 {
 	player->compSword->SetVisibility(false);
 	player->compBow->SetVisibility(true);
 }
 
-void UAttackComponent::FireSword()
+void UAttackComponent::FireSword() // 칼 공격
 {
 	FHitResult hitInfo;
 	FVector startLoc = player->GetActorLocation();
@@ -164,49 +169,49 @@ void UAttackComponent::FireSword()
 // 	}
 }
 
-void UAttackComponent::OnTriggerArrow()
-{
+void UAttackComponent::OnTriggerArrow() // 화살 조준
+{ 
 	// 공격 상태가 Bow일때 (Bow를 들고있을때)
-	// 조준을 한다 (화살에 힘을 더해준다)
+	if (currAttackState == EAttackState::AttackBow)
+	{
+		// 누르는 시간만큼 조준을 한다 (화살에 힘을 더해준다)
+		accArrowSpeed += 600*GetWorld()->DeltaTimeSeconds;
+		UE_LOG(LogTemp, Error, TEXT("%f"), accArrowSpeed);
+	}
+}
 
-	// 만약 플레이어가 공중에 있는 상태면
-	// 스태미너를 감소시키고, 시간을 천천히 흐르게 한다.
+void UAttackComponent::OnReleaseArrow() // 화살 발사
+{
+	if (currAttackState == EAttackState::AttackBow)
+	{
+		AJS_Arrow* spawnedArrow = GetWorld()->SpawnActor<AJS_Arrow>(arrowFactory, player->GetActorLocation(), player->GetActorRotation());
+		spawnedArrow->FireInDirection(spawnedArrow->GetActorForwardVector());
+		accArrowSpeed = 0; // 가속도 0으로 초기화
+	}
 
 }
 
-void UAttackComponent::OnReleaseArrow()
-{
-	// 화살을 스폰한다.
-	// 화살을 발사한다.
-	// 오브젝트 풀에 화살을 넣는다.
-}
-
-void UAttackComponent::OnWeaponUI()
+void UAttackComponent::OnWeaponUI() // UI열고 닫는 함수
 {
 
-	// 현재 메뉴가 열려있을때 (bSwitch)
-
-	if (!bWeaponMenu)
+	if (!bWeaponMenu) //메뉴가 안열려 있을때 (!bSwitch)
 	{
 		// 뷰포트에 UI 띄우기
 		player->weaponWidget->AddToViewport();
 		//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
 		player->weaponWidget->SetUIInitPos((int32)(currAttackState));
 	}
-	if (bWeaponMenu)
+	if (bWeaponMenu) 	// 현재 메뉴가 열려있을때 (bSwitch)
 	{
 		// 뷰포트에서 UI제거 (취소)
 		player->weaponWidget->RemoveFromParent();
 	}
-	// 메뉴가 안열려 있을때 (!bSwitch)
+	
 	bWeaponMenu = !bWeaponMenu;
 }
 
-void UAttackComponent::OnThumbstickLeft(const FInputActionValue& value)
-{
 
-}
-
+// UI 열려있을때 아이콘 이동시키는 함수
 void UAttackComponent::OnGrabRight()
 {
 	if(bWeaponMenu)

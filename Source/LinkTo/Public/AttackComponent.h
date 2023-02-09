@@ -37,6 +37,10 @@ public:
 		
 	class AobstacleBase* obstacleBase;
 	class AJS_Player* player;
+	class AJS_Arrow* arrow;
+	UPROPERTY(EditAnywhere, Category = Arrow)
+	TSubclassOf<AJS_Arrow> arrowFactory;
+
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
 	class UInputMappingContext* attackMapping;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
@@ -49,8 +53,9 @@ public:
 	EAttackState currAttackState = EAttackState::AttackIdle;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	bool bWeaponMenu = false;
-
-	/*UPROPERTY(EditAnywhere, Category = "VR_Settings|UI")*/
+	UPROPERTY(EditAnywhere, Category = Arrow)
+	float accArrowSpeed = 0; // 화살의 가속도
+	
 	
 
 private:
@@ -65,7 +70,6 @@ private:
 	void OnTriggerArrow();
 	void OnReleaseArrow();
 	void OnWeaponUI();
-	void OnThumbstickLeft(const struct FInputActionValue& value);
 	void OnGrabRight();
 	void OnGrabLeft();
 
