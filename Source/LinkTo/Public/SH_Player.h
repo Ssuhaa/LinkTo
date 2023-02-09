@@ -36,64 +36,87 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-public:
-
-	UPROPERTY(EditDefaultsOnly, Category = Component)
-	class UCameraComponent* compCam;
-	UPROPERTY(EditDefaultsOnly, Category = Component)
-	class UInputMappingContext* myMapping; 
-	UPROPERTY(EditDefaultsOnly, Category = Component)
-	TArray<class UInputAction*> keyInputs; 
-
-
 private:
+
+//키바인딩
 	void OnG(const struct FInputActionValue& value);
-	void OffG(const struct FInputActionValue& value);
+	void OnF(const struct FInputActionValue& value);
 	void OnWS(const struct FInputActionValue& value);
 	void OnAD(const struct FInputActionValue& value);
 	void OnLeftMouse(const struct FInputActionValue& value);
 	void LookUp(const struct FInputActionValue& value);
 	void PlayerJump();
-
 	FVector dir;
 	float speed = 500.f;
+	
+	FColor LineColor = FColor::Red;
 
+
+
+	//어레이
 	void AddArray();
 	TArray<class AActor*> obstaclearray;
-	class ATimeLockBase* hitTLActor;
-	class AIceMakerBase* hitIMActor;
-	UPROPERTY(EditAnywhere)
+	TArray<class ATimeLockBase*> timelockActorarr;
+	TArray<class AIceMakerBase*> iceMakerActorarr;
+	TArray<class AMagnetBase*> magnetActorarr;
+
+	//라인트레이스
+	FHitResult Hitinfo;
 	class ASH_Ice* hitIce;
+	void LineTraceInteration();
 	
+
+	//타임락
 	void TimeLock();
 	void LookTimeLock();
 	void OffTimeLock();
 	bool FindOnTimeLockActor();
 
+	//아이스메이커
 	void IceMaker();
-	void IceBrake();
 	void LookIceMaker();
 	void OffIceMaker();
-	UPROPERTY(EditAnywhere, Category = IceMaker)
+	void IceBrake();
 	TSubclassOf<class ASH_Ice> iceFactory;
-	UPROPERTY(VisibleAnywhere, Category = IceMaker)
 	TArray<class ASH_Ice*> iceArray;
-	FVector waterHitPoint;
+
+	//마그넷
+	void Magnet();
+	void LookMagnet();
+	void OffMagnet();
+	class AMagnetBase* GrabMagnetActor;
 
 
 public:
-	UPROPERTY(EditAnywhere, Category = Interation)
-	TArray<class ATimeLockBase*> timelockActorarr;
-	UPROPERTY(EditAnywhere, Category = Interation)
-	TArray<class AIceMakerBase*> iceMakerActorarr;
-	
+
+//컴포넌트
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class UCameraComponent* compCam;
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class UInputMappingContext* myMapping;
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	TArray<class UInputAction*> keyInputs;
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class USceneComponent* MagnetGrabComp;
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class UPhysicsHandleComponent* MagnetHandle;
+
+//스테이트
 	UPROPERTY(EditAnywhere, Category = Player)
 	bool bParasailing = false;
-	
 	UPROPERTY(EditAnywhere, Category = Player)
 	EPlayerState1 PlayerInterState = EPlayerState1::Defalt; 
 
 	void WindUp(float WindValue);
+	bool isPressedG = true;
+	bool isClickedLMouse = true;
+	bool isGrab = false;
+
+//라인트레이스 변수	FVector waterHitPoint;
+	class ATimeLockBase* hitTLActor;
+	class AIceMakerBase* hitIMActor;
+	class AMagnetBase* hitMNActor;
+
+
 
 };

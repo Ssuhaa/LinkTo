@@ -17,6 +17,9 @@
 #include "TimeLockBase.h"
 #include "IceMakerBase.h"
 #include "SH_Ice.h"
+#include <Kismet/KismetMathLibrary.h>
+#include "MagnetBase.h"
+#include <PhysicsEngine/PhysicsHandleComponent.h>
 
 
 
@@ -38,6 +41,13 @@ ASH_Player::ASH_Player()
 	{
 		iceFactory = tempice.Class;
 	}
+	MagnetGrabComp = CreateDefaultSubobject<USceneComponent>(TEXT("MagnetGrabPos"));
+	MagnetGrabComp->SetupAttachment(RootComponent);
+	MagnetGrabComp->SetRelativeLocation(FVector(400, 0, 120));
+
+	MagnetHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("MagnetHandle"));
+
+
 }
 
 // Called when the game starts or when spawned
@@ -66,6 +76,16 @@ void ASH_Player::Tick(float DeltaTime)
 	dir = FTransform(GetControlRotation()).TransformVector(dir);
 	AddMovementInput(dir.GetSafeNormal());
 	dir = FVector::ZeroVector;
+
+	if (isPressedG)
+	{
+		LineTraceInteration();
+	}
+
+	if (isGrab)
+	{
+		MagnetHandle->SetTargetLocation(MagnetGrabComp->GetComponentLocation());
+	}
 }
 
 // Called to bind functionality to input
@@ -76,13 +96,13 @@ void ASH_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
 	if (enhancedInputComponent != nullptr)
 	{
-		enhancedInputComponent->BindAction(keyInputs[0], ETriggerEvent::Triggered, this, &ASH_Player::OnG);
-		enhancedInputComponent->BindAction(keyInputs[0], ETriggerEvent::Completed, this, &ASH_Player::OffG);
+		enhancedInputComponent->BindAction(keyInputs[0], ETriggerEvent::Started, this, &ASH_Player::OnG);
 		enhancedInputComponent->BindAction(keyInputs[1], ETriggerEvent::Triggered, this, &ASH_Player::OnWS);
 		enhancedInputComponent->BindAction(keyInputs[2], ETriggerEvent::Triggered, this, &ASH_Player::OnAD);
 		enhancedInputComponent->BindAction(keyInputs[3], ETriggerEvent::Triggered, this, &ASH_Player::OnLeftMouse);
 		enhancedInputComponent->BindAction(keyInputs[4], ETriggerEvent::Triggered, this, &ASH_Player::LookUp);
 		enhancedInputComponent->BindAction(keyInputs[5], ETriggerEvent::Triggered, this, &ASH_Player::PlayerJump);
+		enhancedInputComponent->BindAction(keyInputs[6], ETriggerEvent::Triggered, this, &ASH_Player::OnF);
 	}
 }
 
@@ -106,6 +126,7 @@ void ASH_Player::LookUp(const FInputActionValue& value)
 	AddControllerPitchInput(-MouseAxis.Y);
 }
 
+
 void ASH_Player::PlayerJump()
 {
 	Jump();
@@ -122,27 +143,26 @@ void ASH_Player::OnG(const FInputActionValue& value)
 {
 	switch (PlayerInterState)
 	{
-	case EPlayerState1::Defalt:
-		break;
 	case EPlayerState1::TimeLock:
 		LookTimeLock();
+		LineColor = FColor::Yellow;
 		break;
 	case EPlayerState1::IceMaker:
 		LookIceMaker();
+		LineColor = FColor::Blue;
 		break;
 	case EPlayerState1::Margnet:
-		break;
-	case EPlayerState1::Boomb:
+		LookMagnet();
+		LineColor = FColor::Red;
 		break;
 	}
+	isPressedG = true;
 }
 
-void  ASH_Player::OffG(const FInputActionValue& value)
+void ASH_Player::OnF(const struct FInputActionValue& value)
 {
 	switch (PlayerInterState)
 	{
-	case EPlayerState1::Defalt:
-		break;
 	case EPlayerState1::TimeLock:
 		OffTimeLock();
 		break;
@@ -150,38 +170,58 @@ void  ASH_Player::OffG(const FInputActionValue& value)
 		OffIceMaker();
 		break;
 	case EPlayerState1::Margnet:
-		break;
-	case EPlayerState1::Boomb:
+		OffMagnet();
 		break;
 	}
+	isPressedG = false;
 }
 
 void ASH_Player::OnLeftMouse(const FInputActionValue& value)
 {
+
 	switch (PlayerInterState)
 	{
-	case EPlayerState1::Defalt:
-		break;
 	case EPlayerState1::TimeLock:
-		TimeLock();
+		if (hitTLActor != nullptr)
+		{
+			TimeLock();
+		}
 		break;
 	case EPlayerState1::IceMaker:
 		if (hitIMActor != nullptr)
 		{
-		IceMaker();
+			IceMaker();
 		}
-		else if(hitIce != nullptr)
+		else if (hitIce != nullptr)
 		{
-		IceBrake();
+			IceBrake();
 		}
-
 		break;
 	case EPlayerState1::Margnet:
-		break;
-	case EPlayerState1::Boomb:
+		if (isClickedLMouse)
+		{
+			if (hitMNActor != nullptr)
+			{
+				Magnet();
+			}
+			isClickedLMouse = false;
+		}
+		else
+		{
+			if (GrabMagnetActor != nullptr)
+			{
+				GrabMagnetActor->releasedMagnet();
+				MagnetHandle->ReleaseComponent();
+				isGrab = false;
+				GrabMagnetActor = nullptr;
+				hitMNActor = nullptr;
+			}
+			isClickedLMouse = true;
+		}
 		break;
 	}
 }
+
 
 //interaction 배열에 Actor들 추가하기
 void ASH_Player::AddArray()
@@ -200,6 +240,13 @@ void ASH_Player::AddArray()
 		iceMakerActorarr.Add(currA);
 	}
 
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AMagnetBase::StaticClass(), obstaclearray);
+	for (int32 i = 0; i < obstaclearray.Num(); i++)
+	{
+		AMagnetBase* currA = Cast<AMagnetBase>(obstaclearray[i]);
+		magnetActorarr.Add(currA);
+	}
+
 	for (int32 i = 0; i < 2; i++)
 	{
 		ASH_Ice* currice = GetWorld()->SpawnActor<ASH_Ice>(iceFactory);
@@ -208,31 +255,60 @@ void ASH_Player::AddArray()
 	}
 }
 
+void ASH_Player::LineTraceInteration()
+{
+	FVector Startpos = compCam->GetComponentLocation();
+	FVector Endpos = Startpos + compCam->GetForwardVector() * 5000;
+	FCollisionQueryParams par;
+	par.AddIgnoredActor(this);
+	DrawDebugLine(GetWorld(), Startpos, Endpos, LineColor, false, 1, 0, 1);
+	bool bhit = GetWorld()->LineTraceSingleByChannel(Hitinfo, Startpos, Endpos, ECC_Visibility, par);
+	if (bhit)
+	{
+		switch (PlayerInterState)
+		{
+		case EPlayerState1::TimeLock:
+			if (hitTLActor != nullptr && hitTLActor != Hitinfo.GetActor())
+			{
+				hitTLActor->InteractionTimeLock(true);
+			}
+			hitTLActor = Cast<ATimeLockBase>(Hitinfo.GetActor());
+			if (hitTLActor != nullptr)
+			{
+				hitTLActor->LookInTimeLock();
+			}
+			break;
+
+		case EPlayerState1::IceMaker:
+			hitIMActor = Cast<AIceMakerBase>(Hitinfo.GetActor());
+			hitIce = Cast<ASH_Ice>(Hitinfo.GetActor());
+			break;
+
+		case EPlayerState1::Margnet:
+			if (hitMNActor != nullptr && hitMNActor != Hitinfo.GetActor())
+			{
+				hitMNActor->InteractionMagnet(true);
+			}
+			hitMNActor = Cast<AMagnetBase>(Hitinfo.GetActor());
+			if (hitMNActor != nullptr)
+			{
+				hitMNActor->LookInMagnet();
+
+			}
+			break;
+		}
+	}
+
+}
+
 
 //타임락 액터 보기
 void ASH_Player::LookTimeLock()
 {
-	//타임락 액터 표시하기
 	if (timelockActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < timelockActorarr.Num(); i++)
 	{
 		timelockActorarr[i]->InteractionTimeLock(true);
-	}
-	// 라인트레이스 쏴서 타임락 액터가 걸리면 노란색으로 바꾸기
-	FVector Startpos = compCam->GetComponentLocation();
-	FVector Endpos = Startpos + compCam->GetForwardVector() * 5000;
-	FHitResult Hitinfo;
-	FCollisionQueryParams par;
-	par.AddIgnoredActor(this);
-	DrawDebugLine(GetWorld(), Startpos, Endpos, FColor::Red, false, 1, 0, 1);
-	bool bhit = GetWorld()->LineTraceSingleByChannel(Hitinfo, Startpos, Endpos, ECC_Visibility, par);
-	if (bhit == true)
-	{
-		hitTLActor = Cast<ATimeLockBase>(Hitinfo.GetActor());
-		if (hitTLActor != nullptr)
-		{
-			hitTLActor->LookInTimeLock();
-		}
 	}
 }
 
@@ -251,10 +327,9 @@ void ASH_Player::TimeLock()
 {
 	if (!FindOnTimeLockActor())
 	{
-		for (int32 i = 0; i < timelockActorarr.Num(); i++)
-		{
-			timelockActorarr[i]->OnTimeLock();
-		}
+		hitTLActor->OnTimeLock();
+		OffTimeLock();
+		isPressedG = true;
 	}
 }
 
@@ -278,24 +353,6 @@ void ASH_Player::LookIceMaker()
 	{
 		iceMakerActorarr[i]->InteractionIceMaker(true);
 	}
-
-	// 라인트레이스로 부딛힌 곳 저장
-	FVector Startpos = compCam->GetComponentLocation();
-	FVector Endpos = Startpos + compCam->GetForwardVector() * 5000;
-	FHitResult Hitinfo;
-	FCollisionQueryParams par;
-	par.AddIgnoredActor(this);
-	DrawDebugLine(GetWorld(), Startpos, Endpos, FColor::Blue, false, 1, 0, 1);
-	bool bhit = GetWorld()->LineTraceSingleByChannel(Hitinfo, Startpos, Endpos, ECC_Visibility, par);
-	if (bhit == true)
-	{
-		hitIMActor = Cast<AIceMakerBase>(Hitinfo.GetActor());
-		if (hitIMActor != nullptr)
-		{
-			waterHitPoint = Hitinfo.ImpactPoint;
-		}
-		hitIce = Cast<ASH_Ice>(Hitinfo.GetActor());
-	}
 }
 
 
@@ -313,18 +370,10 @@ void ASH_Player::OffIceMaker()
 //얼음 생성
 void ASH_Player::IceMaker()
 {
-	if (!iceArray[0]->isIceVisible())
-	{
-		iceArray[0]->SetActiveIce(true);
-		iceArray[0]->SetActorLocation(waterHitPoint);
-		iceArray.Swap(0, 1);
-	}
-	else
-	{
-		iceArray[1]->SetActiveIce(true);
-		iceArray[1]->SetActorLocation(waterHitPoint);
-		iceArray.Swap(1, 0);
-	}
+	iceArray[0]->SetActorLocation(Hitinfo.ImpactPoint);
+	iceArray[0]->SetRotation(Hitinfo.ImpactNormal);
+	iceArray[0]->SetActiveIce(true);
+	iceArray.Swap(0, 1);
 }
 
 //얼음 제거
@@ -332,4 +381,39 @@ void ASH_Player::IceBrake()
 {
 	iceArray[iceArray.Find(hitIce)]->SetActiveIce(false);
 }
+
+
+
+//마그넷액터 표시하기
+void ASH_Player::LookMagnet()
+{
+	if (magnetActorarr.IsEmpty()) return;
+	for (int32 i = 0; i < magnetActorarr.Num(); i++)
+	{
+		magnetActorarr[i]->InteractionMagnet(true);
+	}
+}
+
+//마그넷 액터 표시 끄기
+void ASH_Player::OffMagnet()
+{
+	if (magnetActorarr.IsEmpty()) return;
+	for (int32 i = 0; i < magnetActorarr.Num(); i++)
+	{
+		magnetActorarr[i]->InteractionMagnet(false);
+	}
+}
+
+//마그넷 선택
+void ASH_Player:: Magnet()
+{
+	if (hitMNActor != nullptr)
+	{
+		MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), MagnetGrabComp->GetComponentLocation());
+		hitMNActor->OnMagnet();
+		GrabMagnetActor = hitMNActor;
+		isGrab = true;
+	}
+}
+
 

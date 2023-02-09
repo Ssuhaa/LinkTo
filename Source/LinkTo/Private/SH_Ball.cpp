@@ -84,6 +84,11 @@ void ASH_Ball::releasedTimeLock()
 	InteractionMesh->SetSimulatePhysics(true);
 }
 
+void ASH_Ball::Goal()
+{
+	InteractionMesh->SetSimulatePhysics(false);
+}
+
 void  ASH_Ball ::InteractionTimeLock(bool isON)
 {
 	Super::InteractionTimeLock(isON);

@@ -4,6 +4,7 @@
 #include "TimeLockBase.h"
 #include <Materials/MaterialParameterCollection.h>
 #include <Kismet/KismetMaterialLibrary.h>
+#include "SH_Player.h"
 
 ATimeLockBase::ATimeLockBase()
 {
@@ -18,6 +19,7 @@ ATimeLockBase::ATimeLockBase()
 void ATimeLockBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 void ATimeLockBase::Tick(float DeltaTime)
@@ -67,7 +69,6 @@ void ATimeLockBase::OnTimeLock()
 {
 	if (bLookin)
 	{
-		ChangeMaterial(TimeLockMatArray, 2, InteractionMesh);
 		bTimeLock = true;
 	}
 }
@@ -75,7 +76,14 @@ void ATimeLockBase::OnTimeLock()
 // 타임락 풀기
 void ATimeLockBase::releasedTimeLock()
 {
-	ChangeMaterial(TimeLockMatArray, 0, InteractionMesh);
+	if (!player->isPressedG)
+	{
+		ChangeMaterial(TimeLockMatArray, 1, InteractionMesh);
+	}
+	else
+	{
+		ChangeMaterial(TimeLockMatArray, 0, InteractionMesh);
+	}
 	countTime = 0;
 	bTimeLock = false;
 	bLookin = false;

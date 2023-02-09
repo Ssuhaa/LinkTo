@@ -35,14 +35,17 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class USceneComponent* rootComp;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
-	class UStaticMeshComponent* InteractionMesh;
 
 	class ASH_Player* player;
 
 public:	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
+		class UStaticMeshComponent* InteractionMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Interaction)
 	EObstacleType interationType = EObstacleType::None;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Interaction)
+	bool bDamage = false;
 
 };
