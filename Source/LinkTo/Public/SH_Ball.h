@@ -38,5 +38,6 @@ public:
 	void SetActiveBall(bool isActive);
 	virtual void OnTimeLock() override;
 	virtual void releasedTimeLock() override;
+	void Goal();
 
 };
