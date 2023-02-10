@@ -3,10 +3,10 @@
 
 #include "SH_PushButton.h"
 #include <Components/BoxComponent.h>
-#include "SH_Player.h"
 #include <Math/UnrealMathUtility.h>
 #include "SH_Push.h"
 #include <Kismet/GameplayStatics.h>
+#include "JS_Player.h"
 
 ASH_PushButton::ASH_PushButton()
 {
@@ -65,7 +65,7 @@ void ASH_PushButton::Tick(float DeltaTime)
 
 void ASH_PushButton::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	ASH_Player* Player = Cast<ASH_Player>(OtherActor);
+	AJS_Player* Player = Cast<AJS_Player>(OtherActor);
 	if (Player != nullptr)
 	{
 		if (!bTimeLock)
@@ -82,7 +82,7 @@ void ASH_PushButton::NotifyActorBeginOverlap(AActor* OtherActor)
 
 void ASH_PushButton::NotifyActorEndOverlap(AActor* OtherActor)
 {
-	ASH_Player* Player = Cast<ASH_Player>(OtherActor);
+	AJS_Player* Player = Cast<AJS_Player>(OtherActor);
 	if (Player != nullptr)
 	{
 		if (!bTimeLock)
