@@ -77,7 +77,7 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 		enhancedInputComponent->BindAction(inputAction[2], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnAD);
 		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnLeftMouse);
 		enhancedInputComponent->BindAction(inputAction[4], ETriggerEvent::Triggered, this, &UJS_SkillComponent::LookUp);
-		enhancedInputComponent->BindAction(inputAction[5], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
+		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
 	}
 
 	
@@ -130,6 +130,7 @@ void UJS_SkillComponent::LookUp(const FInputActionValue& value)
 void UJS_SkillComponent::OnG(const FInputActionValue& value)
 {
 	player->OnLogRight("OnG");
+	isPressedG = true;
 	switch (PlayerSkillState)
 	{
 	case ESkillState::TimeLock:
@@ -145,7 +146,6 @@ void UJS_SkillComponent::OnG(const FInputActionValue& value)
 		LineColor = FColor::Red;
 		break;
 	}
-	isPressedG = true;
 }
 
 void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
@@ -320,7 +320,7 @@ void UJS_SkillComponent::TimeLock()
 	{
 		hitTLActor->OnTimeLock();
 		OffTimeLock();
-		isPressedG = true;
+		isPressedG = false;
 	}
 }
 
@@ -406,9 +406,4 @@ void UJS_SkillComponent::Magnet()
 		GrabMagnetActor = hitMNActor;
 		isGrab = true;
 	}
-}
-void UJS_SkillComponent::WindUp(float WindValue)
-{
-	FVector Vel =player->GetMovementComponent()->Velocity;
-	player->GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
 }
