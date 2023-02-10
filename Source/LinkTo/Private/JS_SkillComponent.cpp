@@ -130,6 +130,7 @@ void UJS_SkillComponent::LookUp(const FInputActionValue& value)
 void UJS_SkillComponent::OnG(const FInputActionValue& value)
 {
 	player->OnLogRight("OnG");
+	isPressedG = true;
 	switch (PlayerSkillState)
 	{
 	case ESkillState::TimeLock:
@@ -145,7 +146,6 @@ void UJS_SkillComponent::OnG(const FInputActionValue& value)
 		LineColor = FColor::Red;
 		break;
 	}
-	isPressedG = true;
 }
 
 void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
@@ -320,7 +320,7 @@ void UJS_SkillComponent::TimeLock()
 	{
 		hitTLActor->OnTimeLock();
 		OffTimeLock();
-		isPressedG = true;
+		isPressedG = false;
 	}
 }
 
@@ -407,8 +407,3 @@ void UJS_SkillComponent::Magnet()
 		isGrab = true;
 	}
 }
-// void UJS_SkillComponent::WindUp(float WindValue)
-// {
-// 	FVector Vel =player->GetMovementComponent()->Velocity;
-// 	player->GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
-// }

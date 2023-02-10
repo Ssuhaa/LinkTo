@@ -62,7 +62,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Player)
 	ESkillState PlayerSkillState = ESkillState::Defalt;
 
-	void WindUp(float WindValue);
+	
 	bool isPressedG = true;
 	bool isClickedLMouse = true;
 	bool isGrab = false;
