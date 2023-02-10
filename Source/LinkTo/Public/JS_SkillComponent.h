@@ -63,7 +63,7 @@ public:
 	ESkillState PlayerSkillState = ESkillState::Defalt;
 
 	
-	bool isPressedG = true;
+	bool isPressedG = false;
 	bool isClickedLMouse = true;
 	bool isGrab = false;
 

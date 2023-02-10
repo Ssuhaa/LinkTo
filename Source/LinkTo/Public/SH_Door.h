@@ -15,4 +15,7 @@ class LINKTO_API ASH_Door : public AobstacleBase
 	GENERATED_BODY()
 	
 	ASH_Door();
+
+protected:
+	class ASH_Goal* Goal;
 };

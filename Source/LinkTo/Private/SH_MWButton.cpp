@@ -3,8 +3,8 @@
 
 #include "SH_MWButton.h"
 #include <Components/BoxComponent.h>
-#include "SH_Player.h"
 #include <Math/UnrealMathUtility.h>
+#include "JS_Player.h"
 
 ASH_MWButton::ASH_MWButton()
 {
@@ -61,7 +61,7 @@ void ASH_MWButton::Tick(float DeltaTime)
 
 void ASH_MWButton::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	ASH_Player* Player = Cast<ASH_Player>(OtherActor);
+	AJS_Player* Player = Cast<AJS_Player>(OtherActor);
 	if (Player != nullptr)
 	{
 		if (!bTimeLock)
@@ -78,7 +78,7 @@ void ASH_MWButton::NotifyActorBeginOverlap(AActor* OtherActor)
 
 void ASH_MWButton::NotifyActorEndOverlap(AActor* OtherActor)
 {
-	ASH_Player* Player = Cast<ASH_Player>(OtherActor);
+	AJS_Player* Player = Cast<AJS_Player>(OtherActor);
 	if (Player != nullptr)
 	{
 		if (!bTimeLock)
