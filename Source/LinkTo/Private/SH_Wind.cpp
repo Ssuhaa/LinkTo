@@ -5,6 +5,7 @@
 #include <Components/ArrowComponent.h>
 #include <Components/BoxComponent.h>
 #include "SH_Player.h"
+#include <GameFramework/PawnMovementComponent.h>
 
 ASH_Wind::ASH_Wind()
 {
@@ -22,7 +23,8 @@ ASH_Wind::ASH_Wind()
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
 	BoxCollision->SetupAttachment(InteractionMesh);
 	BoxCollision->SetCollisionProfileName(TEXT("OverlapAll"));
-	BoxCollision->SetRelativeLocation(FVector(0, 0, 60));
+	BoxCollision->SetRelativeScale3D(FVector(1,1,3));
+	BoxCollision->SetRelativeLocation(FVector(0, 0, 250));
 	BoxCollision->SetBoxExtent(FVector(48, 48, 10));
 }
 
@@ -39,10 +41,16 @@ void ASH_Wind::Tick(float DeltaTime)
 	{
 		if (Target->bParasailing)
 		{
-			Target->WindUp(WindValue);
-
+			currentTime += DeltaTime;
+			float result = FMath::Sin(currentTime * PI);
+			FVector offset = dirComp->GetForwardVector() * DeltaTime * WindValue;
+			offset.Z += result;
+			player->AddActorWorldOffset(offset);
+			FVector Vel = player->GetMovementComponent()->Velocity;
+			player->GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z+WindValue);
 		}
 	}
+
 }
 
 void ASH_Wind::NotifyActorBeginOverlap(AActor* OtherActor)
@@ -53,4 +61,5 @@ void ASH_Wind::NotifyActorBeginOverlap(AActor* OtherActor)
 void ASH_Wind::NotifyActorEndOverlap(AActor* OtherActor)
 {
 	Target = nullptr;
+	currentTime = 0;
 }

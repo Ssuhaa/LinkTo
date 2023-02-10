@@ -53,9 +53,7 @@ void AobstacleBase::ChangeMaterial(TArray<UMaterialInstance*> MatArray, int32 Ar
 {
 	if (MatArray.IsValidIndex(Arrayindex))
 	{
-
 		Mesh->SetMaterial(0, MatArray[Arrayindex]);
-	
 	}
 }
 

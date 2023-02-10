@@ -31,7 +31,7 @@ void ATimeLockBase::Tick(float DeltaTime)
 		{
 			releasedTimeLock();
 		}
-		if (currentTime > 7)
+		else if (currentTime > 7 && currentTime <12)
 		{
 			ChangeMaterial(TimeLockMatArray, 3, InteractionMesh);
 			countTime += DeltaTime;
@@ -76,7 +76,7 @@ void ATimeLockBase::OnTimeLock()
 // 타임락 풀기
 void ATimeLockBase::releasedTimeLock()
 {
-	if (!player->isPressedG)
+	if (player->isPressedG)
 	{
 		ChangeMaterial(TimeLockMatArray, 1, InteractionMesh);
 	}

@@ -42,8 +42,8 @@ ASH_Player::ASH_Player()
 		iceFactory = tempice.Class;
 	}
 	MagnetGrabComp = CreateDefaultSubobject<USceneComponent>(TEXT("MagnetGrabPos"));
-	MagnetGrabComp->SetupAttachment(RootComponent);
-	MagnetGrabComp->SetRelativeLocation(FVector(400, 0, 120));
+	MagnetGrabComp->SetupAttachment(compCam);
+	MagnetGrabComp->SetRelativeLocation(FVector(500, 0, 900));
 
 	MagnetHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("MagnetHandle"));
 
@@ -86,6 +86,9 @@ void ASH_Player::Tick(float DeltaTime)
 	{
 		MagnetHandle->SetTargetLocation(MagnetGrabComp->GetComponentLocation());
 	}
+
+
+
 }
 
 // Called to bind functionality to input
@@ -135,12 +138,13 @@ void ASH_Player::PlayerJump()
 // 플레이어 바람으로 띄우기
 void ASH_Player::WindUp(float WindValue)
 {
-	FVector Vel = GetMovementComponent()->Velocity;
-	GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
+ 	FVector Vel = GetMovementComponent()->Velocity;
+ 	GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
 }
 
 void ASH_Player::OnG(const FInputActionValue& value)
 {
+	isPressedG = true;
 	switch (PlayerInterState)
 	{
 	case EPlayerState1::TimeLock:
@@ -156,7 +160,6 @@ void ASH_Player::OnG(const FInputActionValue& value)
 		LineColor = FColor::Red;
 		break;
 	}
-	isPressedG = true;
 }
 
 void ASH_Player::OnF(const struct FInputActionValue& value)
@@ -257,6 +260,9 @@ void ASH_Player::AddArray()
 
 void ASH_Player::LineTraceInteration()
 {
+	if(FindOnTimeLockActor()) return;
+	if(FindOnMagnetActor()) return;
+
 	FVector Startpos = compCam->GetComponentLocation();
 	FVector Endpos = Startpos + compCam->GetForwardVector() * 5000;
 	FCollisionQueryParams par;
@@ -325,12 +331,9 @@ void ASH_Player::OffTimeLock()
 //타임락 걸기
 void ASH_Player::TimeLock()
 {
-	if (!FindOnTimeLockActor())
-	{
-		hitTLActor->OnTimeLock();
-		OffTimeLock();
-		isPressedG = true;
-	}
+	hitTLActor->OnTimeLock();
+	OffTimeLock();
+	isPressedG = false;
 }
 
 //타임락 걸린 액터가 있는지 찾기
@@ -404,12 +407,22 @@ void ASH_Player::OffMagnet()
 	}
 }
 
+bool ASH_Player::FindOnMagnetActor()
+{
+	for (int32 i = 0; i < magnetActorarr.Num(); i++)
+	{
+		if (magnetActorarr[i]->bMagnet) return true;
+	}
+	return false;
+}
+
 //마그넷 선택
 void ASH_Player:: Magnet()
 {
 	if (hitMNActor != nullptr)
 	{
-		MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), MagnetGrabComp->GetComponentLocation());
+		MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), hitMNActor->GetActorLocation());
+		MagnetGrabComp->SetWorldLocation(hitMNActor->GetActorLocation());
 		hitMNActor->OnMagnet();
 		GrabMagnetActor = hitMNActor;
 		isGrab = true;
