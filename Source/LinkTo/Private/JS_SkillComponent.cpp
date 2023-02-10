@@ -1,81 +1,99 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "SH_Player.h"
-#include "Camera/CameraComponent.h"
-#include "MotionControllerComponent.h"
-#include "Components/TextRenderComponent.h"
-#include "Components/SkeletalMeshComponent.h"
+#include "JS_SkillComponent.h"
+#include "AttackComponent.h"
+#include "MoveComponent.h"
+#include "JS_Player.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Components/InputComponent.h"
 #include "InputAction.h"
-#include "InputMappingContext.h"
 #include "InputActionValue.h"
-#include "MoveComponent.h"
+#include <GameFramework/CharacterMovementComponent.h>
+#include <Components/CapsuleComponent.h>
+#include <Camera/CameraComponent.h>
+#include <CollisionQueryParams.h>
+#include "PlayerStateComponent.h"
+#include "JS_WidgetWeaponSwitch.h"
+#include <Components/CanvasPanelSlot.h>
+#include <Components/CanvasPanel.h>
+#include "JS_Arrow.h"
 #include <Kismet/GameplayStatics.h>
-#include <GameFramework/PawnMovementComponent.h>
+#include <GameFramework/ProjectileMovementComponent.h>
 #include "TimeLockBase.h"
 #include "IceMakerBase.h"
-#include "SH_Ice.h"
-#include <Kismet/KismetMathLibrary.h>
 #include "MagnetBase.h"
+#include "SH_Ice.h"
 #include <PhysicsEngine/PhysicsHandleComponent.h>
+#include <Math/MathFwd.h>
 
 
-
-
-ASH_Player::ASH_Player()
+// Sets default values for this component's properties
+UJS_SkillComponent::UJS_SkillComponent()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	compCam = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
-	compCam->SetupAttachment(RootComponent);
-
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
-	bUseControllerRotationYaw = true;
-	bUseControllerRotationPitch = true;
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = true;
 
 	ConstructorHelpers::FClassFinder <ASH_Ice> tempice(TEXT("/Script/CoreUObject.Class'/Script/LinkTo.SH_Ice'"));
 	if (tempice.Succeeded())
 	{
 		iceFactory = tempice.Class;
 	}
-	MagnetGrabComp = CreateDefaultSubobject<USceneComponent>(TEXT("MagnetGrabPos"));
-	MagnetGrabComp->SetupAttachment(RootComponent);
-	MagnetGrabComp->SetRelativeLocation(FVector(400, 0, 120));
 
-	MagnetHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("MagnetHandle"));
-
-
+	// ...
 }
 
-// Called when the game starts or when spawned
-void ASH_Player::BeginPlay()
+
+// Called when the game starts
+void UJS_SkillComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 1. 플레이어 컨트롤러 가져오기
-	APlayerController* playerCon = GetWorld()->GetFirstPlayerController();
+	player = Cast<AJS_Player>(GetOwner());
+	APlayerController* skillCon = GetWorld()->GetFirstPlayerController();
 	// 2. 플레이어 컨트롤러에서 EnhancedInputLocalPlayerSubsystem을 가져오기
-	UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerCon->GetLocalPlayer());
+	UEnhancedInputLocalPlayerSubsystem* skillSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(skillCon->GetLocalPlayer());
 	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
-	subsys->AddMappingContext(myMapping, 0);
-
+	skillSubsys->AddMappingContext(SHMapping, selectContext);
+	skillSubsys->AddMappingContext(skillMapping,selectContext);
+	// ...
+	
 	AddArray();
 
-	playerCon->PlayerCameraManager->ViewPitchMin = -80.0f;
-	playerCon->PlayerCameraManager->ViewPitchMax = 30.0f;
+	skillCon->PlayerCameraManager->ViewPitchMin = -80.0f;
+	skillCon->PlayerCameraManager->ViewPitchMax = 30.0f;
+	
 }
 
-// Called every frame
-void ASH_Player::Tick(float DeltaTime)
+void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	Super::Tick(DeltaTime);
+	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
+	
+	if (enhancedInputComponent != nullptr)
+	{
+		enhancedInputComponent->BindAction(inputAction[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnG);
+		enhancedInputComponent->BindAction(inputAction[1], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnWS);
+		enhancedInputComponent->BindAction(inputAction[2], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnAD);
+		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnLeftMouse);
+		enhancedInputComponent->BindAction(inputAction[4], ETriggerEvent::Triggered, this, &UJS_SkillComponent::LookUp);
+		enhancedInputComponent->BindAction(inputAction[5], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
+	}
 
-	dir = FTransform(GetControlRotation()).TransformVector(dir);
-	AddMovementInput(dir.GetSafeNormal());
-	dir = FVector::ZeroVector;
+	
+
+}
+
+
+// Called every frame
+void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	// 마그넷 핸들
+	player->dir = FTransform(player->GetControlRotation()).TransformVector(player->dir);
+	player->AddMovementInput(player->dir.GetSafeNormal());
+	player->dir = FVector::ZeroVector;
 
 	if (isPressedG)
 	{
@@ -84,71 +102,45 @@ void ASH_Player::Tick(float DeltaTime)
 
 	if (isGrab)
 	{
-		MagnetHandle->SetTargetLocation(MagnetGrabComp->GetComponentLocation());
+		player->MagnetHandle->SetTargetLocation(player->MagnetGrabComp->GetComponentLocation());
 	}
+
+
 }
-
-// Called to bind functionality to input
-// void ASH_Player::SetupPlayerInputComponent(UEnhancedInputComponent* PlayerInputComponent)
-// {
-// 	if (PlayerInputComponent != nullptr)
-// 	{
-// 		PlayerInputComponent->BindAction(keyInputs[0], ETriggerEvent::Started, this, &ASH_Player::OnG);
-// 		PlayerInputComponent->BindAction(keyInputs[1], ETriggerEvent::Triggered, this, &ASH_Player::OnWS);
-// 		PlayerInputComponent->BindAction(keyInputs[2], ETriggerEvent::Triggered, this, &ASH_Player::OnAD);
-// 		PlayerInputComponent->BindAction(keyInputs[3], ETriggerEvent::Triggered, this, &ASH_Player::OnLeftMouse);
-// 		PlayerInputComponent->BindAction(keyInputs[4], ETriggerEvent::Triggered, this, &ASH_Player::LookUp);
-// 		PlayerInputComponent->BindAction(keyInputs[5], ETriggerEvent::Triggered, this, &ASH_Player::PlayerJump);
-// 		PlayerInputComponent->BindAction(keyInputs[6], ETriggerEvent::Triggered, this, &ASH_Player::OnF);
-// 	}
-// }
-
-void ASH_Player::OnWS(const FInputActionValue& value)
+	
+// 키보드 
+void UJS_SkillComponent::OnWS(const FInputActionValue& value)
 {
 	float Axis = value.Get<float>();
-	dir.X += Axis;
+	player->dir.X += Axis;
 }
-
-void ASH_Player::OnAD(const  FInputActionValue& value)
+void UJS_SkillComponent::OnAD(const  FInputActionValue& value)
 {
 	float Axis = value.Get<float>();
-	dir.Y += Axis;
+	player->dir.Y += Axis;
 }
-
-void ASH_Player::LookUp(const FInputActionValue& value)
+void UJS_SkillComponent::LookUp(const FInputActionValue& value)
 {
 	FVector2D MouseAxis = value.Get<FVector2D>();
 
-	AddControllerYawInput(MouseAxis.X);
-	AddControllerPitchInput(-MouseAxis.Y);
+	player->AddControllerYawInput(MouseAxis.X);
+	player->AddControllerPitchInput(-MouseAxis.Y);
 }
 
-
-void ASH_Player::PlayerJump()
+void UJS_SkillComponent::OnG(const FInputActionValue& value)
 {
-	Jump();
-}
-
-// 플레이어 바람으로 띄우기
-void ASH_Player::WindUp(float WindValue)
-{
-	FVector Vel = GetMovementComponent()->Velocity;
-	GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
-}
-
-void ASH_Player::OnG(const FInputActionValue& value)
-{
-	switch (PlayerInterState)
+	player->OnLogRight("OnG");
+	switch (PlayerSkillState)
 	{
-	case EPlayerState1::TimeLock:
+	case ESkillState::TimeLock:
 		LookTimeLock();
 		LineColor = FColor::Yellow;
 		break;
-	case EPlayerState1::IceMaker:
+	case ESkillState::IceMaker:
 		LookIceMaker();
 		LineColor = FColor::Blue;
 		break;
-	case EPlayerState1::Margnet:
+	case ESkillState::Margnet:
 		LookMagnet();
 		LineColor = FColor::Red;
 		break;
@@ -156,35 +148,36 @@ void ASH_Player::OnG(const FInputActionValue& value)
 	isPressedG = true;
 }
 
-void ASH_Player::OnF(const struct FInputActionValue& value)
+void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
 {
-	switch (PlayerInterState)
+	player->OnLogRight("OnF");
+	switch (PlayerSkillState)
 	{
-	case EPlayerState1::TimeLock:
+	case ESkillState::TimeLock:
 		OffTimeLock();
 		break;
-	case EPlayerState1::IceMaker:
+	case ESkillState::IceMaker:
 		OffIceMaker();
 		break;
-	case EPlayerState1::Margnet:
+	case ESkillState::Margnet:
 		OffMagnet();
 		break;
 	}
 	isPressedG = false;
 }
 
-void ASH_Player::OnLeftMouse(const FInputActionValue& value)
+void UJS_SkillComponent::OnLeftMouse(const FInputActionValue& value) // 인식 버튼
 {
-
-	switch (PlayerInterState)
+	player->OnLogRight("OnLeftMouse");
+	switch (PlayerSkillState)
 	{
-	case EPlayerState1::TimeLock:
+	case ESkillState::TimeLock:
 		if (hitTLActor != nullptr)
 		{
 			TimeLock();
 		}
 		break;
-	case EPlayerState1::IceMaker:
+	case ESkillState::IceMaker:
 		if (hitIMActor != nullptr)
 		{
 			IceMaker();
@@ -194,7 +187,7 @@ void ASH_Player::OnLeftMouse(const FInputActionValue& value)
 			IceBrake();
 		}
 		break;
-	case EPlayerState1::Margnet:
+	case ESkillState::Margnet:
 		if (isClickedLMouse)
 		{
 			if (hitMNActor != nullptr)
@@ -208,7 +201,7 @@ void ASH_Player::OnLeftMouse(const FInputActionValue& value)
 			if (GrabMagnetActor != nullptr)
 			{
 				GrabMagnetActor->releasedMagnet();
-				MagnetHandle->ReleaseComponent();
+				player->MagnetHandle->ReleaseComponent();
 				isGrab = false;
 				GrabMagnetActor = nullptr;
 				hitMNActor = nullptr;
@@ -221,7 +214,7 @@ void ASH_Player::OnLeftMouse(const FInputActionValue& value)
 
 
 //interaction 배열에 Actor들 추가하기
-void ASH_Player::AddArray()
+void UJS_SkillComponent::AddArray()
 {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATimeLockBase::StaticClass(), obstaclearray);
 	for (int32 i = 0; i < obstaclearray.Num(); i++)
@@ -252,19 +245,20 @@ void ASH_Player::AddArray()
 	}
 }
 
-void ASH_Player::LineTraceInteration()
+void UJS_SkillComponent::LineTraceInteration()
 {
-	FVector Startpos = compCam->GetComponentLocation();
-	FVector Endpos = Startpos + compCam->GetForwardVector() * 5000;
+	
+	FVector Startpos = player->compCam->GetComponentLocation();
+	FVector Endpos = Startpos + player->compCam->GetForwardVector() * 5000;
 	FCollisionQueryParams par;
-	par.AddIgnoredActor(this);
+	par.AddIgnoredActor(GetOwner());
 	DrawDebugLine(GetWorld(), Startpos, Endpos, LineColor, false, 1, 0, 1);
 	bool bhit = GetWorld()->LineTraceSingleByChannel(Hitinfo, Startpos, Endpos, ECC_Visibility, par);
 	if (bhit)
 	{
-		switch (PlayerInterState)
+		switch (PlayerSkillState)
 		{
-		case EPlayerState1::TimeLock:
+		case ESkillState::TimeLock:
 			if (hitTLActor != nullptr && hitTLActor != Hitinfo.GetActor())
 			{
 				hitTLActor->InteractionTimeLock(true);
@@ -276,12 +270,12 @@ void ASH_Player::LineTraceInteration()
 			}
 			break;
 
-		case EPlayerState1::IceMaker:
+		case ESkillState::IceMaker:
 			hitIMActor = Cast<AIceMakerBase>(Hitinfo.GetActor());
 			hitIce = Cast<ASH_Ice>(Hitinfo.GetActor());
 			break;
 
-		case EPlayerState1::Margnet:
+		case ESkillState::Margnet:
 			if (hitMNActor != nullptr && hitMNActor != Hitinfo.GetActor())
 			{
 				hitMNActor->InteractionMagnet(true);
@@ -300,7 +294,7 @@ void ASH_Player::LineTraceInteration()
 
 
 //타임락 액터 보기
-void ASH_Player::LookTimeLock()
+void UJS_SkillComponent::LookTimeLock()
 {
 	if (timelockActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < timelockActorarr.Num(); i++)
@@ -310,7 +304,7 @@ void ASH_Player::LookTimeLock()
 }
 
 //타임락 표시 끄기
-void ASH_Player::OffTimeLock()
+void UJS_SkillComponent::OffTimeLock()
 {
 	if (timelockActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < timelockActorarr.Num(); i++)
@@ -320,7 +314,7 @@ void ASH_Player::OffTimeLock()
 }
 
 //타임락 걸기
-void ASH_Player::TimeLock()
+void UJS_SkillComponent::TimeLock()
 {
 	if (!FindOnTimeLockActor())
 	{
@@ -331,7 +325,7 @@ void ASH_Player::TimeLock()
 }
 
 //타임락 걸린 액터가 있는지 찾기
-bool ASH_Player::FindOnTimeLockActor()
+bool UJS_SkillComponent::FindOnTimeLockActor()
 {
 	for (int32 i = 0; i < timelockActorarr.Num(); i++)
 	{
@@ -343,7 +337,7 @@ bool ASH_Player::FindOnTimeLockActor()
 
 
 //아이스메이커 액터 보기
-void ASH_Player::LookIceMaker()
+void UJS_SkillComponent::LookIceMaker()
 {
 	if (iceMakerActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < iceMakerActorarr.Num(); i++)
@@ -354,7 +348,7 @@ void ASH_Player::LookIceMaker()
 
 
 //아이스메이커 표시 끄기
-void ASH_Player::OffIceMaker()
+void UJS_SkillComponent::OffIceMaker()
 {
 	if (iceMakerActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < iceMakerActorarr.Num(); i++)
@@ -365,7 +359,7 @@ void ASH_Player::OffIceMaker()
 
 
 //얼음 생성
-void ASH_Player::IceMaker()
+void UJS_SkillComponent::IceMaker()
 {
 	iceArray[0]->SetActorLocation(Hitinfo.ImpactPoint);
 	iceArray[0]->SetRotation(Hitinfo.ImpactNormal);
@@ -374,7 +368,7 @@ void ASH_Player::IceMaker()
 }
 
 //얼음 제거
-void ASH_Player::IceBrake()
+void UJS_SkillComponent::IceBrake()
 {
 	iceArray[iceArray.Find(hitIce)]->SetActiveIce(false);
 }
@@ -382,7 +376,7 @@ void ASH_Player::IceBrake()
 
 
 //마그넷액터 표시하기
-void ASH_Player::LookMagnet()
+void UJS_SkillComponent::LookMagnet()
 {
 	if (magnetActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < magnetActorarr.Num(); i++)
@@ -392,7 +386,7 @@ void ASH_Player::LookMagnet()
 }
 
 //마그넷 액터 표시 끄기
-void ASH_Player::OffMagnet()
+void UJS_SkillComponent::OffMagnet()
 {
 	if (magnetActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < magnetActorarr.Num(); i++)
@@ -402,15 +396,19 @@ void ASH_Player::OffMagnet()
 }
 
 //마그넷 선택
-void ASH_Player:: Magnet()
+void UJS_SkillComponent::Magnet()
 {
 	if (hitMNActor != nullptr)
 	{
-		MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), MagnetGrabComp->GetComponentLocation());
+		player->MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), hitMNActor->GetActorLocation());
+		player->MagnetGrabComp->SetWorldLocation(hitMNActor->GetActorLocation());
 		hitMNActor->OnMagnet();
 		GrabMagnetActor = hitMNActor;
 		isGrab = true;
 	}
 }
-
-
+void UJS_SkillComponent::WindUp(float WindValue)
+{
+	FVector Vel =player->GetMovementComponent()->Velocity;
+	player->GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
+}

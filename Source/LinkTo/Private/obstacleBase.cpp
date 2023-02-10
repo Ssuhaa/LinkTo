@@ -6,6 +6,7 @@
 #include "SH_Player.h"
 #include <Kismet/GameplayStatics.h>
 #include "CharacterBase.h"
+#include "JS_Player.h"
 
 
 // Sets default values
@@ -23,7 +24,8 @@ AobstacleBase::AobstacleBase()
 void AobstacleBase::BeginPlay()
 {
 	Super::BeginPlay();
-	player = Cast <ASH_Player>(UGameplayStatics::GetActorOfClass(GetWorld(), ACharacterBase::StaticClass()));
+	player = Cast <AJS_Player>(UGameplayStatics::GetActorOfClass(GetWorld(), ACharacterBase::StaticClass()));
+	
 }
 
 // Called every frame

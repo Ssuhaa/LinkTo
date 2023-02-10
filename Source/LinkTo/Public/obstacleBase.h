@@ -36,7 +36,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class USceneComponent* rootComp;
 
-	class ASH_Player* player;
+	
 
 public:	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
@@ -47,5 +47,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Interaction)
 	bool bDamage = false;
+
+	class AJS_Player* player;
 
 };

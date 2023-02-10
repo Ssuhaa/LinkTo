@@ -11,6 +11,7 @@
 /**
  * 
  */
+
 UCLASS()
 class LINKTO_API AJS_Player : public ACharacterBase
 {
@@ -37,6 +38,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	class UStaticMeshComponent* compBow;
 
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	TArray<class UInputAction*> keyInputs;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UCameraComponent* compCam; // 카메라 컴프
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
@@ -64,6 +67,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UMoveComponent* compMove; // 움직임 컴포넌트
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
+	class UJS_SkillComponent* compSkill;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UTextRenderComponent* moveLog;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UPlayerStateComponent* compState;
@@ -73,7 +78,18 @@ public:
 	class UJS_WidgetWeaponSwitch* weaponWidget;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	TSubclassOf<UJS_WidgetWeaponSwitch> weaponUIFactory;
-	
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class USceneComponent* MagnetGrabComp;
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class UPhysicsHandleComponent* MagnetHandle;
+
+	FVector dir;
+	//
+	void OnLogLeft(FString value);
+	void OnLogMove(FString value);
+	void OnLogRight(FString value);
+
+
 
 private:
 	// 트리거
@@ -89,7 +105,7 @@ private:
 	// 메뉴
 	void OnMenuLeft(const struct FInputActionValue& value);
 	// 왼쪽 로그
-	void OnLogLeft(FString value);
+	
 
 	// 오른쪽 
 	
@@ -104,10 +120,12 @@ private:
 	// B
 	void On_B_ButtonRight(const struct FInputActionValue& value);
 	// 로그
-	void OnLogRight(FString value);
+
 
 public:
+	void KeyInputsBinding();
+
 	
-	void OnLogMove(FString value);
-	
+
+
 };

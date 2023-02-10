@@ -43,7 +43,6 @@ void UAttackComponent::BeginPlay()
 	Super::BeginPlay();
 
 	player = Cast<AJS_Player>(GetOwner());
-	/*arrow = GetWorld()->SpawnActor<AJS_Arrow>(player->compCam->GetComponentLocation(), FRotator(0));*/
 
 	APlayerController* attackCon = GetWorld()->GetFirstPlayerController();
 	// 2. 플레이어 컨트롤러에서 EnhancedInputLocalPlayerSubsystem을 가져오기

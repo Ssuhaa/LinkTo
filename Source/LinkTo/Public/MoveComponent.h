@@ -32,10 +32,14 @@ public:
 	float walkSpeed = 600.f;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	class UInputMappingContext* moveMapping;
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	TArray<class UInputAction*> keyInputs;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	TArray <class UInputAction*> leftInputs;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	TArray <class UInputAction*> rightInputs;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
+	class UInputAction* spaceBar;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	EPlayerState playerState;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")

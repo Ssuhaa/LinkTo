@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "MagnetBase.h"
-#include "SH_Player.h"
+#include "JS_SkillComponent.h"
+#include "JS_Player.h"
 
 AMagnetBase::AMagnetBase()
 {
@@ -56,7 +56,7 @@ void AMagnetBase::OnMagnet()
 
 void AMagnetBase::releasedMagnet()
 {
-	if (player->isPressedG)
+	if (player->compSkill->isPressedG)
 	{
 		ChangeMaterial(MagnetMatarray, 1, InteractionMesh);
 	}

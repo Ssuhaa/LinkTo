@@ -16,6 +16,14 @@
 #include "PlayerStateComponent.h"
 #include "AttackComponent.h"
 #include "JS_WidgetWeaponSwitch.h"
+#include "TimeLockBase.h"
+#include "IceMakerBase.h"
+#include "SH_Ice.h"
+#include <Kismet/KismetMathLibrary.h>
+#include "MagnetBase.h"
+#include <PhysicsEngine/PhysicsHandleComponent.h>
+#include <Kismet/GameplayStatics.h>
+#include "JS_SkillComponent.h"
 
 
 AJS_Player::AJS_Player()
@@ -82,6 +90,12 @@ AJS_Player::AJS_Player()
 	compSword->SetupAttachment(RootComponent);
 	compSword->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	MagnetGrabComp = CreateDefaultSubobject<USceneComponent>(TEXT("MagnetGrabPos"));
+	MagnetGrabComp->SetupAttachment(RootComponent);
+	MagnetGrabComp->SetRelativeLocation(FVector(400, 0, 120));
+
+	MagnetHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("MagnetHandle"));
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
@@ -94,6 +108,7 @@ AJS_Player::AJS_Player()
 	compMove = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
 	compState = CreateDefaultSubobject<UPlayerStateComponent>(TEXT("STATE COMP"));
 	compAttack = CreateDefaultSubobject<UAttackComponent>(TEXT("ATTACK COMP"));
+	compSkill = CreateDefaultSubobject<UJS_SkillComponent>(TEXT("SKILL COMP"));
 	
 	// 무기 스위치 UI 찾아오기
 	ConstructorHelpers::FClassFinder<UJS_WidgetWeaponSwitch>tempWeaponWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchWeapon.JS_SwitchWeapon_c'"));
@@ -122,6 +137,10 @@ void AJS_Player::BeginPlay()
 
 	weaponWidget = CreateWidget<UJS_WidgetWeaponSwitch>(GetWorld(),weaponUIFactory);
 	
+	playerCon->PlayerCameraManager->ViewPitchMin = -80.0f;
+	playerCon->PlayerCameraManager->ViewPitchMax = 30.0f;
+
+
 }
 
 // Called every frame
@@ -129,17 +148,14 @@ void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	
-}
 
+}
 // Called to bind functionality to input
 void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 	// PlayerInputComponent를 EnhancedInputComponent로 캐스팅
 	UEnhancedInputComponent* enhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent);
-	
+
 	if (enhancedInputComponent != nullptr)
 	{
 		//왼손 바인딩
@@ -159,8 +175,12 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AJS_Player::On_A_ButtonRight);
 		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AJS_Player::On_B_ButtonRight);
 
+
 		compMove->SetupPlayerInputComponent(enhancedInputComponent);
 		compAttack->SetupPlayerInputComponent(enhancedInputComponent);
+		compSkill->SetupPlayerInputComponent(PlayerInputComponent);
+
+		// 키보드 키 바인딩
 
 	}
 	
@@ -208,12 +228,10 @@ void AJS_Player::OnTriggerRight(const FInputActionValue& value)
 {
 	OnLogRight("Trigger");
 }
-
 void AJS_Player::OnThumbstickRight(const FInputActionValue& value)
 {
 	OnLogRight("Thumbstick");
 }
-
 void AJS_Player::OnGripRight(const FInputActionValue& value)
 {
 	OnLogRight("Grip");
@@ -232,7 +250,16 @@ void AJS_Player::OnLogRight(FString value)
 }
 
 
+void AJS_Player::KeyInputsBinding()
+{
+
+}
+
 void AJS_Player::OnLogMove(FString value)
 {
 	moveLog->SetText(FText::FromString(value));
 }
+
+
+// 플레이어 바람으로 띄우기
+

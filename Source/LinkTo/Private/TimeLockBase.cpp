@@ -2,9 +2,10 @@
 
 
 #include "TimeLockBase.h"
+#include "JS_SkillComponent.h"
 #include <Materials/MaterialParameterCollection.h>
 #include <Kismet/KismetMaterialLibrary.h>
-#include "SH_Player.h"
+#include "JS_Player.h"
 
 ATimeLockBase::ATimeLockBase()
 {
@@ -76,7 +77,7 @@ void ATimeLockBase::OnTimeLock()
 // 타임락 풀기
 void ATimeLockBase::releasedTimeLock()
 {
-	if (!player->isPressedG)
+	if (!player->compSkill->isPressedG)
 	{
 		ChangeMaterial(TimeLockMatArray, 1, InteractionMesh);
 	}

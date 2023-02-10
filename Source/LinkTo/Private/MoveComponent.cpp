@@ -62,8 +62,8 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::JumpPlayer);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::ReleaseButtonB);
-
 	
+	PlayerInputComponent->BindAction(spaceBar, ETriggerEvent::Started, this, &UMoveComponent::JumpPlayer);
 
 }
 void UMoveComponent::RotateCamera(const FInputActionValue& value)
@@ -158,7 +158,7 @@ void UMoveComponent::Parasale(bool value) // 패러세일
 			bParasale = false; // 패러세일 끄기
 		}
 	}
-	else // 패러세일을 사용하지 않으면
+	else  // 패러세일을 사용하지 않으면
 	{
 		player->compState->SetStaminaState(false); // 스태미너 사용안함
 		bParasale = false;
