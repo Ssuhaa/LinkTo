@@ -51,8 +51,6 @@ private:
 	
 	FColor LineColor = FColor::Red;
 
-
-
 	//어레이
 	void AddArray();
 	TArray<class AActor*> obstaclearray;
@@ -65,6 +63,7 @@ private:
 	class ASH_Ice* hitIce;
 	void LineTraceInteration();
 	
+	float currentTime = 0;
 
 	//타임락
 	void TimeLock();
@@ -84,6 +83,7 @@ private:
 	void Magnet();
 	void LookMagnet();
 	void OffMagnet();
+	bool FindOnMagnetActor();
 	class AMagnetBase* GrabMagnetActor;
 
 
@@ -108,7 +108,7 @@ public:
 	EPlayerState1 PlayerInterState = EPlayerState1::Defalt; 
 
 	void WindUp(float WindValue);
-	bool isPressedG = true;
+	bool isPressedG = false;
 	bool isClickedLMouse = true;
 	bool isGrab = false;
 
@@ -118,5 +118,6 @@ public:
 	class AMagnetBase* hitMNActor;
 
 
+	FVector currentwindlos;
 
 };

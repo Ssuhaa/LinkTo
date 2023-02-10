@@ -33,5 +33,7 @@ protected:
 	class ASH_Player* Target;
 
 	UPROPERTY(EditAnywhere, Category = Wind)
-	float WindValue = 80.0f;
+	float WindValue = 30.0f;
+
+	bool binWind = false;
 };

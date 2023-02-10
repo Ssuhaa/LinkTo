@@ -33,6 +33,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UStaticMeshComponent* AxisComp;
 
-
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class UBoxComponent* boxComp;
 
 };

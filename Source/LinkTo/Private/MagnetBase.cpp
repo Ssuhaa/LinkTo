@@ -7,8 +7,8 @@
 AMagnetBase::AMagnetBase()
 {
 	interationType = EObstacleType::Magnet;
-	SetRootComponent(rootComp);
-	InteractionMesh->SetupAttachment(RootComponent);
+	SetRootComponent(InteractionMesh);
+	rootComp->DestroyComponent();
 }
 
 void AMagnetBase::BeginPlay()
@@ -43,9 +43,7 @@ void AMagnetBase::LookInMagnet()
 	{
 		ChangeMaterial(MagnetMatarray, 2, InteractionMesh);
 		InteractionMesh->SetSimulatePhysics(true);
-
 	}
-
 }
 
 void AMagnetBase::OnMagnet()
@@ -64,7 +62,5 @@ void AMagnetBase::releasedMagnet()
 	{
 		ChangeMaterial(MagnetMatarray, 0, InteractionMesh);
 	}
-
-	InteractionMesh->SetSimulatePhysics(false);
 	bMagnet = false;
 }

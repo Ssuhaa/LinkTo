@@ -4,6 +4,7 @@
 #include "SH_Seesaw.h"
 #include <PhysicsEngine/PhysicsConstraintComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include <Components/BoxComponent.h>
 
 ASH_Seesaw::ASH_Seesaw()
 {
@@ -29,6 +30,10 @@ ASH_Seesaw::ASH_Seesaw()
 	InteractionMesh->SetRelativeScale3D(FVector(1.5, 4.0, 0.25));
 	InteractionMesh->SetRelativeRotation(FRotator(0,90,0));
 	InteractionMesh->SetSimulatePhysics(true);
+
+	boxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	boxComp->SetupAttachment(RootComponent);
+	boxComp->SetRelativeLocation(FVector(-100,0,-45));
 
 
 	PhyComp = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsConstraint"));
