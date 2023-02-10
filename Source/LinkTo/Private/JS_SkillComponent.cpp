@@ -78,6 +78,9 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnLeftMouse);
 		enhancedInputComponent->BindAction(inputAction[4], ETriggerEvent::Triggered, this, &UJS_SkillComponent::LookUp);
 		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
+
+
+
 	}
 
 	
