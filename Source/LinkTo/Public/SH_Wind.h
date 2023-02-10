@@ -30,7 +30,7 @@ protected:
 	class UBoxComponent* BoxCollision;
 	
 	UPROPERTY(VisibleAnywhere, Category = Component)
-	class ASH_Player* Target;
+	class AJS_Player* Target;
 
 	UPROPERTY(EditAnywhere, Category = Wind)
 	float WindValue = 30.0f;

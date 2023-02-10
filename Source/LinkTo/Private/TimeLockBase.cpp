@@ -77,7 +77,7 @@ void ATimeLockBase::OnTimeLock()
 // 타임락 풀기
 void ATimeLockBase::releasedTimeLock()
 {
-	if (!player->compSkill->isPressedG)
+	if (player->compSkill->isPressedG)
 	{
 		ChangeMaterial(TimeLockMatArray, 1, InteractionMesh);
 	}

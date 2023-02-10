@@ -4,8 +4,10 @@
 #include "SH_Wind.h"
 #include <Components/ArrowComponent.h>
 #include <Components/BoxComponent.h>
-#include "SH_Player.h"
+#include "JS_Player.h"
+#include "MoveComponent.h"
 #include <GameFramework/PawnMovementComponent.h>
+
 
 ASH_Wind::ASH_Wind()
 {
@@ -39,7 +41,7 @@ void ASH_Wind::Tick(float DeltaTime)
 
 	if (Target != nullptr)
 	{
-		if (Target->bParasailing)
+		if (Target->compMove->bParasale)
 		{
 			currentTime += DeltaTime;
 			float result = FMath::Sin(currentTime * PI);
@@ -47,7 +49,7 @@ void ASH_Wind::Tick(float DeltaTime)
 			offset.Z += result;
 			player->AddActorWorldOffset(offset);
 			FVector Vel = player->GetMovementComponent()->Velocity;
-			player->GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z+WindValue);
+			player->GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
 		}
 	}
 
@@ -55,7 +57,7 @@ void ASH_Wind::Tick(float DeltaTime)
 
 void ASH_Wind::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	Target = Cast<ASH_Player>(OtherActor);
+	Target = Cast<AJS_Player>(OtherActor);
 }
 
 void ASH_Wind::NotifyActorEndOverlap(AActor* OtherActor)
