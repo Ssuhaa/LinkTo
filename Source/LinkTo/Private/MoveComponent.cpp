@@ -51,6 +51,11 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if(playerState == EPlayerState::bLanding)
+	canParasale = false;
+
+
+	UE_LOG(LogTemp,Warning,TEXT("%d"),canParasale)
 	playerState = player->compState->currState;
 }
 
@@ -59,12 +64,13 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
-	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::JumpPlayer);
+	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::StartButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::ReleaseButtonB);
 	
-	PlayerInputComponent->BindAction(spaceBar, ETriggerEvent::Started, this, &UMoveComponent::JumpPlayer);
-
+	PlayerInputComponent->BindAction(spaceBar, ETriggerEvent::Started, this, &UMoveComponent::StartButtonB);
+	PlayerInputComponent->BindAction(spaceBar, ETriggerEvent::Completed, this, &UMoveComponent::ReleaseButtonB);
+	PlayerInputComponent->BindAction(spaceBar, ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
 }
 void UMoveComponent::RotateCamera(const FInputActionValue& value)
 {
@@ -116,28 +122,27 @@ void UMoveComponent::OnWalk() // 걷기
 
 void UMoveComponent::TriggerButtonB() // B버튼 누르고 있을때
 {
-
-	switch ((int32)(playerState))
+	if (canParasale == true)
 	{
-	case 0:
-		Parasale(false); // 땅이면 패러세일 사용 안함
-		break;
-	case 1:
-		Parasale(true); // 공중이면 사용함
-		break;
+		Parasale(true);
 	}
+	else
+	Parasale(false);
 }
 void UMoveComponent::ReleaseButtonB() // B버튼 떼면
 {
-	Parasale(false); // 패러세일 사용 안함
+	Parasale(false);
 }
 
-void UMoveComponent::JumpPlayer() // 점프
+void UMoveComponent::StartButtonB() // 점프
 {
 
 	if(playerState != EPlayerState::bFalling) // 공중이 아니면
 	player->Jump(); // 점프
 
+	if(playerState == EPlayerState::bFalling) // 공중이면
+	canParasale = true;
+	
 }
 void UMoveComponent::Parasale(bool value) // 패러세일
 {

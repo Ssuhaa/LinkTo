@@ -90,20 +90,24 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 
 void UAttackComponent::OnButtonA()
 {
-	if(!bWeaponMenu) // 만일 메뉴가 안열려 있으면
-	switch ((int32)(currAttackState)) // 상태에 따른 행동
+
+	if (player->compSkill->bSkillMenu == false)
 	{
-		case 0:
-		break;
-		case 1:
-		FireSword(); // 칼 공격
-		break;
-		case 2:
-		break;
-	}
-	else // 메뉴가 열려있으면 
-	{
-		ChangeWeapon();
+		if(!bWeaponMenu) // 만일 메뉴가 안열려 있으면
+		switch ((int32)(currAttackState)) // 상태에 따른 행동
+		{
+			case 0:
+			break;
+			case 1:
+			FireSword(); // 칼 공격
+			break;
+			case 2:
+			break;
+		}
+		else // 메뉴가 열려있으면 
+		{
+			ChangeWeapon();
+		}
 	}
 }
 
@@ -134,6 +138,12 @@ void UAttackComponent::IdleState() // 기본 상태일때
 
 void UAttackComponent::OnButtonMenu() // 메뉴버튼 눌렀을시
 {	
+
+	if(player->compSkill->bSkillMenu) // 스킬메뉴가 열려있으면
+	{
+		player->skillWidget->RemoveFromParent(); // 스킬메뉴를 닫고
+		player->compSkill->bSkillMenu = false;
+	}
 	OnWeaponUI();
 }
 

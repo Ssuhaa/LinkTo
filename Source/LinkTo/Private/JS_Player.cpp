@@ -116,6 +116,11 @@ AJS_Player::AJS_Player()
 	{
 		weaponUIFactory = tempWeaponWidget.Class;
 	}
+	ConstructorHelpers::FClassFinder<UJS_WidgetWeaponSwitch>tempSkillWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchWeapon.JS_SwitchSkill_c'"));
+	if (tempSkillWidget.Succeeded())
+	{
+		weaponUIFactory = tempWeaponWidget.Class;
+	}
 }
 
 // Called when the game starts or when spawned

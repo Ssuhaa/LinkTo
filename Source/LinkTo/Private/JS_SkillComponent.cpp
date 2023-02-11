@@ -51,6 +51,7 @@ void UJS_SkillComponent::BeginPlay()
 	Super::BeginPlay();
 
 	player = Cast<AJS_Player>(GetOwner());
+	
 	APlayerController* skillCon = GetWorld()->GetFirstPlayerController();
 	// 2. 플레이어 컨트롤러에서 EnhancedInputLocalPlayerSubsystem을 가져오기
 	UEnhancedInputLocalPlayerSubsystem* skillSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(skillCon->GetLocalPlayer());
@@ -63,6 +64,8 @@ void UJS_SkillComponent::BeginPlay()
 
 	skillCon->PlayerCameraManager->ViewPitchMin = -80.0f;
 	skillCon->PlayerCameraManager->ViewPitchMax = 30.0f;
+
+	bSkillMenu = false;
 	
 }
 
@@ -80,7 +83,10 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
 
 
-
+		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonA);
+		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
+		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabLeft);
+		enhancedInputComponent->BindAction(leftInputs[4], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonY);
 	}
 
 	
@@ -134,7 +140,7 @@ void UJS_SkillComponent::OnG(const FInputActionValue& value)
 {
 	player->OnLogRight("OnG");
 	isPressedG = true;
-	switch (PlayerSkillState)
+	switch (currSkillState)
 	{
 	case ESkillState::TimeLock:
 		LookTimeLock();
@@ -154,7 +160,7 @@ void UJS_SkillComponent::OnG(const FInputActionValue& value)
 void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
 {
 	player->OnLogRight("OnF");
-	switch (PlayerSkillState)
+	switch (currSkillState)
 	{
 	case ESkillState::TimeLock:
 		OffTimeLock();
@@ -172,7 +178,7 @@ void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
 void UJS_SkillComponent::OnLeftMouse(const FInputActionValue& value) // 인식 버튼
 {
 	player->OnLogRight("OnLeftMouse");
-	switch (PlayerSkillState)
+	switch (currSkillState)
 	{
 	case ESkillState::TimeLock:
 		if (hitTLActor != nullptr)
@@ -259,7 +265,7 @@ void UJS_SkillComponent::LineTraceInteration()
 	bool bhit = GetWorld()->LineTraceSingleByChannel(Hitinfo, Startpos, Endpos, ECC_Visibility, par);
 	if (bhit)
 	{
-		switch (PlayerSkillState)
+		switch (currSkillState)
 		{
 		case ESkillState::TimeLock:
 			if (hitTLActor != nullptr && hitTLActor != Hitinfo.GetActor())
@@ -409,4 +415,102 @@ void UJS_SkillComponent::Magnet()
 		GrabMagnetActor = hitMNActor;
 		isGrab = true;
 	}
+}
+
+void UJS_SkillComponent::OnButtonY() // 메뉴버튼 눌렀을시
+{
+
+	if (player->compAttack->bWeaponMenu) // 무기메뉴가 열려있으면
+	{
+		player->weaponWidget->RemoveFromParent(); // 무기메뉴를 닫고
+		player->compAttack->bWeaponMenu = false;
+	}
+	OnSkillUI();
+}
+
+void UJS_SkillComponent::OnSkillUI() // UI열고 닫는 함수
+{
+
+	if (!bSkillMenu) //메뉴가 안열려 있을때 (!bSwitch)
+	{
+		// 뷰포트에 UI 띄우기
+		player->skillWidget->AddToViewport();
+		//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
+		player->skillWidget->SetUIInitPos((int32)(currSkillState));
+	}
+	if (bSkillMenu) 	// 현재 메뉴가 열려있을때 (bSwitch)
+	{
+		// 뷰포트에서 UI제거 (취소)
+		player->weaponWidget->RemoveFromParent();
+	}
+
+	bSkillMenu = !bSkillMenu;
+}
+
+void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
+{
+
+	if (player->compAttack->bWeaponMenu == false)
+	{
+		if (bSkillMenu)
+		{
+			ChangeSkill();
+		}
+		else
+		{
+			OnLeftMouse(value);
+			if (isPressedG)
+			{
+				OnF(value);
+			}
+			else
+			{
+				OnG(value);
+			}
+			
+		}
+			
+	}
+
+}
+
+void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수
+{
+	// 위젯의 X축에 따라 스킬 바꿈
+	float targetSkill = player->skillWidget->slotPos->GetPosition().X;
+	if (targetSkill == 0)
+	{
+		currSkillState = ESkillState::Margnet;
+	}
+	else if (targetSkill == -350.f)
+	{
+		currSkillState = ESkillState::TimeLock;
+	}
+	else if (targetSkill == -700.f)
+	{
+		currSkillState = ESkillState::IceMaker;
+	}
+	else if (targetSkill == 350.f)
+	{
+		currSkillState = ESkillState::Boomb;
+	}
+	else 
+	{
+		currSkillState = ESkillState::Defalt;
+	}
+
+	// UI 끔
+	player->skillWidget->RemoveFromParent();
+}
+// UI 열려있을때 아이콘 이동시키는 함수
+void UJS_SkillComponent::OnGrabRight()
+{
+	if (bSkillMenu)
+		player->skillWidget->MoveUI(-1);
+}
+
+void UJS_SkillComponent::OnGrabLeft()
+{
+	if (bSkillMenu)
+		player->skillWidget->MoveUI(1);
 }

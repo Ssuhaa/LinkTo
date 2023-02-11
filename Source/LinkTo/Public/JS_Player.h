@@ -6,6 +6,7 @@
 #include "CharacterBase.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
+#include "JS_WidgetSkillSwitch.h"
 #include "JS_Player.generated.h"
 
 /**
@@ -77,7 +78,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	class UJS_WidgetWeaponSwitch* weaponWidget;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
+	class UJS_WidgetWeaponSwitch* skillWidget;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	TSubclassOf<UJS_WidgetWeaponSwitch> weaponUIFactory;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
+	TSubclassOf<UJS_WidgetSkillSwitch> skillUIFactory;
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class USceneComponent* MagnetGrabComp;
 	UPROPERTY(EditDefaultsOnly, Category = Component)

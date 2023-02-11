@@ -10,11 +10,10 @@ UENUM(BlueprintType)
 enum class ESkillState : uint8
 {
 	Defalt,
-	TimeLock,
-	IceMaker,
-	Margnet,
 	Boomb,
-
+	Margnet,
+	TimeLock,
+	IceMaker
 };
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class LINKTO_API UJS_SkillComponent : public UActorComponent
@@ -53,16 +52,26 @@ public:
 	class UInputMappingContext* SHMapping;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
 	TArray <class UInputAction*> inputAction;
+	
+	bool bSkillMenu = false;
+private:
+	void OnButtonA(const struct FInputActionValue& value);
+	void ChangeSkill();
+	void OnButtonY();
+	void OnSkillUI();
+	void OnGrabRight();
+	void OnGrabLeft();
 
 
 
+///////////////////////////////////////////////////////////////////////////////
+public:
 	//스테이트
 	UPROPERTY(EditAnywhere, Category = Player)
 	bool bParasailing = false;
 	UPROPERTY(EditAnywhere, Category = Player)
-	ESkillState PlayerSkillState = ESkillState::Defalt;
+	ESkillState currSkillState = ESkillState::Defalt;
 
-	
 	bool isPressedG = false;
 	bool isClickedLMouse = true;
 	bool isGrab = false;
@@ -71,8 +80,8 @@ public:
 	class ATimeLockBase* hitTLActor;
 	class AIceMakerBase* hitIMActor;
 	class AMagnetBase* hitMNActor;
-	// 기능
-//타임락
+	
+	//타임락
 	void TimeLock();
 	void LookTimeLock();
 	void OffTimeLock();
@@ -100,12 +109,9 @@ public:
 	void OnLeftMouse(const struct FInputActionValue& value);
 	void LookUp(const struct FInputActionValue& value);
 
-
 	float speed = 500.f;
 
 	FColor LineColor = FColor::Red;
-
-
 
 	//어레이
 	void AddArray();
@@ -118,7 +124,5 @@ public:
 	FHitResult Hitinfo;
 	class ASH_Ice* hitIce;
 	void LineTraceInteration();
-
-
 
 };

@@ -56,7 +56,7 @@ private:
 	void OnWalk();
 	void TriggerButtonB();
 	void ReleaseButtonB();
-	void JumpPlayer();
+	void StartButtonB();
 	void Parasale(bool value);
 	
 	
