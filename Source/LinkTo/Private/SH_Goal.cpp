@@ -52,6 +52,7 @@ void ASH_Goal::CheckGoal(UPrimitiveComponent* OverlappedComponent, AActor* Other
 	}
 }
 
+//µé¾î°¡¶óÀ×
 void ASH_Goal::OutGoal(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	ASH_Ball* currball = Cast<ASH_Ball>(OtherActor);
