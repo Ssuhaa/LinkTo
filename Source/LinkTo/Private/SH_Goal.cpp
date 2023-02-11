@@ -4,6 +4,7 @@
 #include "SH_Goal.h"
 #include <Components/BoxComponent.h>
 #include "SH_Ball.h"
+#include <Kismet/GameplayStatics.h>
 
 ASH_Goal::ASH_Goal()
 {
@@ -27,19 +28,36 @@ void ASH_Goal::BeginPlay()
 {
 	Super::BeginPlay();
 	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &ASH_Goal::CheckGoal);
+	BoxComp->OnComponentEndOverlap.AddDynamic(this, &ASH_Goal::OutGoal);
+
+	ball = Cast<ASH_Ball>(UGameplayStatics::GetActorOfClass(GetWorld(), ASH_Ball::StaticClass()));
 }
 
 void ASH_Goal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (ball->InteractionMesh->IsSimulatingPhysics())
+	{
+		bisGoal = false;
+	}
 }
 
 void ASH_Goal::CheckGoal(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ASH_Ball* ball = Cast<ASH_Ball>(OtherActor);
-	if (ball != nullptr)
+	ASH_Ball* currball = Cast<ASH_Ball>(OtherActor);
+	if (currball != nullptr)
 	{
+		currball->Goal(false);
 		bisGoal = true;
-		ball->Goal();
+	}
+}
+
+void ASH_Goal::OutGoal(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ASH_Ball* currball = Cast<ASH_Ball>(OtherActor);
+	if (currball != nullptr)
+	{
+		currball->Goal(true);
+		bisGoal =false;
 	}
 }
