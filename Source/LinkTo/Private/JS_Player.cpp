@@ -147,7 +147,7 @@ void AJS_Player::BeginPlay()
 	playerCon->PlayerCameraManager->ViewPitchMin = -80.0f;
 	playerCon->PlayerCameraManager->ViewPitchMax = 30.0f;
 
-
+	// 머지가 왜 안대지
 }
 
 // Called every frame
