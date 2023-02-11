@@ -17,5 +17,19 @@ class LINKTO_API ASH_Door : public AobstacleBase
 	ASH_Door();
 
 protected:
-	class ASH_Goal* Goal;
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	class ASH_Goal* goal;
+
+	FVector OriginPos;
+
+	void OpenDoor(float DeltaTime);
+
+	float ratioZ = 0;
+	UPROPERTY(EditAnywhere)
+	float pushZ = 500.0f;
+	float Z = 0;
 };

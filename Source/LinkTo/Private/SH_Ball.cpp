@@ -50,7 +50,7 @@ void ASH_Ball:: BeginPlay()
 void ASH_Ball::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
 
 void ASH_Ball::SetActiveBall(bool isActive)
@@ -84,9 +84,9 @@ void ASH_Ball::releasedTimeLock()
 	InteractionMesh->SetSimulatePhysics(true);
 }
 
-void ASH_Ball::Goal()
+void ASH_Ball::Goal(bool Physics)
 {
-	InteractionMesh->SetSimulatePhysics(false);
+	InteractionMesh->SetSimulatePhysics(Physics);
 }
 
 void  ASH_Ball ::InteractionTimeLock(bool isON)
