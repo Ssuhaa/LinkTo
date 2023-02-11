@@ -78,7 +78,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	class UJS_WidgetWeaponSwitch* weaponWidget;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
-	class UJS_WidgetWeaponSwitch* skillWidget;
+	class UJS_WidgetSkillSwitch* skillWidget;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	TSubclassOf<UJS_WidgetWeaponSwitch> weaponUIFactory;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")

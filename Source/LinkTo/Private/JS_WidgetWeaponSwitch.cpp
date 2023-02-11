@@ -5,6 +5,7 @@
 #include <Components/CanvasPanelSlot.h>
 #include <Components/CanvasPanel.h>
 #include <Components/HorizontalBoxSlot.h>
+#include "JS_SkillComponent.h"
 #include "JS_Player.h"
 #include <Kismet/GameplayStatics.h>
 #include "AttackComponent.h"

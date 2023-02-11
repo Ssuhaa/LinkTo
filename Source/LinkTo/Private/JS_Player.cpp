@@ -24,6 +24,7 @@
 #include <PhysicsEngine/PhysicsHandleComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include "JS_SkillComponent.h"
+#include "JS_WidgetSkillSwitch.h"
 
 
 AJS_Player::AJS_Player()
@@ -116,10 +117,10 @@ AJS_Player::AJS_Player()
 	{
 		weaponUIFactory = tempWeaponWidget.Class;
 	}
-	ConstructorHelpers::FClassFinder<UJS_WidgetWeaponSwitch>tempSkillWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchWeapon.JS_SwitchSkill_c'"));
+	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSkillWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchSkill.JS_SwitchSkill_c'"));
 	if (tempSkillWidget.Succeeded())
 	{
-		weaponUIFactory = tempWeaponWidget.Class;
+		skillUIFactory = tempSkillWidget.Class;
 	}
 }
 
@@ -141,7 +142,8 @@ void AJS_Player::BeginPlay()
 	subsys->AddMappingContext(myMapping, 0);
 
 	weaponWidget = CreateWidget<UJS_WidgetWeaponSwitch>(GetWorld(),weaponUIFactory);
-	
+	skillWidget = CreateWidget<UJS_WidgetSkillSwitch>(GetWorld(),skillUIFactory);
+
 	playerCon->PlayerCameraManager->ViewPitchMin = -80.0f;
 	playerCon->PlayerCameraManager->ViewPitchMax = 30.0f;
 

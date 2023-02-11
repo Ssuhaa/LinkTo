@@ -203,20 +203,27 @@ void UAttackComponent::OnReleaseArrow() // 화살 발사
 void UAttackComponent::OnWeaponUI() // UI열고 닫는 함수
 {
 
-	if (!bWeaponMenu) //메뉴가 안열려 있을때 (!bSwitch)
+	if (player->compSkill->bSkillMenu)
 	{
-		// 뷰포트에 UI 띄우기
-		player->weaponWidget->AddToViewport();
-		//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
-		player->weaponWidget->SetUIInitPos((int32)(currAttackState));
-	}
-	if (bWeaponMenu) 	// 현재 메뉴가 열려있을때 (bSwitch)
-	{
-		// 뷰포트에서 UI제거 (취소)
-		player->weaponWidget->RemoveFromParent();
+		player->skillWidget->RemoveFromParent();
+		player->compSkill->bSkillMenu = false;
+
+		if (!bWeaponMenu) //메뉴가 안열려 있을때 (!bSwitch)
+		{
+			// 뷰포트에 UI 띄우기
+			player->weaponWidget->AddToViewport();
+			//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
+			player->weaponWidget->SetUIInitPos((int32)(currAttackState));
+		}
+		else 	// 현재 메뉴가 열려있을때 (bSwitch)
+		{
+			// 뷰포트에서 UI제거 (취소)
+			player->weaponWidget->RemoveFromParent();
+		}
+
+		bWeaponMenu = !bWeaponMenu;
 	}
 	
-	bWeaponMenu = !bWeaponMenu;
 }
 
 

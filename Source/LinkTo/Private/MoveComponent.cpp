@@ -95,7 +95,7 @@ void UMoveComponent::Move(const FInputActionValue& value)
 	}
 	else 
 	{
-		OnWalk(); // 땅 외의 상태에서는 걷기의 이동속도로 움직임
+		player->GetCharacterMovement()->MaxWalkSpeed = 200;  // 땅 외의 상태에서는 걷기의 이동속도로 움직임
 	}
 
 }
@@ -141,13 +141,13 @@ void UMoveComponent::StartButtonB() // 점프
 	player->Jump(); // 점프
 
 	if(playerState == EPlayerState::bFalling) // 공중이면
-	canParasale = true;
+	canParasale = true; // 패러세일을 사용 가능한 상태로 
 	
 }
 void UMoveComponent::Parasale(bool value) // 패러세일
 {
 
-	if (value) // 패러세일을 사용중이면
+	if (value) // 패러세일을 사용중이고
 	{
 		if (player->compState->stamina > 0) // 스태미너가 남아있으면
 		{
@@ -161,7 +161,7 @@ void UMoveComponent::Parasale(bool value) // 패러세일
 			player->GetCharacterMovement()->GravityScale = 1; // 보통 속도로 떨어짐
 			player->compState->SetStaminaState(false); // 스태미너 사용 안함
 			bParasale = false; // 패러세일 끄기
-		}
+ 		}
 	}
 	else  // 패러세일을 사용하지 않으면
 	{

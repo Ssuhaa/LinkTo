@@ -49,7 +49,7 @@ void UJS_WidgetSkillSwitch::NativeTick(const FGeometry& MyGeometry, float InDelt
 
 void UJS_WidgetSkillSwitch::SetUIInitPos(int32 value)
 {
-	float locX = -350.f * value + 350.f;
+	float locX = -350.f * value + 700.f;
 	FVector2D currSkill = FVector2D(locX, -130.f);
 	slotPos->SetPosition(currSkill);
 }

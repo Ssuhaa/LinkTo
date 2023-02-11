@@ -83,9 +83,12 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
 
 
-		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonA);
+		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonA);
+		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnLeftMouse);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabLeft);
+		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTrigger);
+		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonX);
 		enhancedInputComponent->BindAction(leftInputs[4], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonY);
 	}
 
@@ -113,8 +116,7 @@ void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	{
 		player->MagnetHandle->SetTargetLocation(player->MagnetGrabComp->GetComponentLocation());
 	}
-
-
+	GEngine->AddOnScreenDebugMessage(1,1.0, FColor::Yellow, FString::Printf(TEXT("%d"),currSkillState));
 }
 	
 // 키보드 
@@ -417,7 +419,7 @@ void UJS_SkillComponent::Magnet()
 	}
 }
 
-void UJS_SkillComponent::OnButtonY() // 메뉴버튼 눌렀을시
+void UJS_SkillComponent::OnButtonTrigger() // 메뉴버튼 눌렀을시
 {
 
 	if (player->compAttack->bWeaponMenu) // 무기메뉴가 열려있으면
@@ -430,21 +432,29 @@ void UJS_SkillComponent::OnButtonY() // 메뉴버튼 눌렀을시
 
 void UJS_SkillComponent::OnSkillUI() // UI열고 닫는 함수
 {
-
-	if (!bSkillMenu) //메뉴가 안열려 있을때 (!bSwitch)
+	if (player->compAttack->bWeaponMenu)
 	{
-		// 뷰포트에 UI 띄우기
-		player->skillWidget->AddToViewport();
-		//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
-		player->skillWidget->SetUIInitPos((int32)(currSkillState));
-	}
-	if (bSkillMenu) 	// 현재 메뉴가 열려있을때 (bSwitch)
-	{
-		// 뷰포트에서 UI제거 (취소)
 		player->weaponWidget->RemoveFromParent();
+		player->compAttack->bWeaponMenu = false;
 	}
+	else
+	{
+		if (!bSkillMenu) //메뉴가 안열려 있을때 (!bSwitch)
+		{
+			// 뷰포트에 UI 띄우기
+			player->skillWidget->AddToViewport();
+			//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
+			player->skillWidget->SetUIInitPos((int32)(currSkillState));
+		}
+		else	// 현재 메뉴가 열려있을때 (bSwitch)
+		{
+			// 뷰포트에서 UI제거 (취소)
+			player->skillWidget->RemoveFromParent();
+		}
 
-	bSkillMenu = !bSkillMenu;
+		bSkillMenu = !bSkillMenu;
+	}
+		
 }
 
 void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
@@ -456,22 +466,47 @@ void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 		{
 			ChangeSkill();
 		}
-		else
-		{
-			OnLeftMouse(value);
-			if (isPressedG)
-			{
-				OnF(value);
-			}
-			else
-			{
-				OnG(value);
-			}
-			
-		}
-			
 	}
 
+}
+
+void UJS_SkillComponent::OnButtonX()
+{
+	player->OnLogRight("OnButtonX");
+	isPressedG = true;
+	switch (currSkillState)
+	{
+	case ESkillState::TimeLock:
+		LookTimeLock();
+		LineColor = FColor::Yellow;
+		break;
+	case ESkillState::IceMaker:
+		LookIceMaker();
+		LineColor = FColor::Blue;
+		break;
+	case ESkillState::Margnet:
+		LookMagnet();
+		LineColor = FColor::Red;
+		break;
+	}
+}
+
+void UJS_SkillComponent::OnButtonY()
+{
+	player->OnLogRight("OnButtonY");
+	switch (currSkillState)
+	{
+	case ESkillState::TimeLock:
+		OffTimeLock();
+		break;
+	case ESkillState::IceMaker:
+		OffIceMaker();
+		break;
+	case ESkillState::Margnet:
+		OffMagnet();
+		break;
+	}
+	isPressedG = false;
 }
 
 void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수

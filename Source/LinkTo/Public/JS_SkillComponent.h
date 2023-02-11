@@ -56,8 +56,10 @@ public:
 	bool bSkillMenu = false;
 private:
 	void OnButtonA(const struct FInputActionValue& value);
-	void ChangeSkill();
+	void OnButtonX();
 	void OnButtonY();
+	void ChangeSkill();
+	void OnButtonTrigger();
 	void OnSkillUI();
 	void OnGrabRight();
 	void OnGrabLeft();

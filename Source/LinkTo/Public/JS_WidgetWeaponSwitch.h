@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AttackComponent.h"
+#include "JS_SkillComponent.h"
 #include "JS_WidgetBase.h"
 #include "JS_WidgetWeaponSwitch.generated.h"
 
