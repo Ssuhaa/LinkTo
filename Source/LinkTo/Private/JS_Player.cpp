@@ -73,7 +73,7 @@ AJS_Player::AJS_Player()
 	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("RIGHT LOG"));
 	rightLog->SetupAttachment(rightController);
 	rightLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
-	moveLog->SetRelativeScale3D(FVector(0.5));
+	rightLog->SetRelativeScale3D(FVector(0.5));
 	rightLog->SetTextRenderColor(FColor::Yellow);
 	rightLog->SetHorizontalAlignment(EHTA_Center);
 	rightLog->SetVerticalAlignment(EVRTA_TextTop);
@@ -100,7 +100,8 @@ AJS_Player::AJS_Player()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
-
+	GetCharacterMovement()->MaxFlySpeed = 600.f;
+	GetCharacterMovement()->BrakingDecelerationFlying = 1000.f;
 	GetCharacterMovement()->JumpZVelocity = 400.f; 
 	JumpMaxCount = 1;
 

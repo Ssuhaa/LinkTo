@@ -116,7 +116,7 @@ void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	{
 		player->MagnetHandle->SetTargetLocation(player->MagnetGrabComp->GetComponentLocation());
 	}
-	GEngine->AddOnScreenDebugMessage(1,1.0, FColor::Yellow, FString::Printf(TEXT("%d"),currSkillState));
+	
 }
 	
 // Å°º¸µå 

@@ -14,7 +14,7 @@ class LINKTO_API ASH_Ice : public AobstacleBase
 {
 	GENERATED_BODY()
 	
-protected:
+public:
 	ASH_Ice();
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

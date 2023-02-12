@@ -207,7 +207,9 @@ void UAttackComponent::OnWeaponUI() // UI열고 닫는 함수
 	{
 		player->skillWidget->RemoveFromParent();
 		player->compSkill->bSkillMenu = false;
-
+	}
+	else
+	{
 		if (!bWeaponMenu) //메뉴가 안열려 있을때 (!bSwitch)
 		{
 			// 뷰포트에 UI 띄우기
@@ -223,7 +225,7 @@ void UAttackComponent::OnWeaponUI() // UI열고 닫는 함수
 
 		bWeaponMenu = !bWeaponMenu;
 	}
-	
+
 }
 
 

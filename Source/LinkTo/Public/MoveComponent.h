@@ -28,6 +28,7 @@ public:
 	
 
 	class AJS_Player* player;
+	class ASH_Ice* ice;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	float walkSpeed = 600.f;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
@@ -48,7 +49,13 @@ public:
 	bool bParasale = true;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
 	bool canParasale = true;
+	UPROPERTY(EditAnywhere)
+	bool canClimb = false;
+	UPROPERTY(EditAnywhere)
+	bool bClimb = false;
 
+	UPROPERTY()
+	FHitResult hitInfo;
 private:
 	void RotateCamera(const struct FInputActionValue& value);
 	void Move(const struct FInputActionValue& value);
@@ -56,8 +63,10 @@ private:
 	void OnWalk();
 	void TriggerButtonB();
 	void ReleaseButtonB();
+	void StartButtonA();
 	void StartButtonB();
 	void Parasale(bool value);
-	
-	
+	void ClimbingLineTrace();
+	void Climb();
+	void ReleaseClimb();
 };

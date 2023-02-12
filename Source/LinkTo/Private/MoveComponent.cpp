@@ -17,6 +17,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerStateComponent.h"
 #include <Engine/EngineTypes.h>
+#include <Kismet/KismetMathLibrary.h>
+#include <Kismet/KismetSystemLibrary.h>
+#include "SH_Ice.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -43,6 +47,8 @@ void UMoveComponent::BeginPlay()
 
 	player = Cast<AJS_Player>(GetOwner());
 
+	canClimb = false;
+	bClimb = false;
 }
 
 
@@ -51,12 +57,14 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if(playerState == EPlayerState::bLanding)
-	canParasale = false;
-
-
-	UE_LOG(LogTemp,Warning,TEXT("%d"),canParasale)
 	playerState = player->compState->currState;
+
+
+	ClimbingLineTrace();
+
+	
+
+
 }
 
 void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
@@ -64,6 +72,7 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
+	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UMoveComponent::StartButtonA);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::StartButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Completed, this, &UMoveComponent::ReleaseButtonB);
@@ -82,22 +91,40 @@ void UMoveComponent::RotateCamera(const FInputActionValue& value)
 void UMoveComponent::Move(const FInputActionValue& value)
 {
 	FVector2D axis = value.Get<FVector2D>();
-	FVector dir = FVector(axis.Y, axis.X, 0);
-	dir.Normalize();
-
-	player->AddMovementInput(dir, 1, false);
-	if ((int32)(playerState) == 0)
+	
+	if(canClimb)
 	{
-		if (FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7) // X,Y의 절대값에 따라 달리기, 걷기 전환
-			OnDash();
-		else
-			OnWalk();
+	
+				FVector p0 = player->GetActorLocation();
+				FVector v = player->GetActorUpVector() * axis.Y + player->GetActorRightVector() * axis.X;
+				v.Normalize();
+				float t = 100.f * GetWorld()->DeltaTimeSeconds;
+				FVector p = p0 + v * t;
+				player->SetActorLocation(p);
 	}
-	else 
+	else
 	{
-		player->GetCharacterMovement()->MaxWalkSpeed = 200;  // 땅 외의 상태에서는 걷기의 이동속도로 움직임
-	}
 
+		switch (playerState)
+		{
+		case EPlayerState::bLanding:
+		{
+			FVector dir = FVector(axis.Y, axis.X, 0);
+			dir.Normalize();
+			player->AddMovementInput(dir, 1, false);
+			if (FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7) // X,Y의 절대값에 따라 달리기, 걷기 전환
+				OnDash();
+			else
+				OnWalk();
+		}
+		break;
+		case EPlayerState::bFalling:
+			player->GetCharacterMovement()->MaxWalkSpeed = 100.f;
+			break;
+
+		}
+
+	}
 }
 
 void UMoveComponent::OnDash() // 달리기
@@ -119,7 +146,10 @@ void UMoveComponent::OnWalk() // 걷기
 	player->GetCharacterMovement()->MaxWalkSpeed = 300;
 	player->compState->SetStaminaState(false); // 스태미나의 상태를 사용 안함으로
 }
-
+void UMoveComponent::StartButtonA() 
+{
+	ReleaseClimb();
+}
 void UMoveComponent::TriggerButtonB() // B버튼 누르고 있을때
 {
 	if (canParasale == true)
@@ -136,12 +166,23 @@ void UMoveComponent::ReleaseButtonB() // B버튼 떼면
 
 void UMoveComponent::StartButtonB() // 점프
 {
+	if(!canClimb)
+	{
+		switch (playerState)
+		{
+		case EPlayerState::bLanding:
+			player->Jump(); // 점프
+			break;
+		case EPlayerState::bFalling:
+			canParasale = true; // 패러세일을 사용 가능한 상태로 
+			break;
+		}
+	}
+	if (canClimb)
+	{
+		Climb();
+	}
 
-	if(playerState != EPlayerState::bFalling) // 공중이 아니면
-	player->Jump(); // 점프
-
-	if(playerState == EPlayerState::bFalling) // 공중이면
-	canParasale = true; // 패러세일을 사용 가능한 상태로 
 	
 }
 void UMoveComponent::Parasale(bool value) // 패러세일
@@ -152,6 +193,7 @@ void UMoveComponent::Parasale(bool value) // 패러세일
 		if (player->compState->stamina > 0) // 스태미너가 남아있으면
 		{
 			player->GetCharacterMovement()->GravityScale = 0.2; // 느리게 떨어짐
+			player->GetCharacterMovement()->MaxWalkSpeed = 300;
 			player->compState->SetStaminaState(true); // 스태미너 사용상태로 전환
 			bParasale = true; // 현재 패러세일 상태
 
@@ -172,3 +214,120 @@ void UMoveComponent::Parasale(bool value) // 패러세일
 
 
 }
+void UMoveComponent::ClimbingLineTrace()
+{
+	FVector startLoc = player->GetActorLocation();
+	FVector endLoc = player->GetActorLocation() + player->GetActorForwardVector() * 200;
+	TArray<AActor*> ignore;
+	ignore.Add(player);
+	ice = Cast<ASH_Ice>(UGameplayStatics::GetActorOfClass(GetWorld(),ASH_Ice::StaticClass()));
+
+	 UKismetSystemLibrary::LineTraceSingle(
+		GetWorld(),
+		startLoc,
+		endLoc,
+		ETraceTypeQuery::TraceTypeQuery2,
+		false,
+		ignore,
+		EDrawDebugTrace::ForOneFrame,
+		hitInfo,
+		true);
+
+	if (hitInfo.GetActor() == ice)
+	{
+		canClimb = true;
+	}
+	else
+	{
+		canClimb = false;
+	}
+
+
+		
+}
+
+ 
+ void UMoveComponent::Climb()
+{
+ 	if (canClimb)
+ 	{
+ 		playerState = EPlayerState::bCliming;
+ 		player->GetCharacterMovement()->SetMovementMode(MOVE_Flying);
+		player->GetCharacterMovement()->bOrientRotationToMovement = false;
+		player->bUseControllerRotationYaw=false;
+ 		ice = Cast<ASH_Ice>(UGameplayStatics::GetActorOfClass(GetWorld(),ASH_Ice::StaticClass()));
+ 		/*ice->iceMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);*/
+//  		player->GetCharacterMovement()->StopMovementImmediately();
+//  
+			 		FVector climbLoc =  FVector(ice->GetActorLocation().X - 100.0f, ice->GetActorLocation().Y, hitInfo.Location.Z) + ice->GetActorForwardVector();
+			 		FRotator climbRot = UKismetMathLibrary::MakeRotFromX(hitInfo.Normal);
+					FRotator newActorRot = player->GetActorRotation();
+			 		FLatentActionInfo Info;
+			 		Info.CallbackTarget = this;
+					UKismetSystemLibrary::MoveComponentTo(
+						player->GetCapsuleComponent(),
+						climbLoc,
+						newActorRot,
+						true,
+						true,
+						0.2f,
+						false,
+						EMoveComponentAction::Type::Move,
+						Info);
+	}
+	else
+	{
+	
+
+		player->GetCharacterMovement()->bOrientRotationToMovement = true;
+		player->bUseControllerRotationYaw = true;
+		if (player->GetCharacterMovement()->IsFalling() == false)
+		{
+			player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+			playerState = EPlayerState::bLanding;
+		}
+		else
+		{
+			player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Falling);
+			playerState = EPlayerState::bFalling;
+
+		}
+
+
+ 	}
+ }
+
+ void UMoveComponent::ReleaseClimb()
+{
+		player->GetCharacterMovement()->bOrientRotationToMovement = false;
+		player->bUseControllerRotationYaw=false;
+		if (player->GetCharacterMovement()->IsFalling() == true)
+		{
+			playerState = EPlayerState::bFalling;
+			player->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+		}
+		else
+		{
+			playerState = EPlayerState::bLanding;
+			player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+		}
+		
+
+		
+// 
+			FVector HangingLoc = player->GetActorLocation();
+			FRotator HangingRot = FRotator(player->GetActorRotation().Roll, player->GetActorRotation().Yaw, player->GetActorRotation().Pitch);
+			FLatentActionInfo Info;
+			Info.CallbackTarget = this;
+			UKismetSystemLibrary::MoveComponentTo(
+				player->GetCapsuleComponent(),
+				HangingLoc,
+				HangingRot,
+				true,
+				true,
+				0.2f,
+				false,
+				EMoveComponentAction::Type::Move,
+				Info);
+
+ }
