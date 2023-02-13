@@ -36,9 +36,13 @@ void ASH_Goal::BeginPlay()
 void ASH_Goal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (ball->InteractionMesh->IsSimulatingPhysics())
+	if (ball != nullptr)
 	{
-		bisGoal = false;
+		if (ball->InteractionMesh->IsSimulatingPhysics())
+		{
+			bisGoal = false;
+		}
+
 	}
 }
 

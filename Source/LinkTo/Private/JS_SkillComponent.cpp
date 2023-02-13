@@ -81,7 +81,10 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnLeftMouse);
 		enhancedInputComponent->BindAction(inputAction[4], ETriggerEvent::Triggered, this, &UJS_SkillComponent::LookUp);
 		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
-
+		enhancedInputComponent->BindAction(inputAction[7], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTrigger);
+		enhancedInputComponent->BindAction(inputAction[8], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
+		enhancedInputComponent->BindAction(inputAction[9], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabLeft);
+		enhancedInputComponent->BindAction(inputAction[10], ETriggerEvent::Completed, this, &UJS_SkillComponent::OnButtonA);
 
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonA);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnLeftMouse);
@@ -516,22 +519,39 @@ void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수
 	if (targetSkill == 0)
 	{
 		currSkillState = ESkillState::Margnet;
+		OffIceMaker();
+		OffTimeLock();
+		isPressedG = false;
 	}
 	else if (targetSkill == -350.f)
 	{
 		currSkillState = ESkillState::TimeLock;
+		OffIceMaker();
+		OffMagnet();
+		isPressedG = false;
 	}
 	else if (targetSkill == -700.f)
 	{
 		currSkillState = ESkillState::IceMaker;
+		OffTimeLock();
+		OffMagnet();
+		isPressedG = false;
 	}
 	else if (targetSkill == 350.f)
 	{
 		currSkillState = ESkillState::Boomb;
+		OffIceMaker();
+		OffTimeLock();
+		OffMagnet();
+		isPressedG = false;
 	}
 	else 
 	{
 		currSkillState = ESkillState::Defalt;
+		OffIceMaker();
+		OffTimeLock();
+		OffMagnet();
+		isPressedG = false;
 	}
 
 	// UI 끔

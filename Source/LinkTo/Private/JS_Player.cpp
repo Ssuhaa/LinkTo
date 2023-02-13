@@ -285,5 +285,4 @@ void AJS_Player::OnLogMove(FString value)
 }
 
 
-// 플레이어 바람으로 띄우기
 

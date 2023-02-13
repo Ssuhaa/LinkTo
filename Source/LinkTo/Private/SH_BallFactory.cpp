@@ -19,10 +19,11 @@ ASH_BallFactory::ASH_BallFactory()
 		InteractionMesh->SetStaticMesh(TempMesh.Object);
 	}
 	InteractionMesh->SetupAttachment(RootComponent);
+	InteractionMesh->SetRelativeScale3D(FVector(3));
 
 	SpawnPos = CreateDefaultSubobject<USceneComponent>(TEXT("SpawnPos"));
-	SpawnPos->SetupAttachment(InteractionMesh);
-	SpawnPos->SetRelativeLocation(FVector(0,0,-10));
+	SpawnPos->SetupAttachment(RootComponent);
+	SpawnPos->SetRelativeLocation(FVector(0,0,-95));
 
 
 }

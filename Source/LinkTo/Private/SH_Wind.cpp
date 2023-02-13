@@ -39,7 +39,7 @@ void ASH_Wind::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (Target != nullptr)
+	if (Target != nullptr&&player != nullptr)
 	{
 		if (Target->compMove->bParasale)
 		{
