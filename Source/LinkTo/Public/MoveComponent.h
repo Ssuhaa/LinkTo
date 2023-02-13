@@ -53,6 +53,8 @@ public:
 	bool canClimb = false;
 	UPROPERTY(EditAnywhere)
 	bool bClimb = false;
+	UPROPERTY(EditAnywhere)
+	FVector lastLoc;
 
 	UPROPERTY()
 	FHitResult hitInfo;

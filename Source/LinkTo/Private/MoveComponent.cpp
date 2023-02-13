@@ -62,8 +62,11 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	ClimbingLineTrace();
 
+	if (playerState == EPlayerState::bLanding)
+	{
+		lastLoc = player->GetActorLocation();
+	}
 	
-
 
 }
 
@@ -314,7 +317,7 @@ void UMoveComponent::ClimbingLineTrace()
 		
 
 		
-// 
+ 
 			FVector HangingLoc = player->GetActorLocation();
 			FRotator HangingRot = FRotator(player->GetActorRotation().Roll, player->GetActorRotation().Yaw, player->GetActorRotation().Pitch);
 			FLatentActionInfo Info;

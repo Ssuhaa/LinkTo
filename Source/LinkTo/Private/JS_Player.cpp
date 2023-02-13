@@ -25,6 +25,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "JS_SkillComponent.h"
 #include "JS_WidgetSkillSwitch.h"
+#include "SH_KillZone.h"
 
 
 AJS_Player::AJS_Player()
@@ -148,13 +149,28 @@ void AJS_Player::BeginPlay()
 	playerCon->PlayerCameraManager->ViewPitchMin = -80.0f;
 	playerCon->PlayerCameraManager->ViewPitchMax = 30.0f;
 
-	// 머지가 왜 안대지
+	killZone = Cast<ASH_KillZone>(UGameplayStatics::GetActorOfClass(GetWorld(),ASH_KillZone::StaticClass()));
 }
 
 // Called every frame
 void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	
+}
+
+void AJS_Player::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+		if (OtherActor == killZone)
+		{
+			compState->HP -= 1;
+
+			SetActorLocation(compMove->lastLoc);
+		}
+	
 	
 
 }

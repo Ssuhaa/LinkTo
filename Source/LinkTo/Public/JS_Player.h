@@ -33,6 +33,8 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
 public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	class UStaticMeshComponent* compSword;
@@ -88,6 +90,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UPhysicsHandleComponent* MagnetHandle;
 
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class ASH_KillZone* killZone;
 	FVector dir;
 	//
 	void OnLogLeft(FString value);
