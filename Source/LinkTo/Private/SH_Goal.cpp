@@ -30,25 +30,27 @@ void ASH_Goal::BeginPlay()
 	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &ASH_Goal::CheckGoal);
 	BoxComp->OnComponentEndOverlap.AddDynamic(this, &ASH_Goal::OutGoal);
 
-	ball = Cast<ASH_Ball>(UGameplayStatics::GetActorOfClass(GetWorld(), ASH_Ball::StaticClass()));
+	//ball = Cast<ASH_Ball>(UGameplayStatics::GetActorOfClass(GetWorld(), ASH_Ball::StaticClass()));
 }
 
 void ASH_Goal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (ball != nullptr)
+
+	if (currball != nullptr)
 	{
-		if (ball->InteractionMesh->IsSimulatingPhysics())
+		if (currball->InteractionMesh->IsSimulatingPhysics())
 		{
 			bisGoal = false;
 		}
 
 	}
+
 }
 
 void ASH_Goal::CheckGoal(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ASH_Ball* currball = Cast<ASH_Ball>(OtherActor);
+	currball = Cast<ASH_Ball>(OtherActor);
 	if (currball != nullptr)
 	{
 		currball->Goal(false);
@@ -56,10 +58,10 @@ void ASH_Goal::CheckGoal(UPrimitiveComponent* OverlappedComponent, AActor* Other
 	}
 }
 
-//µé¾î°¡¶óÀ×
+
 void ASH_Goal::OutGoal(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	ASH_Ball* currball = Cast<ASH_Ball>(OtherActor);
+	currball = Cast<ASH_Ball>(OtherActor);
 	if (currball != nullptr)
 	{
 		currball->Goal(true);

@@ -25,6 +25,7 @@ protected:
 	class UBoxComponent* BoxComp;
 
 	class ASH_Ball* ball;
+	class ASH_Ball* currball;
 
 	UFUNCTION()
 	void CheckGoal(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

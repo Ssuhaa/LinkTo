@@ -120,6 +120,7 @@ void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		player->MagnetHandle->SetTargetLocation(player->MagnetGrabComp->GetComponentLocation());
 	}
 	
+	UE_LOG(LogTemp,Warning,TEXT("%d"),bSkillMenu)
 }
 	
 // 키보드 
@@ -182,6 +183,7 @@ void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
 
 void UJS_SkillComponent::OnLeftMouse(const FInputActionValue& value) // 인식 버튼
 {
+	if(bSkillMenu) return;
 	player->OnLogRight("OnLeftMouse");
 	switch (currSkillState)
 	{
@@ -554,8 +556,12 @@ void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수
 		isPressedG = false;
 	}
 
+	hitMNActor = nullptr;
+	hitTLActor = nullptr;
+	hitIce = nullptr;
 	// UI 끔
 	player->skillWidget->RemoveFromParent();
+	bSkillMenu = false;
 }
 // UI 열려있을때 아이콘 이동시키는 함수
 void UJS_SkillComponent::OnGrabRight()
