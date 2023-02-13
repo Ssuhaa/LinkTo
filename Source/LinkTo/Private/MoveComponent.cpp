@@ -60,6 +60,7 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	playerState = player->compState->currState;
 
 
+
 	ClimbingLineTrace();
 
 	if (playerState == EPlayerState::bLanding)
@@ -75,6 +76,7 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
+	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Started, this, &UMoveComponent::CameraReset);
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UMoveComponent::StartButtonA);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::StartButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
@@ -86,20 +88,28 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 }
 void UMoveComponent::RotateCamera(const FInputActionValue& value)
 {
+	
+	player->bUseControllerRotationYaw = true;
+	player->bUseControllerRotationPitch = true;
 	FVector2D axis = value.Get<FVector2D>();
-	player->AddControllerPitchInput(axis.Y * -1.0f);
+	
 	player->AddControllerYawInput(axis.X);
+	player->AddControllerPitchInput(axis.Y * -1.0f);
 
+}
+void UMoveComponent::CameraReset()
+{
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 void UMoveComponent::Move(const FInputActionValue& value)
 {
-	FVector2D axis = value.Get<FVector2D>();
+	FVector2D MovementVector = value.Get<FVector2D>();
 	
 	if(canClimb)
 	{
 	
 				FVector p0 = player->GetActorLocation();
-				FVector v = player->GetActorUpVector() * axis.Y + player->GetActorRightVector() * axis.X;
+				FVector v = player->GetActorUpVector() * MovementVector.Y + player->GetActorRightVector() * MovementVector.X;
 				v.Normalize();
 				float t = 100.f * GetWorld()->DeltaTimeSeconds;
 				FVector p = p0 + v * t;
@@ -112,17 +122,43 @@ void UMoveComponent::Move(const FInputActionValue& value)
 		{
 		case EPlayerState::bLanding:
 		{
-			FVector dir = FVector(axis.Y, axis.X, 0);
-			dir.Normalize();
-			player->AddMovementInput(dir, 1, false);
-			if (FMath::Abs(axis.X) >= 0.7 || FMath::Abs(axis.Y) >= 0.7) // X,Y의 절대값에 따라 달리기, 걷기 전환
+
+
+			const FRotator Rotation = player->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// get forward vector
+			const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+			// get right vector 
+			const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+			// add movement 
+			player->AddMovementInput(ForwardDirection, MovementVector.Y);
+			player->AddMovementInput(RightDirection, MovementVector.X);
+
+			if (FMath::Abs(MovementVector.X) >= 0.7 || FMath::Abs(MovementVector.Y) >= 0.7) // X,Y의 절대값에 따라 달리기, 걷기 전환
 				OnDash();
 			else
 				OnWalk();
 		}
 		break;
 		case EPlayerState::bFalling:
-			player->GetCharacterMovement()->MaxWalkSpeed = 100.f;
+
+			const FRotator Rotation = player->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// get forward vector
+			const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+			// get right vector 
+			const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+			// add movement 
+			player->AddMovementInput(ForwardDirection, MovementVector.Y);
+			player->AddMovementInput(RightDirection, MovementVector.X);
+
+			player->GetCharacterMovement()->MaxWalkSpeed = 800.f;
 			break;
 
 		}
@@ -151,7 +187,11 @@ void UMoveComponent::OnWalk() // 걷기
 }
 void UMoveComponent::StartButtonA() 
 {
-	ReleaseClimb();
+	if (canClimb)
+	{
+		ReleaseClimb();
+	}
+	
 }
 void UMoveComponent::TriggerButtonB() // B버튼 누르고 있을때
 {
@@ -171,6 +211,7 @@ void UMoveComponent::StartButtonB() // 점프
 {
 	if(!canClimb)
 	{
+		
 		switch (playerState)
 		{
 		case EPlayerState::bLanding:
@@ -282,8 +323,9 @@ void UMoveComponent::ClimbingLineTrace()
 	{
 	
 
-		player->GetCharacterMovement()->bOrientRotationToMovement = true;
+		player->GetCharacterMovement()->bOrientRotationToMovement = false;
 		player->bUseControllerRotationYaw = true;
+		player->bUseControllerRotationPitch = true;
 		if (player->GetCharacterMovement()->IsFalling() == false)
 		{
 			player->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
@@ -303,7 +345,8 @@ void UMoveComponent::ClimbingLineTrace()
  void UMoveComponent::ReleaseClimb()
 {
 		player->GetCharacterMovement()->bOrientRotationToMovement = false;
-		player->bUseControllerRotationYaw=false;
+		player->bUseControllerRotationPitch = false;
+		player->bUseControllerRotationYaw= false;
 		if (player->GetCharacterMovement()->IsFalling() == true)
 		{
 			playerState = EPlayerState::bFalling;

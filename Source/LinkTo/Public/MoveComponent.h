@@ -71,4 +71,5 @@ private:
 	void ClimbingLineTrace();
 	void Climb();
 	void ReleaseClimb();
+	void CameraReset();
 };
