@@ -10,6 +10,8 @@
 
 ASH_KillZone::ASH_KillZone()
 {
+	SetRootComponent(rootComp);
+	InteractionMesh->SetupAttachment(rootComp);
 	KillBox = CreateDefaultSubobject<UBoxComponent>(TEXT("KillBox"));
 	KillBox->SetupAttachment(RootComponent);
 	KillBox->SetCollisionProfileName(TEXT("OverlapAll"));

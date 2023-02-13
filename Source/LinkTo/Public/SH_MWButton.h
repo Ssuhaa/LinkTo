@@ -40,6 +40,7 @@ protected:
 
 public:
 
+	UPROPERTY(EditAnywhere, Category = Value)
 	bool binButton = false;
 	bool bTimeLockInButton = false;
 
