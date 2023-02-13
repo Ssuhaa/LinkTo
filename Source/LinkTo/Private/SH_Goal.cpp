@@ -37,15 +37,13 @@ void ASH_Goal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (currball != nullptr)
-	{
-		if (currball->InteractionMesh->IsSimulatingPhysics())
-		{
-			bisGoal = false;
-		}
-
-	}
-
+// 	if (currball != nullptr)
+// 	{
+// 		if (currball->InteractionMesh->IsSimulatingPhysics())
+// 		{
+// 			bisGoal = false;
+// 		}
+// 	}
 }
 
 void ASH_Goal::CheckGoal(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -53,7 +51,7 @@ void ASH_Goal::CheckGoal(UPrimitiveComponent* OverlappedComponent, AActor* Other
 	currball = Cast<ASH_Ball>(OtherActor);
 	if (currball != nullptr)
 	{
-		currball->Goal(false);
+		//currball->Goal(false);
 		bisGoal = true;
 	}
 }
@@ -64,7 +62,7 @@ void ASH_Goal::OutGoal(UPrimitiveComponent* OverlappedComponent, AActor* OtherAc
 	currball = Cast<ASH_Ball>(OtherActor);
 	if (currball != nullptr)
 	{
-		currball->Goal(true);
+		//currball->Goal(true);
 		bisGoal =false;
 	}
 }
