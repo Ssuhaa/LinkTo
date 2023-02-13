@@ -104,6 +104,7 @@ AJS_Player::AJS_Player()
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
 	GetCharacterMovement()->BrakingDecelerationFlying = 1000.f;
 	GetCharacterMovement()->JumpZVelocity = 400.f; 
+	GetCharacterMovement()->AirControl = 0.2;
 	JumpMaxCount = 1;
 
 	

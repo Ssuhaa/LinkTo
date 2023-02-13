@@ -99,7 +99,7 @@ void UMoveComponent::RotateCamera(const FInputActionValue& value)
 }
 void UMoveComponent::CameraReset()
 {
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
+	/*UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();*/
 }
 void UMoveComponent::Move(const FInputActionValue& value)
 {
@@ -219,6 +219,7 @@ void UMoveComponent::StartButtonB() // 점프
 			break;
 		case EPlayerState::bFalling:
 			canParasale = true; // 패러세일을 사용 가능한 상태로 
+			player->LaunchCharacter(FVector(0,0,100.f),false,false);
 			break;
 		}
 	}
@@ -236,8 +237,10 @@ void UMoveComponent::Parasale(bool value) // 패러세일
 	{
 		if (player->compState->stamina > 0) // 스태미너가 남아있으면
 		{
+
 			player->GetCharacterMovement()->GravityScale = 0.2; // 느리게 떨어짐
 			player->GetCharacterMovement()->MaxWalkSpeed = 300;
+			player->GetCharacterMovement()->AirControl = 0.8;
 			player->compState->SetStaminaState(true); // 스태미너 사용상태로 전환
 			bParasale = true; // 현재 패러세일 상태
 
@@ -246,6 +249,7 @@ void UMoveComponent::Parasale(bool value) // 패러세일
 		{
 			player->GetCharacterMovement()->GravityScale = 1; // 보통 속도로 떨어짐
 			player->compState->SetStaminaState(false); // 스태미너 사용 안함
+			player->GetCharacterMovement()->AirControl = 0.2;
 			bParasale = false; // 패러세일 끄기
  		}
 	}
@@ -253,6 +257,7 @@ void UMoveComponent::Parasale(bool value) // 패러세일
 	{
 		player->compState->SetStaminaState(false); // 스태미너 사용안함
 		bParasale = false;
+		player->GetCharacterMovement()->AirControl = 0.2;
 		player->GetCharacterMovement()->GravityScale = 1;
 	}
 
