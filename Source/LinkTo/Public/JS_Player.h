@@ -40,6 +40,10 @@ public:
 	class UStaticMeshComponent* compSword;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	class UStaticMeshComponent* compBow;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
+		class AJS_Sword* sword;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
+		TSubclassOf<AJS_Sword> swordFactory;
 
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	TArray<class UInputAction*> keyInputs;

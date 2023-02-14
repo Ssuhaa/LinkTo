@@ -94,14 +94,14 @@ void UAttackComponent::OnButtonA()
 	if (player->compSkill->bSkillMenu == false)
 	{
 		if(!bWeaponMenu) // 만일 메뉴가 안열려 있으면
-		switch ((int32)(currAttackState)) // 상태에 따른 행동
+		switch (currAttackState) // 상태에 따른 행동
 		{
-			case 0:
+			case EAttackState::AttackIdle:
 			break;
-			case 1:
+			case EAttackState::AttackSword:
 			FireSword(); // 칼 공격
 			break;
-			case 2:
+			case EAttackState::AttackBow:
 			break;
 		}
 		else // 메뉴가 열려있으면 
@@ -161,21 +161,7 @@ void UAttackComponent::BowState() // 활 상태일때
 
 void UAttackComponent::FireSword() // 칼 공격
 {
-	FHitResult hitInfo;
-	FVector startLoc = player->GetActorLocation();
-	FVector endLoc = player->GetActorForwardVector() * 100;
-	GetWorld()->LineTraceSingleByChannel(hitInfo,startLoc, endLoc, ECC_Visibility);
-	DrawDebugLine(GetWorld(),startLoc,endLoc,FColor::Blue, 1.0f, 1.0f, 1.0f);
-
-// 	if (hitInfo.GetActor() == obstacleBase)
-// 	{
-// 		if(obstacleBase->)
-// 			GEngine->AddOnScreenDebugMessage(1, 1.0, FColor::Red, FString::Printf(TEXT("ATTACK SUCCEDED")));
-// 	}
-// 	else
-// 	{
-// 
-// 	}
+	
 }
 
 void UAttackComponent::OnTriggerArrow() // 화살 조준

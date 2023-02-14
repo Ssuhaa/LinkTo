@@ -26,6 +26,8 @@
 #include "JS_SkillComponent.h"
 #include "JS_WidgetSkillSwitch.h"
 #include "SH_KillZone.h"
+#include "JS_WeaponBase.h"
+#include "JS_Sword.h"
 
 
 AJS_Player::AJS_Player()
@@ -89,8 +91,9 @@ AJS_Player::AJS_Player()
 	compBow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	compSword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SWORD"));
-	compSword->SetupAttachment(RootComponent);
-	compSword->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	compSword->SetupAttachment(rightHand);
+	compSword->SetCollisionObjectType(ECC_GameTraceChannel1);
+	compSword->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
 	MagnetGrabComp = CreateDefaultSubobject<USceneComponent>(TEXT("MagnetGrabPos"));
 	MagnetGrabComp->SetupAttachment(RootComponent);
@@ -125,6 +128,12 @@ AJS_Player::AJS_Player()
 	{
 		skillUIFactory = tempSkillWidget.Class;
 	}
+	// ¹«±â
+	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSword(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/BP_Sword.BP_Sword_c'"));
+	if (tempSkillWidget.Succeeded())
+	{
+		swordFactory = tempSword.Class;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -151,6 +160,11 @@ void AJS_Player::BeginPlay()
 	playerCon->PlayerCameraManager->ViewPitchMax = 30.0f;
 
 	killZone = Cast<ASH_KillZone>(UGameplayStatics::GetActorOfClass(GetWorld(),ASH_KillZone::StaticClass()));
+	
+	
+	sword = GetWorld()->SpawnActor<AJS_Sword>(swordFactory,rightHand->GetComponentTransform());
+	
+
 }
 
 // Called every frame
@@ -171,9 +185,6 @@ void AJS_Player::NotifyActorBeginOverlap(AActor* OtherActor)
 
 			SetActorLocation(compMove->lastLoc);
 		}
-	
-	
-
 }
 // Called to bind functionality to input
 void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

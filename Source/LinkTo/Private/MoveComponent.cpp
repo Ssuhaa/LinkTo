@@ -76,7 +76,6 @@ void UMoveComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* Pl
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &UMoveComponent::Move);
 	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &UMoveComponent::RotateCamera);
-	PlayerInputComponent->BindAction(rightInputs[1], ETriggerEvent::Started, this, &UMoveComponent::CameraReset);
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UMoveComponent::StartButtonA);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Started, this, &UMoveComponent::StartButtonB);
 	PlayerInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &UMoveComponent::TriggerButtonB);
@@ -90,17 +89,20 @@ void UMoveComponent::RotateCamera(const FInputActionValue& value)
 {
 	
 	player->bUseControllerRotationYaw = true;
-	player->bUseControllerRotationPitch = true;
+/*	player->bUseControllerRotationPitch = true;*/
 	FVector2D axis = value.Get<FVector2D>();
 	
 	player->AddControllerYawInput(axis.X);
-	player->AddControllerPitchInput(axis.Y * -1.0f);
+	float currPitch = player->compCam->GetComponentRotation().Pitch;
+	currPitch += axis.Y * (-1.0) * GetWorld()->DeltaTimeSeconds;
+	
+	player->compCam->SetRelativeRotation(FRotator(currPitch,0,0));
+	
+	
+/*	player->AddControllerPitchInput(axis.Y * -1.0f);*/
 
 }
-void UMoveComponent::CameraReset()
-{
-	/*UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();*/
-}
+
 void UMoveComponent::Move(const FInputActionValue& value)
 {
 	FVector2D MovementVector = value.Get<FVector2D>();
