@@ -13,13 +13,12 @@ ASH_BallFactory::ASH_BallFactory()
 		ballFactory = tempBall.Class;
 	}
 
-	ConstructorHelpers::FObjectFinder <UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	ConstructorHelpers::FObjectFinder <UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Game/Geometry/Mesh/TempMap/SM_Map_SM_mesh57.SM_Map_SM_mesh57'"));
 	if (TempMesh.Succeeded())
 	{
 		InteractionMesh->SetStaticMesh(TempMesh.Object);
 	}
 	InteractionMesh->SetupAttachment(RootComponent);
-	InteractionMesh->SetRelativeScale3D(FVector(3));
 
 	SpawnPos = CreateDefaultSubobject<USceneComponent>(TEXT("SpawnPos"));
 	SpawnPos->SetupAttachment(RootComponent);
