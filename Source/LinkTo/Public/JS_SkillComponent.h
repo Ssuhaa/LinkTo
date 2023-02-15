@@ -82,7 +82,8 @@ public:
 	class ATimeLockBase* hitTLActor;
 	class AIceMakerBase* hitIMActor;
 	class AMagnetBase* hitMNActor;
-	
+
+private:
 	//타임락
 	void TimeLock();
 	void LookTimeLock();
@@ -96,19 +97,22 @@ public:
 	void IceBrake();
 	TSubclassOf<class ASH_Ice> iceFactory;
 	TArray<class ASH_Ice*> iceArray;
+	int32 iceNum = 0;
 
 	//마그넷
 	void Magnet();
 	void LookMagnet();
 	void OffMagnet();
 	class AMagnetBase* GrabMagnetActor;
+	float ratio = 0;
+
+
 
 	//키바인딩
 	void OnG(const struct FInputActionValue& value);
 	void OnF(const struct FInputActionValue& value);
 	void OnWS(const struct FInputActionValue& value);
 	void OnAD(const struct FInputActionValue& value);
-	void OnLeftMouse(const struct FInputActionValue& value);
 	void LookUp(const struct FInputActionValue& value);
 
 	float speed = 500.f;

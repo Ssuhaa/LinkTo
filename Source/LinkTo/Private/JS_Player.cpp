@@ -26,6 +26,8 @@
 #include "JS_SkillComponent.h"
 #include "JS_WidgetSkillSwitch.h"
 #include "SH_KillZone.h"
+#include "NiagaraComponent.h"
+
 
 
 AJS_Player::AJS_Player()
@@ -97,6 +99,11 @@ AJS_Player::AJS_Player()
 	MagnetGrabComp->SetRelativeLocation(FVector(400, 0, 120));
 
 	MagnetHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("MagnetHandle"));
+	MagnetHandle->LinearDamping = 150.0f;
+	MagnetHandle->LinearStiffness = 500.f;
+	MagnetHandle->AngularDamping = 150.0f;
+	MagnetHandle->AngularStiffness = 500.f;
+	MagnetHandle->InterpolationSpeed = 2.0f;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = true;
@@ -124,13 +131,19 @@ AJS_Player::AJS_Player()
 	{
 		skillUIFactory = tempSkillWidget.Class;
 	}
+
+	MagNS = CreateDefaultSubobject<UNiagaraComponent>(TEXT("magNScomp"));
+	MagNS->SetupAttachment(GetCapsuleComponent());
+	MagNS->SetVisibility(false);
+	
 }
 
 // Called when the game starts or when spawned
 void AJS_Player::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+
 	// 헤드 장비 기준 위치 설정
 	UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(trackOrigin.GetValue());
 
@@ -182,6 +195,9 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	if (enhancedInputComponent != nullptr)
 	{
+		compMove->SetupPlayerInputComponent(enhancedInputComponent);
+		compAttack->SetupPlayerInputComponent(enhancedInputComponent);
+		compSkill->SetupPlayerInputComponent(PlayerInputComponent);
 		//왼손 바인딩
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Triggered, this, &AJS_Player::OnTriggerLeft);
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AJS_Player::OnTriggerLeft);
@@ -198,14 +214,6 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AJS_Player::OnGripRight);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AJS_Player::On_A_ButtonRight);
 		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AJS_Player::On_B_ButtonRight);
-
-
-		compMove->SetupPlayerInputComponent(enhancedInputComponent);
-		compAttack->SetupPlayerInputComponent(enhancedInputComponent);
-		compSkill->SetupPlayerInputComponent(PlayerInputComponent);
-
-		// 키보드 키 바인딩
-
 	}
 	
 }

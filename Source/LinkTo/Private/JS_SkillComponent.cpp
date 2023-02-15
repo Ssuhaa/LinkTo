@@ -26,6 +26,9 @@
 #include "SH_Ice.h"
 #include <PhysicsEngine/PhysicsHandleComponent.h>
 #include <Math/MathFwd.h>
+#include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
+
+
 
 
 // Sets default values for this component's properties
@@ -41,7 +44,6 @@ UJS_SkillComponent::UJS_SkillComponent()
 		iceFactory = tempice.Class;
 	}
 
-	// ...
 }
 
 
@@ -78,16 +80,14 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 		enhancedInputComponent->BindAction(inputAction[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnG);
 		enhancedInputComponent->BindAction(inputAction[1], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnWS);
 		enhancedInputComponent->BindAction(inputAction[2], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnAD);
-		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnLeftMouse);
+		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonA);
 		enhancedInputComponent->BindAction(inputAction[4], ETriggerEvent::Triggered, this, &UJS_SkillComponent::LookUp);
 		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
 		enhancedInputComponent->BindAction(inputAction[7], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTrigger);
 		enhancedInputComponent->BindAction(inputAction[8], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
 		enhancedInputComponent->BindAction(inputAction[9], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabLeft);
-		enhancedInputComponent->BindAction(inputAction[10], ETriggerEvent::Completed, this, &UJS_SkillComponent::OnButtonA);
 
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonA);
-		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnLeftMouse);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabLeft);
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTrigger);
@@ -117,8 +117,17 @@ void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 	if (isGrab)
 	{
-		player->MagnetHandle->SetTargetLocation(player->MagnetGrabComp->GetComponentLocation());
+		ratio += DeltaTime * 2;
+		ratio = FMath::Clamp(ratio, 0.0 ,1.0);
+		FVector magpos = FMath::Lerp(player->GetActorLocation(), GrabMagnetActor->GetActorLocation(), ratio);
+		player->MagNS->SetNiagaraVariableVec3(TEXT("EndLoc"),magpos);
+		if (ratio >= 1)
+		{
+			ratio = 1;
+			player->MagnetHandle->SetTargetLocation(player->MagnetGrabComp->GetComponentLocation());
+		}
 	}
+	
 	
 	UE_LOG(LogTemp,Warning,TEXT("%d"),bSkillMenu)
 }
@@ -181,52 +190,6 @@ void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
 	isPressedG = false;
 }
 
-void UJS_SkillComponent::OnLeftMouse(const FInputActionValue& value) // 인식 버튼
-{
-	if(bSkillMenu) return;
-	player->OnLogRight("OnLeftMouse");
-	switch (currSkillState)
-	{
-	case ESkillState::TimeLock:
-		if (hitTLActor != nullptr)
-		{
-			TimeLock();
-		}
-		break;
-	case ESkillState::IceMaker:
-		if (hitIMActor != nullptr)
-		{
-			IceMaker();
-		}
-		else if (hitIce != nullptr)
-		{
-			IceBrake();
-		}
-		break;
-	case ESkillState::Margnet:
-		if (isClickedLMouse)
-		{
-			if (hitMNActor != nullptr)
-			{
-				Magnet();
-			}
-			isClickedLMouse = false;
-		}
-		else
-		{
-			if (GrabMagnetActor != nullptr)
-			{
-				GrabMagnetActor->releasedMagnet();
-				player->MagnetHandle->ReleaseComponent();
-				isGrab = false;
-				GrabMagnetActor = nullptr;
-				hitMNActor = nullptr;
-			}
-			isClickedLMouse = true;
-		}
-		break;
-	}
-}
 
 
 //interaction 배열에 Actor들 추가하기
@@ -268,7 +231,7 @@ void UJS_SkillComponent::LineTraceInteration()
 	FVector Endpos = Startpos + player->compCam->GetForwardVector() * 5000;
 	FCollisionQueryParams par;
 	par.AddIgnoredActor(GetOwner());
-	DrawDebugLine(GetWorld(), Startpos, Endpos, LineColor, false, 1, 0, 1);
+	//DrawDebugLine(GetWorld(), Startpos, Endpos, LineColor, false, 1, 0, 1);
 	bool bhit = GetWorld()->LineTraceSingleByChannel(Hitinfo, Startpos, Endpos, ECC_Visibility, par);
 	if (bhit)
 	{
@@ -300,7 +263,6 @@ void UJS_SkillComponent::LineTraceInteration()
 			if (hitMNActor != nullptr)
 			{
 				hitMNActor->LookInMagnet();
-
 			}
 			break;
 		}
@@ -377,10 +339,15 @@ void UJS_SkillComponent::OffIceMaker()
 //얼음 생성
 void UJS_SkillComponent::IceMaker()
 {
-	iceArray[0]->SetActorLocation(Hitinfo.ImpactPoint);
-	iceArray[0]->SetRotation(Hitinfo.ImpactNormal);
-	iceArray[0]->SetActiveIce(true);
-	iceArray.Swap(0, 1);
+	
+	if (iceArray[iceNum]->isIceVisible())
+	{
+		iceNum = ++iceNum % iceArray.Num();
+	}
+	iceArray[iceNum]->SetActorLocation(Hitinfo.ImpactPoint);
+	iceArray[iceNum]->SetRotation(Hitinfo.ImpactNormal);
+	iceArray[iceNum]->SetActiveIce(true);
+	
 }
 
 //얼음 제거
@@ -409,6 +376,7 @@ void UJS_SkillComponent::OffMagnet()
 	{
 		magnetActorarr[i]->InteractionMagnet(false);
 	}
+
 }
 
 //마그넷 선택
@@ -420,6 +388,8 @@ void UJS_SkillComponent::Magnet()
 		player->MagnetGrabComp->SetWorldLocation(hitMNActor->GetActorLocation());
 		hitMNActor->OnMagnet();
 		GrabMagnetActor = hitMNActor;
+		player->MagNS->SetVisibility(true);
+		ratio = 0;
 		isGrab = true;
 	}
 }
@@ -464,12 +434,58 @@ void UJS_SkillComponent::OnSkillUI() // UI열고 닫는 함수
 
 void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 {
-
-	if (player->compAttack->bWeaponMenu == false)
+	if (bSkillMenu)
 	{
-		if (bSkillMenu)
+		if (player->compAttack->bWeaponMenu == false)
 		{
+
 			ChangeSkill();
+
+		}
+	}
+	else
+	{
+		switch (currSkillState)
+		{
+		case ESkillState::TimeLock:
+			if (hitTLActor != nullptr)
+			{
+				TimeLock();
+			}
+			break;
+		case ESkillState::IceMaker:
+			if (hitIMActor != nullptr)
+			{
+				IceMaker();
+			}
+			else if (hitIce != nullptr)
+			{
+				IceBrake();
+			}
+			break;
+		case ESkillState::Margnet:
+			if (isClickedLMouse)
+			{
+				if (hitMNActor != nullptr)
+				{
+					Magnet();
+				}
+				isClickedLMouse = false;
+			}
+			else
+			{
+				if (GrabMagnetActor != nullptr)
+				{
+					GrabMagnetActor->releasedMagnet();
+					player->MagnetHandle->ReleaseComponent();
+					player->MagNS->SetVisibility(false);
+					isGrab = false;
+					GrabMagnetActor = nullptr;
+					hitMNActor = nullptr;
+				}
+				isClickedLMouse = true;
+			}
+			break;
 		}
 	}
 
@@ -477,6 +493,7 @@ void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 
 void UJS_SkillComponent::OnButtonX()
 {
+	player->compAttack->currAttackState = EAttackState::AttackIdle;
 	player->OnLogRight("OnButtonX");
 	isPressedG = true;
 	switch (currSkillState)
