@@ -28,6 +28,8 @@
 #include "SH_KillZone.h"
 #include "JS_WeaponBase.h"
 #include "JS_Sword.h"
+#include "Components/CapsuleComponent.h"
+#include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 
 
 AJS_Player::AJS_Player()
@@ -101,6 +103,12 @@ AJS_Player::AJS_Player()
 
 	MagnetHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("MagnetHandle"));
 
+	MagnetHandle->LinearDamping = 150.0f;
+	MagnetHandle->LinearStiffness = 500.f;
+	MagnetHandle->AngularDamping = 150.0f;
+	MagnetHandle->AngularStiffness = 500.f;
+	MagnetHandle->InterpolationSpeed = 2.0f;
+
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
@@ -134,6 +142,10 @@ AJS_Player::AJS_Player()
 	{
 		swordFactory = tempSword.Class;
 	}
+
+	MagNS = CreateDefaultSubobject<UNiagaraComponent>(TEXT("magNScomp"));
+	MagNS->SetupAttachment(GetCapsuleComponent());
+	MagNS->SetVisibility(false);
 }
 
 // Called when the game starts or when spawned
@@ -225,75 +237,61 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 // 왼손
 void AJS_Player::OnTriggerLeft(const FInputActionValue& value)
 {
-	float val = value.Get<float>();
 
-	// 왼손 로그에 값을 출력
-	FString msg = FString::Printf(TEXT("%.2f"), val);
-	OnLogLeft(msg);
 }
 void AJS_Player::OnThumbstickLeft(const FInputActionValue& value)
 {
-	FVector2D val = value.Get<FVector2D>();
-	FString valX = FString::Printf(TEXT("X : %.2f"),val.X);
-	FString valY = FString::Printf(TEXT("Y : %.2f"),val.Y);
-	OnLogLeft(valX + valY);
+
 }
 void AJS_Player::OnGripLeft(const FInputActionValue& value)
 {
-	OnLogLeft("Grip");
+
 }
 void AJS_Player::On_X_ButtonLeft(const FInputActionValue& value)
 {
-	OnLogLeft("X");
+
 }
 void AJS_Player::On_Y_ButtonLeft(const FInputActionValue& value)
 {
-	OnLogLeft("Y");
+
 }
 void AJS_Player::OnMenuLeft(const FInputActionValue& value)
 {
-	OnLogLeft("Menu");
+
 }
 void AJS_Player::OnLogLeft(FString value)
 {
-	leftLog->SetText(FText::FromString(value));
+
 }
 
 // 오른쪽
 void AJS_Player::OnTriggerRight(const FInputActionValue& value)
 {
-	OnLogRight("Trigger");
+
 }
 void AJS_Player::OnThumbstickRight(const FInputActionValue& value)
 {
-	OnLogRight("Thumbstick");
+
 }
 void AJS_Player::OnGripRight(const FInputActionValue& value)
 {
-	OnLogRight("Grip");
+
 }
 void AJS_Player::On_A_ButtonRight(const FInputActionValue& value)
 {
-	OnLogRight("A");
+
 }
 void AJS_Player::On_B_ButtonRight(const FInputActionValue& value)
 {
-	OnLogRight("B");
+
 }
 void AJS_Player::OnLogRight(FString value)
 {
-	rightLog->SetText(FText::FromString(value));
-}
-
-
-void AJS_Player::KeyInputsBinding()
-{
 
 }
-
 void AJS_Player::OnLogMove(FString value)
 {
-	moveLog->SetText(FText::FromString(value));
+
 }
 
 

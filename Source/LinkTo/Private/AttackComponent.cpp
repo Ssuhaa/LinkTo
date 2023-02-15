@@ -170,7 +170,7 @@ void UAttackComponent::OnTriggerArrow() // 화살 조준
 	if (currAttackState == EAttackState::AttackBow)
 	{
 		// 누르는 시간만큼 조준을 한다 (화살에 힘을 더해준다)
-		accArrowSpeed += 600*GetWorld()->DeltaTimeSeconds;
+		accArrowSpeed += 1000*GetWorld()->DeltaTimeSeconds;
 		UE_LOG(LogTemp, Error, TEXT("%f"), accArrowSpeed);
 	}
 }

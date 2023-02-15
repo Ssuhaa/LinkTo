@@ -44,6 +44,8 @@ public:
 		class AJS_Sword* sword;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 		TSubclassOf<AJS_Sword> swordFactory;
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+		class UNiagaraComponent* MagNS;
 
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	TArray<class UInputAction*> keyInputs;
@@ -135,8 +137,6 @@ private:
 	// ·Î±×
 
 
-public:
-	void KeyInputsBinding();
 
 	
 
