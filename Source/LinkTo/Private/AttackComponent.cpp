@@ -50,7 +50,7 @@ void UAttackComponent::BeginPlay()
 	Super::BeginPlay();
 
 	player = Cast<AJS_Player>(GetOwner());
-//	weaponWidget = CreateWidget<UJS_WidgetWeaponSwitch>(GetWorld(), weaponUIFactory);
+	weaponWidget = CreateWidget<UJS_WidgetWeaponSwitch>(GetWorld(), weaponUIFactory);
 
 	APlayerController* attackCon = GetWorld()->GetFirstPlayerController();
 	UEnhancedInputLocalPlayerSubsystem* attackSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(attackCon->GetLocalPlayer());
