@@ -34,14 +34,14 @@ public:
 	class UImage* ICE;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UImage* Selected;
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere)
 	FVector2D movePos;
 	
 
 public:
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere)
 	class UPanelSlot* widgetSlot;
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere)
 	class UCanvasPanelSlot * slotPos;
 
 public:
