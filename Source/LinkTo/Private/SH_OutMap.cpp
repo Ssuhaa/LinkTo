@@ -12,7 +12,7 @@ ASH_OutMap::ASH_OutMap()
 	boxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
 	boxComp->SetupAttachment(rootComp);
 	boxComp->SetBoxExtent(FVector(1000,1000,400));
-	ConstructorHelpers::FClassFinder <UUI_OutGame> Tempwg(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/BP_OutGame.BP_OutGame_C'"));
+	ConstructorHelpers::FClassFinder <UUI_OutGame> Tempwg(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/UI_OutGame.UI_OutGame_C'"));
 	if(Tempwg.Succeeded())
 	{
 		wgfactory = Tempwg.Class;

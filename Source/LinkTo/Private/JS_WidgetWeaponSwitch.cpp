@@ -12,29 +12,14 @@
 #include "Components/PanelSlot.h"
 #include <UMG/Public/Components/HorizontalBox.h>
 
-// void UJS_WidgetBase::NativeOnInitialized()
-// {
-// 	Super::NativeOnInitialized();
-// }
-// 
-// void UJS_WidgetBase::NativePreConstruct()
-// {
-// 	Super::NativePreConstruct();
-// }
+
 
 void UJS_WidgetWeaponSwitch::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	player = Cast<AJS_Player>(UGameplayStatics::GetActorOfClass(GetWorld(),AJS_Player::StaticClass()));
-	if (player != nullptr)
-	{
-		UAttackComponent* playerAttackComp = Cast<UAttackComponent>(player->compAttack);
-	
-		widgetSlot = Cast<UPanelSlot>(SwitchPanel->Slot);
-		slotPos = Cast<UCanvasPanelSlot>(widgetSlot);
-	}
-	
+	widgetSlot = Cast<UPanelSlot>(SwitchPanel->Slot);
+	slotPos = Cast<UCanvasPanelSlot>(widgetSlot);
 }
 
 void UJS_WidgetWeaponSwitch::NativeDestruct()
@@ -51,7 +36,7 @@ void UJS_WidgetWeaponSwitch::NativeTick(const FGeometry& MyGeometry, float InDel
 void UJS_WidgetWeaponSwitch::SetUIInitPos(int32 value)
 {
 	float locX = -350.f * value + 350.f;
-	FVector2D currWeapon = FVector2D(locX, -130.f);
+	FVector2D currWeapon = FVector2D(locX, 0);
 	slotPos->SetPosition(currWeapon);
 }
 
@@ -60,7 +45,7 @@ void UJS_WidgetWeaponSwitch::MoveUI(int32 thumbstickAxis)
 	
 	float locX = slotPos->GetPosition().X + thumbstickAxis * 350.f;
 	float clampX = FMath::Clamp(locX,-350.f,350.f);
-	FVector2D currWeapon = FVector2D(clampX, -130.f);
+	FVector2D currWeapon = FVector2D(clampX, 0);
 	slotPos->SetPosition(currWeapon);
 }
 

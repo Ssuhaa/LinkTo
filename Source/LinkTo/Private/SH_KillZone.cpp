@@ -6,7 +6,7 @@
 #include "SH_Ball.h"
 #include <Kismet/GameplayStatics.h>
 #include "SH_BallFactory.h"
-#include "SH_Player.h"
+#include "JS_Player.h"
 
 ASH_KillZone::ASH_KillZone()
 {
@@ -40,9 +40,9 @@ void  ASH_KillZone::BoXBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	}
 
 	//플레이어 킬
-	ASH_Player* Player = Cast<ASH_Player>(OtherActor);
+	AJS_Player* Player = Cast<AJS_Player>(OtherActor);
 	if(Player != nullptr)
 	{
-		
+		Player->ContactKillZone();
 	}
 }

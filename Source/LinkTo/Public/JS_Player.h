@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "CharacterBase.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
-#include "Camera/CameraComponent.h"
-#include "JS_WidgetSkillSwitch.h"
 #include "JS_Player.generated.h"
 
 /**
@@ -33,19 +31,20 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	//virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	void ContactKillZone();
 
 public:
+
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	class UStaticMeshComponent* compSword;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	class UStaticMeshComponent* compBow;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
-		class AJS_Sword* sword;
+	class AJS_Sword* sword;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
-		TSubclassOf<AJS_Sword> swordFactory;
-	UPROPERTY(EditDefaultsOnly, Category = Component)
-		class UNiagaraComponent* MagNS;
+	TSubclassOf<AJS_Sword> swordFactory;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	TArray<class UInputAction*> keyInputs;
@@ -83,62 +82,22 @@ public:
 	class UPlayerStateComponent* compState;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UAttackComponent* compAttack;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
-	class UJS_WidgetWeaponSwitch* weaponWidget;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
-	class UJS_WidgetSkillSwitch* skillWidget;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
-	TSubclassOf<UJS_WidgetWeaponSwitch> weaponUIFactory;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
-	TSubclassOf<UJS_WidgetSkillSwitch> skillUIFactory;
+
+
+
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class USceneComponent* MagnetGrabComp;
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UPhysicsHandleComponent* MagnetHandle;
-
 	UPROPERTY(EditDefaultsOnly, Category = Component)
-	class ASH_KillZone* killZone;
+	class UNiagaraComponent* MagNS;
+
 	FVector dir;
-	//
-	void OnLogLeft(FString value);
-	void OnLogMove(FString value);
-	void OnLogRight(FString value);
 
-
-
-private:
-	// 트리거
-	void OnTriggerLeft(const struct FInputActionValue& value);
-	// thumbstick
-	void OnThumbstickLeft(const struct FInputActionValue& value);
-	// grip
-	void OnGripLeft(const struct FInputActionValue& value);
-	// X
-	void On_X_ButtonLeft(const struct FInputActionValue& value);
-	// Y
-	void On_Y_ButtonLeft(const struct FInputActionValue& value);
-	// 메뉴
-	void OnMenuLeft(const struct FInputActionValue& value);
-	// 왼쪽 로그
-	
-
-	// 오른쪽 
-	
-	// 트리거
-	void OnTriggerRight(const struct FInputActionValue& value);
-	// thumbstick
-	void OnThumbstickRight(const struct FInputActionValue& value);
-	// grip
-	void OnGripRight(const struct FInputActionValue& value);
-	// A
-	void On_A_ButtonRight(const struct FInputActionValue& value);
-	// B
-	void On_B_ButtonRight(const struct FInputActionValue& value);
-	// 로그
-
-
-
-	
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
+	class UWidgetComponent* widgetComp;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
+	class UPlayerMainWG* MainWG;
+	void ovelayMenuMainWG(UUserWidget* widget);
 
 };

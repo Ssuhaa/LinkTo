@@ -9,6 +9,7 @@
 
 ATimeLockBase::ATimeLockBase()
 {
+	bDamage = true;
 	interationType = EObstacleType::Timelock;
 	ConstructorHelpers::FObjectFinder <UMaterialParameterCollection> TempParm(TEXT("/Script/Engine.MaterialParameterCollection'/Game/Geometry/Material/TimeLock.TimeLock'"));
 	if (TempParm.Succeeded())

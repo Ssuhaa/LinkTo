@@ -121,7 +121,7 @@ void UPlayerStateComponent::CurrStamina(bool value)
 		ChargeStamina();
 	}
 
-	player->OnLogMove(FString::Printf(TEXT("%.2f"), stamina));
+	//player->OnLogMove(FString::Printf(TEXT("%.2f"), stamina));
 }
 void UPlayerStateComponent::IsInAir()
 {
