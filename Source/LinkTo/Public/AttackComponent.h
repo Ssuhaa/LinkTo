@@ -55,8 +55,15 @@ public:
 	bool bWeaponMenu = false;
 	UPROPERTY(EditAnywhere, Category = Arrow)
 	float accArrowSpeed = 0; // 화살의 가속도
-	
-	
+
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
+	TSubclassOf<class UJS_WidgetWeaponSwitch> weaponUIFactory;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
+	class UJS_WidgetWeaponSwitch* weaponWidget;
+
+	void WeaponMenuOnOff(bool value);
+	void WeaponMenuMove(int32 value);
 
 private:
 	void OnButtonA();

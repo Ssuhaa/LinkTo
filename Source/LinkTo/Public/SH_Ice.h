@@ -21,12 +21,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetIceSpawnPos(float DeltaTime);
-
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class USkeletalMeshComponent* iceMesh; 
 	class UAnimationAsset* iceMotion;
-	
+
 	bool bIsActiveIce = false;
 	float ratioX = 0.0f;
 	float X = 0.0f;
@@ -34,7 +32,6 @@ public:
 	FVector SpawnPos;
 
 public:
-
 	void SetActiveIce(bool isActive);
 	bool isIceVisible();
 	void SetRotation(FVector HitNormal);

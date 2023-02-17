@@ -15,21 +15,17 @@
 #include <GameFramework/CharacterMovementComponent.h>
 #include "PlayerStateComponent.h"
 #include "AttackComponent.h"
-#include "JS_WidgetWeaponSwitch.h"
-#include "TimeLockBase.h"
-#include "IceMakerBase.h"
 #include "SH_Ice.h"
 #include <Kismet/KismetMathLibrary.h>
-#include "MagnetBase.h"
 #include <PhysicsEngine/PhysicsHandleComponent.h>
 #include <Kismet/GameplayStatics.h>
 #include "JS_SkillComponent.h"
-#include "JS_WidgetSkillSwitch.h"
-#include "SH_KillZone.h"
-#include "JS_WeaponBase.h"
-#include "JS_Sword.h"
 #include "Components/CapsuleComponent.h"
 #include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
+#include <UMG/Public/Components/WidgetComponent.h>
+#include <UMG/Public/Blueprint/UserWidget.h>
+#include <UMG/Public/Components/Overlay.h>
+#include "PlayerMainWG.h"
 
 
 AJS_Player::AJS_Player()
@@ -88,21 +84,11 @@ AJS_Player::AJS_Player()
 	rightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	rightHand->SetRelativeRotation(FRotator(25.0f, 0.0f, 90.0f));
 
-	compBow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BOW"));
-	compBow->SetupAttachment(RootComponent);
-	compBow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	compSword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SWORD"));
-	compSword->SetupAttachment(rightHand);
-	compSword->SetCollisionObjectType(ECC_GameTraceChannel1);
-	compSword->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
 	MagnetGrabComp = CreateDefaultSubobject<USceneComponent>(TEXT("MagnetGrabPos"));
 	MagnetGrabComp->SetupAttachment(RootComponent);
 	MagnetGrabComp->SetRelativeLocation(FVector(400, 0, 120));
 
 	MagnetHandle = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("MagnetHandle"));
-
 	MagnetHandle->LinearDamping = 150.0f;
 	MagnetHandle->LinearStiffness = 500.f;
 	MagnetHandle->AngularDamping = 150.0f;
@@ -118,86 +104,67 @@ AJS_Player::AJS_Player()
 	GetCharacterMovement()->AirControl = 0.2;
 	JumpMaxCount = 1;
 
-	
-
 	compMove = CreateDefaultSubobject<UMoveComponent>(TEXT("MOVE COMP"));
 	compState = CreateDefaultSubobject<UPlayerStateComponent>(TEXT("STATE COMP"));
 	compAttack = CreateDefaultSubobject<UAttackComponent>(TEXT("ATTACK COMP"));
 	compSkill = CreateDefaultSubobject<UJS_SkillComponent>(TEXT("SKILL COMP"));
 	
-	// 무기 스위치 UI 찾아오기
-	ConstructorHelpers::FClassFinder<UJS_WidgetWeaponSwitch>tempWeaponWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchWeapon.JS_SwitchWeapon_c'"));
-	if (tempWeaponWidget.Succeeded())
-	{
-		weaponUIFactory = tempWeaponWidget.Class;
-	}
-	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSkillWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchSkill.JS_SwitchSkill_c'"));
-	if (tempSkillWidget.Succeeded())
-	{
-		skillUIFactory = tempSkillWidget.Class;
-	}
-// 	// 무기
-// 	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSword(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/BP_Sword.BP_Sword_c'"));
-// 	if (tempSkillWidget.Succeeded())
+	compBow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BOW"));
+	compBow->SetupAttachment(RootComponent);
+	compBow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	compSword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SWORD"));
+	compSword->SetupAttachment(rightHand);
+	compSword->SetCollisionObjectType(ECC_GameTraceChannel1);
+	compSword->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+// 	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSword(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/BP_Sword.BP_Sword_C'"));
+// 	if (tempSword.Succeeded())
 // 	{
 // 		swordFactory = tempSword.Class;
 // 	}
 
+
 	MagNS = CreateDefaultSubobject<UNiagaraComponent>(TEXT("magNScomp"));
 	MagNS->SetupAttachment(GetCapsuleComponent());
 	MagNS->SetVisibility(false);
+
+	widgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	ConstructorHelpers::FClassFinder <UUserWidget> tempWG(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/MainUI.MainUI_C'"));
+	if (tempWG.Succeeded())
+	{
+		widgetComp->SetWidgetClass(tempWG.Class);
+	}
+	widgetComp->SetGeometryMode(EWidgetGeometryMode::Cylinder);
+	widgetComp->SetupAttachment(compCam);
+	widgetComp->SetDrawSize(FVector2D(1920,1080));
+	widgetComp->SetRelativeRotation(FRotator(0,180,0));
+	widgetComp->SetRelativeLocation(FVector(628.0f, 0.0f, -51.0f));
 }
 
 // Called when the game starts or when spawned
 void AJS_Player::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// 헤드 장비 기준 위치 설정
+
 	UHeadMountedDisplayFunctionLibrary::SetTrackingOrigin(trackOrigin.GetValue());
-
-	// 1. 플레이어 컨트롤러 가져오기
 	APlayerController* playerCon = GetWorld()->GetFirstPlayerController();
-
-	// 2. 플레이어 컨트롤러에서 EnhancedInputLocalPlayerSubsystem을 가져오기
 	UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerCon->GetLocalPlayer());
-
-	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	subsys->AddMappingContext(myMapping, 0);
 
-	weaponWidget = CreateWidget<UJS_WidgetWeaponSwitch>(GetWorld(),weaponUIFactory);
-	skillWidget = CreateWidget<UJS_WidgetSkillSwitch>(GetWorld(),skillUIFactory);
+	MainWG = Cast<UPlayerMainWG>(widgetComp->GetWidget());
 
-	playerCon->PlayerCameraManager->ViewPitchMin = -80.0f;
-	playerCon->PlayerCameraManager->ViewPitchMax = 30.0f;
-
-	killZone = Cast<ASH_KillZone>(UGameplayStatics::GetActorOfClass(GetWorld(),ASH_KillZone::StaticClass()));
+	sword = GetWorld()->SpawnActor<AJS_Sword>(swordFactory, rightHand->GetComponentTransform());
 	
-	
-	sword = GetWorld()->SpawnActor<AJS_Sword>(swordFactory,rightHand->GetComponentTransform());
-	
-
 }
 
 // Called every frame
 void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	
+
 }
 
-void AJS_Player::NotifyActorBeginOverlap(AActor* OtherActor)
-{
-	Super::NotifyActorBeginOverlap(OtherActor);
-
-		if (OtherActor == killZone)
-		{
-			compState->HP -= 1;
-
-			SetActorLocation(compMove->lastLoc);
-		}
-}
 // Called to bind functionality to input
 void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -206,93 +173,21 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 	if (enhancedInputComponent != nullptr)
 	{
-		//왼손 바인딩
-		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Triggered, this, &AJS_Player::OnTriggerLeft);
-		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AJS_Player::OnTriggerLeft);
-		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Triggered, this, &AJS_Player::OnThumbstickLeft);
-		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AJS_Player::OnGripLeft);
-		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Triggered, this, &AJS_Player::On_X_ButtonLeft);
-		enhancedInputComponent->BindAction(leftInputs[4], ETriggerEvent::Triggered, this, &AJS_Player::On_Y_ButtonLeft);
-		enhancedInputComponent->BindAction(leftInputs[5], ETriggerEvent::Triggered, this, &AJS_Player::OnMenuLeft);
-
-		// 오른손 바인딩 
-		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &AJS_Player::OnTriggerRight);
-		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AJS_Player::OnTriggerRight);
-		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Triggered, this, &AJS_Player::OnThumbstickRight);
-		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AJS_Player::OnGripRight);
-		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &AJS_Player::On_A_ButtonRight);
-		enhancedInputComponent->BindAction(rightInputs[4], ETriggerEvent::Triggered, this, &AJS_Player::On_B_ButtonRight);
-
-
 		compMove->SetupPlayerInputComponent(enhancedInputComponent);
 		compAttack->SetupPlayerInputComponent(enhancedInputComponent);
 		compSkill->SetupPlayerInputComponent(PlayerInputComponent);
-
-		// 키보드 키 바인딩
-
 	}
 	
 }
 
-// 왼손
-void AJS_Player::OnTriggerLeft(const FInputActionValue& value)
+void AJS_Player::ContactKillZone()
 {
-
-}
-void AJS_Player::OnThumbstickLeft(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::OnGripLeft(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::On_X_ButtonLeft(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::On_Y_ButtonLeft(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::OnMenuLeft(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::OnLogLeft(FString value)
-{
-
+	compState->HP -= 1;
+	SetActorLocation(compMove->lastLoc);
 }
 
-// 오른쪽
-void AJS_Player::OnTriggerRight(const FInputActionValue& value)
+void AJS_Player::ovelayMenuMainWG(UUserWidget* widget)
 {
-
+	MainWG->Overlay_Skill->AddChildToOverlay(widget);
 }
-void AJS_Player::OnThumbstickRight(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::OnGripRight(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::On_A_ButtonRight(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::On_B_ButtonRight(const FInputActionValue& value)
-{
-
-}
-void AJS_Player::OnLogRight(FString value)
-{
-
-}
-void AJS_Player::OnLogMove(FString value)
-{
-
-}
-
-
 

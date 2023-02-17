@@ -1,37 +1,29 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "JS_SkillComponent.h"
-#include "AttackComponent.h"
-#include "MoveComponent.h"
 #include "JS_Player.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Components/InputComponent.h"
 #include "InputAction.h"
-#include "InputActionValue.h"
-#include <GameFramework/CharacterMovementComponent.h>
-#include <Components/CapsuleComponent.h>
-#include <Camera/CameraComponent.h>
 #include <CollisionQueryParams.h>
-#include "PlayerStateComponent.h"
 #include "JS_WidgetWeaponSwitch.h"
-#include <Components/CanvasPanelSlot.h>
-#include <Components/CanvasPanel.h>
-#include "JS_Arrow.h"
 #include <Kismet/GameplayStatics.h>
-#include <GameFramework/ProjectileMovementComponent.h>
 #include "TimeLockBase.h"
 #include "IceMakerBase.h"
 #include "MagnetBase.h"
 #include "SH_Ice.h"
 #include <PhysicsEngine/PhysicsHandleComponent.h>
-#include <Math/MathFwd.h>
 #include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 #include "JS_Bomb.h"
 #include <MotionControllerComponent.h>
 #include <Components/SphereComponent.h>
-
-
+#include "SH_IceGhost.h"
+#include <UMG/Public/Components/CanvasPanelSlot.h>
+#include <Camera/CameraComponent.h>
+#include "JS_WidgetSkillSwitch.h"
+#include "PlayerMainWG.h"
+#include <Components/SphereComponent.h>
 
 
 // Sets default values for this component's properties
@@ -46,10 +38,17 @@ UJS_SkillComponent::UJS_SkillComponent()
 	{
 		iceFactory = tempice.Class;
 	}
+
 	ConstructorHelpers::FClassFinder <AJS_Bomb> tempBomb(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/JS_BP_Bomb.JS_BP_Bomb_c'"));
 	if (tempBomb.Succeeded())
 	{
 		bombFactory = tempBomb.Class;
+	}
+	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSkillWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchSkill.JS_SwitchSkill_c'"));
+	if (tempSkillWidget.Succeeded())
+	{
+		skillUIFactory = tempSkillWidget.Class;
+
 	}
 }
 
@@ -62,21 +61,23 @@ void UJS_SkillComponent::BeginPlay()
 	player = Cast<AJS_Player>(GetOwner());
 	
 	APlayerController* skillCon = GetWorld()->GetFirstPlayerController();
-	// 2. 플레이어 컨트롤러에서 EnhancedInputLocalPlayerSubsystem을 가져오기
 	UEnhancedInputLocalPlayerSubsystem* skillSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(skillCon->GetLocalPlayer());
-	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
-	skillSubsys->AddMappingContext(SHMapping, selectContext);
 	skillSubsys->AddMappingContext(skillMapping,selectContext);
-	// ...
 	
-	AddArray();
-
+	//추후 삭제
+	skillSubsys->AddMappingContext(SHMapping, selectContext);
 	skillCon->PlayerCameraManager->ViewPitchMin = -80.0f;
 	skillCon->PlayerCameraManager->ViewPitchMax = 30.0f;
 
+
+	//스킬 Comp 초기 세팅 
+	Ghostice = GetWorld()->SpawnActor<ASH_IceGhost>(ASH_IceGhost::StaticClass());
+	skillWidget = CreateWidget<UJS_WidgetSkillSwitch>(GetWorld(), skillUIFactory);
+	AddArray();
 	bSkillMenu = false;
-	
 }
+
+
 
 void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -84,12 +85,13 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 	
 	if (enhancedInputComponent != nullptr)
 	{
-		enhancedInputComponent->BindAction(inputAction[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnG);
+		//추후 삭제
+		enhancedInputComponent->BindAction(inputAction[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonX);
 		enhancedInputComponent->BindAction(inputAction[1], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnWS);
 		enhancedInputComponent->BindAction(inputAction[2], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnAD);
 		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonA);
 		enhancedInputComponent->BindAction(inputAction[4], ETriggerEvent::Triggered, this, &UJS_SkillComponent::LookUp);
-		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnF);
+		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonY);
 		enhancedInputComponent->BindAction(inputAction[7], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTrigger);
 		enhancedInputComponent->BindAction(inputAction[8], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
 		enhancedInputComponent->BindAction(inputAction[9], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabLeft);
@@ -102,27 +104,24 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonX);
 		enhancedInputComponent->BindAction(leftInputs[4], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonY);
 	}
-
-	
-
 }
-
 
 // Called every frame
 void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	// 마그넷 핸들
+	//플레이어 이동(추후 삭제)
 	player->dir = FTransform(player->GetControlRotation()).TransformVector(player->dir);
 	player->AddMovementInput(player->dir.GetSafeNormal());
 	player->dir = FVector::ZeroVector;
 
+	//X/G키 눌렀을때 라인트레이스 활성화
 	if (isPressedG)
 	{
 		LineTraceInteration();
 	}
 
+	//Magnet 잡았을때 
 	if (isGrab)
 	{
 		ratio += DeltaTime * 2;
@@ -135,12 +134,9 @@ void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 			player->MagnetHandle->SetTargetLocation(player->MagnetGrabComp->GetComponentLocation());
 		}
 	}
-	
-	
-	UE_LOG(LogTemp,Warning,TEXT("%d"),bSkillMenu)
 }
 	
-// 키보드 
+// 키보드 움직임 바인딩 (추후 삭제)
 void UJS_SkillComponent::OnWS(const FInputActionValue& value)
 {
 	float Axis = value.Get<float>();
@@ -156,12 +152,87 @@ void UJS_SkillComponent::LookUp(const FInputActionValue& value)
 	FVector2D MouseAxis = value.Get<FVector2D>();
 
 	player->AddControllerYawInput(MouseAxis.X);
-	player->AddControllerPitchInput(-MouseAxis.Y);
+	player->AddControllerPitchInput(MouseAxis.Y);
 }
 
-void UJS_SkillComponent::OnG(const FInputActionValue& value)
+// 위젯 이동 바인딩
+void UJS_SkillComponent::OnGrabRight()
 {
-	player->OnLogRight("OnG");
+	SkilMenuMove(-1);
+}
+void UJS_SkillComponent::OnGrabLeft()
+{
+	SkilMenuMove(1);
+}
+// 위젯켜기 바인딩
+void UJS_SkillComponent::OnButtonTrigger()
+{
+	OnSkillUI();
+}
+//스킬 사용 바인딩
+void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
+{
+	if (bSkillMenu)
+	{
+
+		ChangeSkill();
+
+	}
+	else
+	{
+		switch (currSkillState)
+		{
+		case ESkillState::TimeLock:
+			if (hitTLActor != nullptr)
+			{
+				TimeLock();
+			}
+			break;
+		case ESkillState::IceMaker:
+			if (hitIMActor != nullptr && Ghostice->bSpawn)
+			{
+				IceMaker();
+			}
+			else if (hitIce != nullptr)
+			{
+				IceBrake();
+			}
+			break;
+		case ESkillState::Margnet:
+			if (isClickedLMouse)
+			{
+				if (hitMNActor != nullptr)
+				{
+					FVector dir = player->GetActorLocation() - hitMNActor->GetActorLocation();
+					if (dir.Length() < MagnetLength)
+					{
+						Magnet();
+					}
+				}
+				isClickedLMouse = false;
+			}
+			else
+			{
+				if (GrabMagnetActor != nullptr)
+				{
+					GrabMagnetActor->releasedMagnet();
+					player->MagnetHandle->ReleaseComponent();
+					player->MagNS->SetVisibility(false);
+					isGrab = false;
+					GrabMagnetActor = nullptr;
+					hitMNActor = nullptr;
+				}
+				isClickedLMouse = true;
+			}
+			break;
+		}
+	}
+
+}
+//스킬 활성화 바인딩
+void UJS_SkillComponent::OnButtonX()
+{
+	player->compAttack->currAttackState = EAttackState::AttackIdle;
 	isPressedG = true;
 	switch (currSkillState)
 	{
@@ -182,10 +253,9 @@ void UJS_SkillComponent::OnG(const FInputActionValue& value)
 		break;
 	}
 }
-
-void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
+//스킬 비활성화 바인딩
+void UJS_SkillComponent::OnButtonY()
 {
-	player->OnLogRight("OnF");
 	switch (currSkillState)
 	{
 	case ESkillState::Bomb:
@@ -203,7 +273,6 @@ void UJS_SkillComponent::OnF(const struct FInputActionValue& value)
 	}
 	isPressedG = false;
 }
-
 
 
 //interaction 배열에 Actor들 추가하기
@@ -243,16 +312,18 @@ void UJS_SkillComponent::AddArray()
 		currBomb->SetActiveBomb(false);
 		bombArray.Add(currBomb);
 	}
+
 }
 
+//라인트레이스
 void UJS_SkillComponent::LineTraceInteration()
 {
-	
+
 	FVector Startpos = player->compCam->GetComponentLocation();
 	FVector Endpos = Startpos + player->compCam->GetForwardVector() * 5000;
 	FCollisionQueryParams par;
 	par.AddIgnoredActor(GetOwner());
-	//DrawDebugLine(GetWorld(), Startpos, Endpos, LineColor, false, 1, 0, 1);
+	par.AddIgnoredActor(Ghostice);
 	bool bhit = GetWorld()->LineTraceSingleByChannel(Hitinfo, Startpos, Endpos, ECC_Visibility, par);
 	if (bhit)
 	{
@@ -269,9 +340,10 @@ void UJS_SkillComponent::LineTraceInteration()
 				hitTLActor->LookInTimeLock();
 			}
 			break;
-
 		case ESkillState::IceMaker:
-			hitIMActor = Cast<AIceMakerBase>(Hitinfo.GetActor());
+			Ghostice->SetActorLocation(Hitinfo.ImpactPoint);
+			Ghostice->SetRotation(Hitinfo.ImpactNormal);
+			hitIMActor = Cast<AIceMakerBase>(Hitinfo.GetActor());	
 			hitIce = Cast<ASH_Ice>(Hitinfo.GetActor());
 			break;
 
@@ -301,7 +373,6 @@ void UJS_SkillComponent::LookTimeLock()
 		timelockActorarr[i]->InteractionTimeLock(true);
 	}
 }
-
 //타임락 표시 끄기
 void UJS_SkillComponent::OffTimeLock()
 {
@@ -311,7 +382,6 @@ void UJS_SkillComponent::OffTimeLock()
 		timelockActorarr[i]->InteractionTimeLock(false);
 	}
 }
-
 //타임락 걸기
 void UJS_SkillComponent::TimeLock()
 {
@@ -322,7 +392,6 @@ void UJS_SkillComponent::TimeLock()
 		isPressedG = false;
 	}
 }
-
 //타임락 걸린 액터가 있는지 찾기
 bool UJS_SkillComponent::FindOnTimeLockActor()
 {
@@ -334,29 +403,26 @@ bool UJS_SkillComponent::FindOnTimeLockActor()
 }
 
 
-
 //아이스메이커 액터 보기
 void UJS_SkillComponent::LookIceMaker()
 {
+	Ghostice->SetVisibleIce(true);
 	if (iceMakerActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < iceMakerActorarr.Num(); i++)
 	{
 		iceMakerActorarr[i]->InteractionIceMaker(true);
 	}
 }
-
-
 //아이스메이커 표시 끄기
 void UJS_SkillComponent::OffIceMaker()
 {
+	Ghostice->SetVisibleIce(false);
 	if (iceMakerActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < iceMakerActorarr.Num(); i++)
 	{
 		iceMakerActorarr[i]->InteractionIceMaker(false);
 	}
 }
-
-
 //얼음 생성
 void UJS_SkillComponent::IceMaker()
 {
@@ -370,13 +436,11 @@ void UJS_SkillComponent::IceMaker()
 	iceArray[iceNum]->SetActiveIce(true);
 	
 }
-
 //얼음 제거
 void UJS_SkillComponent::IceBrake()
 {
 	iceArray[iceArray.Find(hitIce)]->SetActiveIce(false);
 }
-
 
 
 //마그넷액터 표시하기
@@ -388,7 +452,6 @@ void UJS_SkillComponent::LookMagnet()
 		magnetActorarr[i]->InteractionMagnet(true);
 	}
 }
-
 //마그넷 액터 표시 끄기
 void UJS_SkillComponent::OffMagnet()
 {
@@ -397,34 +460,19 @@ void UJS_SkillComponent::OffMagnet()
 	{
 		magnetActorarr[i]->InteractionMagnet(false);
 	}
-
 }
-
 //마그넷 선택
 void UJS_SkillComponent::Magnet()
 {
-	if (hitMNActor != nullptr)
-	{
-		player->MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), hitMNActor->GetActorLocation());
-		player->MagnetGrabComp->SetWorldLocation(hitMNActor->GetActorLocation());
-		hitMNActor->OnMagnet();
-		GrabMagnetActor = hitMNActor;
-		player->MagNS->SetVisibility(true);
-		ratio = 0;
-		isGrab = true;
-	}
+	player->MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), hitMNActor->GetActorLocation());
+	player->MagnetGrabComp->SetWorldLocation(hitMNActor->GetActorLocation());
+	hitMNActor->OnMagnet();
+	GrabMagnetActor = hitMNActor;
+	player->MagNS->SetVisibility(true);
+	ratio = 0;
+	isGrab = true;
 }
 
-void UJS_SkillComponent::OnButtonTrigger() // 메뉴버튼 눌렀을시
-{
-
-	if (player->compAttack->bWeaponMenu) // 무기메뉴가 열려있으면
-	{
-		player->weaponWidget->RemoveFromParent(); // 무기메뉴를 닫고
-		player->compAttack->bWeaponMenu = false;
-	}
-	OnSkillUI();
-}
 
 void UJS_SkillComponent::OnSkillUI() // UI열고 닫는 함수
 {
@@ -567,17 +615,18 @@ void UJS_SkillComponent::OnButtonY()
 	isPressedG = false;
 }
 
-void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수
+// 스킬상태 변경
+void UJS_SkillComponent::ChangeSkill() 
 {
 	// 위젯의 X축에 따라 스킬 바꿈
-	float targetSkill = player->skillWidget->slotPos->GetPosition().X;
+	float targetSkill = skillWidget->slotPos->GetPosition().X;
 	if (targetSkill == 0)
 	{
 		currSkillState = ESkillState::Margnet;
 		OffIceMaker();
 		OffTimeLock();
 		OffBomb();
-		isPressedG = false;
+
 	}
 	else if (targetSkill == -350.f)
 	{
@@ -585,7 +634,7 @@ void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수
 		OffIceMaker();
 		OffMagnet();
 		OffBomb();
-		isPressedG = false;
+
 	}
 	else if (targetSkill == -700.f)
 	{
@@ -593,7 +642,7 @@ void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수
 		OffTimeLock();
 		OffMagnet();
 		OffBomb();
-		isPressedG = false;
+
 	}
 	else if (targetSkill == 350.f)
 	{
@@ -601,7 +650,6 @@ void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수
 		OffIceMaker();
 		OffTimeLock();
 		OffMagnet();
-		isPressedG = false;
 	}
 	else 
 	{
@@ -609,29 +657,60 @@ void UJS_SkillComponent::ChangeSkill() // 스킬상태 바꾸는 함수
 		OffIceMaker();
 		OffTimeLock();
 		OffMagnet();
+
 		OffBomb();
-		isPressedG = false;
+
 	}
 
+	isPressedG = false;
 	hitMNActor = nullptr;
 	hitTLActor = nullptr;
 	hitIce = nullptr;
 	// UI 끔
-	player->skillWidget->RemoveFromParent();
-	bSkillMenu = false;
-}
-// UI 열려있을때 아이콘 이동시키는 함수
-void UJS_SkillComponent::OnGrabRight()
-{
-	if (bSkillMenu)
-		player->skillWidget->MoveUI(-1);
+	SkillMenuOnOff(false);
 }
 
-void UJS_SkillComponent::OnGrabLeft()
+
+// UI
+void UJS_SkillComponent::OnSkillUI() 
+{
+	player->compAttack->WeaponMenuOnOff(false);
+	
+	if (!bSkillMenu) //메뉴가 안열려 있을때 (!bSwitch)
+	{
+		// 뷰포트에 UI 띄우기
+		SkillMenuOnOff(true);
+		//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
+		skillWidget->SetUIInitPos((int32)(currSkillState));
+	}
+	else	// 현재 메뉴가 열려있을때 (bSwitch)
+	{
+		// 뷰포트에서 UI제거 (취소)
+		SkillMenuOnOff(false);
+	}
+
+}
+void UJS_SkillComponent::SkillMenuOnOff(bool value)
+{
+	if (value)
+	{
+		player->ovelayMenuMainWG(skillWidget);
+	}
+	else
+	{
+		skillWidget->RemoveFromParent();
+
+	}
+	bSkillMenu = value;
+}
+void UJS_SkillComponent::SkilMenuMove(int32 value)
 {
 	if (bSkillMenu)
-		player->skillWidget->MoveUI(1);
+	{
+		skillWidget->MoveUI(value);
+	}
 }
+
 
 void UJS_SkillComponent::OffBomb()
 {
@@ -702,3 +781,4 @@ void UJS_SkillComponent::ReleaseBomb(USkeletalMeshComponent* selectHand, FVector
 	compSphere->AddTorqueInDegrees(torque * torquePower, NAME_None, true);
 	bGrabBomb = false;
 }
+

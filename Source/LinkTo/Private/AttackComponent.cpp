@@ -29,11 +29,18 @@ UAttackComponent::UAttackComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
- 	ConstructorHelpers::FClassFinder<AJS_Arrow>tempArrow(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Weapons/BP_Arrow.BP_Arrow_c'"));
+ 	ConstructorHelpers::FClassFinder<AJS_Arrow>tempArrow(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Weapons/BP_Arrow.BP_Arrow_C'"));
  	if (tempArrow.Succeeded())
  	{
  		arrowFactory = tempArrow.Class;
  	}
+	// 무기 스위치 UI 찾아오기
+
+	ConstructorHelpers::FClassFinder<UJS_WidgetWeaponSwitch> tempWeaponWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchWeapon.JS_SwitchWeapon_C'"));
+	if (tempWeaponWidget.Succeeded())
+	{
+		weaponUIFactory = tempWeaponWidget.Class;
+	}
 }
 
 
@@ -43,14 +50,15 @@ void UAttackComponent::BeginPlay()
 	Super::BeginPlay();
 
 	player = Cast<AJS_Player>(GetOwner());
+//	weaponWidget = CreateWidget<UJS_WidgetWeaponSwitch>(GetWorld(), weaponUIFactory);
 
 	APlayerController* attackCon = GetWorld()->GetFirstPlayerController();
-	// 2. 플레이어 컨트롤러에서 EnhancedInputLocalPlayerSubsystem을 가져오기
 	UEnhancedInputLocalPlayerSubsystem* attackSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(attackCon->GetLocalPlayer());
-	// 3. 가져온 Subsystem에 IMC를 등록.(우선순위 0번)
 	attackSubsys->AddMappingContext(attackMapping, 0);
+
 	// 무기 변경 메뉴 초기화
 	bWeaponMenu = false;
+
 }
 
 
@@ -75,7 +83,7 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		BowState();
 		break;
 	}
-	// ...
+
 }
 
 void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
@@ -90,31 +98,29 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 
 void UAttackComponent::OnButtonA()
 {
-
-	if (player->compSkill->bSkillMenu == false)
+	if (!bWeaponMenu) // 만일 메뉴가 안열려 있으면
 	{
-		if(!bWeaponMenu) // 만일 메뉴가 안열려 있으면
 		switch (currAttackState) // 상태에 따른 행동
 		{
-			case EAttackState::AttackIdle:
+		case EAttackState::AttackIdle:
 			break;
-			case EAttackState::AttackSword:
+		case EAttackState::AttackSword:
 			FireSword(); // 칼 공격
 			break;
-			case EAttackState::AttackBow:
+		case EAttackState::AttackBow:
 			break;
 		}
-		else // 메뉴가 열려있으면 
-		{
-			ChangeWeapon();
-		}
+	}
+	else // 메뉴가 열려있으면 
+	{
+		ChangeWeapon();
 	}
 }
-
-void UAttackComponent::ChangeWeapon() // 무기 바꾸는 함수
+// 무기 바꾸는 함수
+void UAttackComponent::ChangeWeapon() 
 {
 	// 위젯의 X축에 따라 무기 바꿈
-	float targetWeapon = player->weaponWidget->slotPos->GetPosition().X;
+	float targetWeapon = weaponWidget->slotPos->GetPosition().X;
 	if (targetWeapon == 0)
 	{
 		currAttackState = EAttackState::AttackSword;
@@ -127,44 +133,51 @@ void UAttackComponent::ChangeWeapon() // 무기 바꾸는 함수
 		currAttackState = EAttackState::AttackIdle;
 
 	// UI 끔
-	player->weaponWidget->RemoveFromParent();
+	WeaponMenuOnOff(false);
 }
-
-void UAttackComponent::IdleState() // 기본 상태일때
+// 기본 상태일때
+void UAttackComponent::IdleState() 
 {
 	player->compSword->SetVisibility(false);
 	player->compBow->SetVisibility(false);
 }
-
-void UAttackComponent::OnButtonMenu() // 메뉴버튼 눌렀을시
+// 메뉴버튼 눌렀을시
+void UAttackComponent::OnButtonMenu() 
 {	
-
-	if(player->compSkill->bSkillMenu) // 스킬메뉴가 열려있으면
-	{
-		player->skillWidget->RemoveFromParent(); // 스킬메뉴를 닫고
-		player->compSkill->bSkillMenu = false;
-	}
+	player->compSkill->SkillMenuOnOff(false);
 	OnWeaponUI();
 }
 
-void UAttackComponent::SwordState() // 무기 상태일때
+//오른쪽 그랩버튼 눌렀을때
+void UAttackComponent::OnGrabRight()
+{
+	WeaponMenuMove(-1);
+}
+// 왼쪽 그랩 버튼 눌렀을 때
+void UAttackComponent::OnGrabLeft()
+{
+
+	WeaponMenuMove(1);
+}
+// 무기 상태일때
+void UAttackComponent::SwordState() 
 {
 	player->compSword->SetVisibility(true);
 	player->compBow->SetVisibility(false);
 }
-
-void UAttackComponent::BowState() // 활 상태일때
+// 활 상태일때
+void UAttackComponent::BowState() 
 {
 	player->compSword->SetVisibility(false);
 	player->compBow->SetVisibility(true);
 }
-
-void UAttackComponent::FireSword() // 칼 공격
+// 칼 공격
+void UAttackComponent::FireSword() 
 {
 	
 }
-
-void UAttackComponent::OnTriggerArrow() // 화살 조준
+// 화살 조준
+void UAttackComponent::OnTriggerArrow() 
 { 
 	// 공격 상태가 Bow일때 (Bow를 들고있을때)
 	if (currAttackState == EAttackState::AttackBow)
@@ -174,8 +187,8 @@ void UAttackComponent::OnTriggerArrow() // 화살 조준
 		UE_LOG(LogTemp, Error, TEXT("%f"), accArrowSpeed);
 	}
 }
-
-void UAttackComponent::OnReleaseArrow() // 화살 발사
+// 화살 발사
+void UAttackComponent::OnReleaseArrow()
 {
 	if (currAttackState == EAttackState::AttackBow)
 	{
@@ -186,46 +199,44 @@ void UAttackComponent::OnReleaseArrow() // 화살 발사
 
 }
 
-void UAttackComponent::OnWeaponUI() // UI열고 닫는 함수
+
+
+// UI열고 닫는 함수
+void UAttackComponent::OnWeaponUI()
 {
 
-	if (player->compSkill->bSkillMenu)
+	player->compSkill->SkillMenuOnOff(false);
+
+	if (!bWeaponMenu) //메뉴가 안열려 있을때 (!bSwitch)
 	{
-		player->skillWidget->RemoveFromParent();
-		player->compSkill->bSkillMenu = false;
+		WeaponMenuOnOff(true);
+	}
+	else 	// 현재 메뉴가 열려있을때 (bSwitch)
+	{
+		// 뷰포트에서 UI제거 (취소)
+		WeaponMenuOnOff(false);
+	}
+}
+//웨폰 UI 열고 닫는 함수
+void UAttackComponent::WeaponMenuOnOff(bool value)
+{
+	if (value)
+	{
+		player->ovelayMenuMainWG(weaponWidget);
+		weaponWidget->SetUIInitPos((int32)(currAttackState));
 	}
 	else
 	{
-		if (!bWeaponMenu) //메뉴가 안열려 있을때 (!bSwitch)
-		{
-			// 뷰포트에 UI 띄우기
-			player->weaponWidget->AddToViewport();
-			//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
-			player->weaponWidget->SetUIInitPos((int32)(currAttackState));
-		}
-		else 	// 현재 메뉴가 열려있을때 (bSwitch)
-		{
-			// 뷰포트에서 UI제거 (취소)
-			player->weaponWidget->RemoveFromParent();
-		}
+		weaponWidget->RemoveFromParent();
 
-		bWeaponMenu = !bWeaponMenu;
 	}
-
+	bWeaponMenu = value;
 }
-
-
 // UI 열려있을때 아이콘 이동시키는 함수
-void UAttackComponent::OnGrabRight()
+void UAttackComponent::WeaponMenuMove(int32 value)
 {
-	if(bWeaponMenu)
-	player->weaponWidget->MoveUI(-1);
+	if (bWeaponMenu)
+	{
+		weaponWidget->MoveUI(value);
+	}
 }
-
-void UAttackComponent::OnGrabLeft()
-{
-	if(bWeaponMenu)
-	player->weaponWidget->MoveUI(1);
-}
-
-

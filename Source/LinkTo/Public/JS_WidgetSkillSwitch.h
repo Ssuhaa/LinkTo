@@ -13,8 +13,7 @@ class LINKTO_API UJS_WidgetSkillSwitch : public UJS_WidgetBase
 	GENERATED_BODY()
 	
 public:
-// 	virtual void NativeOnInitialized() override;
-// 	virtual void NativePreConstruct() override;
+
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
