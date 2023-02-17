@@ -40,7 +40,9 @@ public:
 	
 
 public:
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UPanelSlot* widgetSlot;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UCanvasPanelSlot * slotPos;
 
 public:

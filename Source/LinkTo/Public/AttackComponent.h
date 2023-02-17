@@ -39,7 +39,7 @@ public:
 	class AJS_Player* player;
 	class AJS_Arrow* arrow;
 	UPROPERTY(EditAnywhere, Category = Arrow)
-	TSubclassOf<AJS_Arrow> arrowFactory;
+	TSubclassOf<class AJS_Arrow> arrowFactory;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
 	class UInputMappingContext* attackMapping;

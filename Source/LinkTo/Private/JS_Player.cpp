@@ -136,12 +136,12 @@ AJS_Player::AJS_Player()
 	{
 		skillUIFactory = tempSkillWidget.Class;
 	}
-	// 무기
-	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSword(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/BP_Sword.BP_Sword_c'"));
-	if (tempSkillWidget.Succeeded())
-	{
-		swordFactory = tempSword.Class;
-	}
+// 	// 무기
+// 	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSword(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/BP_Sword.BP_Sword_c'"));
+// 	if (tempSkillWidget.Succeeded())
+// 	{
+// 		swordFactory = tempSword.Class;
+// 	}
 
 	MagNS = CreateDefaultSubobject<UNiagaraComponent>(TEXT("magNScomp"));
 	MagNS->SetupAttachment(GetCapsuleComponent());

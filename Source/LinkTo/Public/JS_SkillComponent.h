@@ -10,7 +10,7 @@ UENUM(BlueprintType)
 enum class ESkillState : uint8
 {
 	Defalt,
-	Boomb,
+	Bomb,
 	Margnet,
 	TimeLock,
 	IceMaker
@@ -38,6 +38,7 @@ public:
 public:
 	
 	class AJS_Player* player;
+	class AJS_Bomb* grabbedBomb;
 	//ÄÄÆ÷³ÍÆ®
 	
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
@@ -52,10 +53,23 @@ public:
 	class UInputMappingContext* SHMapping;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
 	TArray <class UInputAction*> inputAction;
-	
+	bool bGrabBomb = false;
 	bool bSkillMenu = false;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
+	TArray<class AJS_Bomb*> bombArray;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
+	TSubclassOf<class AJS_Bomb> bombFactory;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
+	FVector prevLocation;
+	FVector prevForward;
+	FVector throwDirection;
+	bool bIsReady = false;
+	float torquePower = 3000;
+	float throwPower = 1500;
 private:
 	void OnButtonA(const struct FInputActionValue& value);
+	void ReleaseButtonA();
 	void OnButtonX();
 	void OnButtonY();
 	void ChangeSkill();
@@ -63,8 +77,11 @@ private:
 	void OnSkillUI();
 	void OnGrabRight();
 	void OnGrabLeft();
-
-
+	
+	void OffBomb();
+	void OnBomb();
+	void ReadyToThrowBomb();
+	void ReleaseBomb(USkeletalMeshComponent* selectHand, FVector torque);
 
 ///////////////////////////////////////////////////////////////////////////////
 public:
