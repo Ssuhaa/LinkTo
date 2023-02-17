@@ -65,12 +65,10 @@ private:
 	void OnBomb();
 	void ReadyToThrowBomb();
 	void ReleaseBomb(USkeletalMeshComponent* selectHand, FVector torque);
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
-		bool bGrabBomb = false;
 	FVector prevLocation;
 	FVector prevForward;
 	FVector throwDirection;
-	bool bisReady = false;
+	bool bIsReady = false;
 	float torquePower = 3000;
 	float throwPower = 1500;
 	class AJS_Bomb* grabbedBomb;
@@ -141,6 +139,9 @@ public:
 	TSubclassOf<class UJS_WidgetSkillSwitch> skillUIFactory;
 	void SkillMenuOnOff(bool value);
 	void SkilMenuMove(int32 value);
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
+	bool bGrabBomb = false;
 
 	//라인트레이스 변수
 	class ATimeLockBase* hitTLActor;

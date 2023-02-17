@@ -258,9 +258,6 @@ void UJS_SkillComponent::OnButtonY()
 {
 	switch (currSkillState)
 	{
-	case ESkillState::Bomb:
-		OnBomb();
-		break;
 	case ESkillState::TimeLock:
 		OffTimeLock();
 		break;
@@ -270,9 +267,71 @@ void UJS_SkillComponent::OnButtonY()
 	case ESkillState::Margnet:
 		OffMagnet();
 		break;
+	case ESkillState::Bomb:
+		OffBomb();
+		break;
 	}
 	isPressedG = false;
 }
+void UJS_SkillComponent::ReleaseButtonA()
+{
+	bIsReady = false;
+}
+// 스킬상태 변경
+void UJS_SkillComponent::ChangeSkill()
+{
+	// 위젯의 X축에 따라 스킬 바꿈
+	float targetSkill = skillWidget->slotPos->GetPosition().X;
+	if (targetSkill == 0)
+	{
+		currSkillState = ESkillState::Margnet;
+		OffIceMaker();
+		OffTimeLock();
+		OffBomb();
+
+	}
+	else if (targetSkill == -350.f)
+	{
+		currSkillState = ESkillState::TimeLock;
+		OffIceMaker();
+		OffMagnet();
+		OffBomb();
+
+	}
+	else if (targetSkill == -700.f)
+	{
+		currSkillState = ESkillState::IceMaker;
+		OffTimeLock();
+		OffMagnet();
+		OffBomb();
+
+	}
+	else if (targetSkill == 350.f)
+	{
+		currSkillState = ESkillState::Bomb;
+		OffIceMaker();
+		OffTimeLock();
+		OffMagnet();
+	}
+	else
+	{
+		currSkillState = ESkillState::Defalt;
+		OffIceMaker();
+		OffTimeLock();
+		OffMagnet();
+
+		OffBomb();
+
+	}
+
+	isPressedG = false;
+	hitMNActor = nullptr;
+	hitTLActor = nullptr;
+	hitIce = nullptr;
+	// UI 끔
+	SkillMenuOnOff(false);
+}
+
 
 
 //interaction 배열에 Actor들 추가하기
@@ -471,203 +530,6 @@ void UJS_SkillComponent::Magnet()
 	player->MagNS->SetVisibility(true);
 	ratio = 0;
 	isGrab = true;
-}
-
-
-void UJS_SkillComponent::OnSkillUI() // UI열고 닫는 함수
-{
-	if (player->compAttack->bWeaponMenu)
-	{
-		player->weaponWidget->RemoveFromParent();
-		player->compAttack->bWeaponMenu = false;
-	}
-	else
-	{
-		if (!bSkillMenu) //메뉴가 안열려 있을때 (!bSwitch)
-		{
-			// 뷰포트에 UI 띄우기
-			player->skillWidget->AddToViewport();
-			//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
-			player->skillWidget->SetUIInitPos((int32)(currSkillState));
-		}
-		else	// 현재 메뉴가 열려있을때 (bSwitch)
-		{
-			// 뷰포트에서 UI제거 (취소)
-			player->skillWidget->RemoveFromParent();
-		}
-
-		bSkillMenu = !bSkillMenu;
-	}
-		
-}
-
-void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
-{
-	if (bSkillMenu)
-	{
-		if (player->compAttack->bWeaponMenu == false)
-		{
-
-			ChangeSkill();
-
-		}
-	}
-	else
-	{
-		switch (currSkillState)
-		{
-		case ESkillState::Bomb:
-			bIsReady = true;
-			break;
-		case ESkillState::TimeLock:
-			if (hitTLActor != nullptr)
-			{
-				TimeLock();
-			}
-			break;
-		case ESkillState::IceMaker:
-			if (hitIMActor != nullptr)
-			{
-				IceMaker();
-			}
-			else if (hitIce != nullptr)
-			{
-				IceBrake();
-			}
-			break;
-		case ESkillState::Margnet:
-			if (isClickedLMouse)
-			{
-				if (hitMNActor != nullptr)
-				{
-					Magnet();
-				}
-				isClickedLMouse = false;
-			}
-			else
-			{
-				if (GrabMagnetActor != nullptr)
-				{
-					GrabMagnetActor->releasedMagnet();
-					player->MagnetHandle->ReleaseComponent();
-					player->MagNS->SetVisibility(false);
-					isGrab = false;
-					GrabMagnetActor = nullptr;
-					hitMNActor = nullptr;
-				}
-				isClickedLMouse = true;
-			}
-			break;
-		}
-	}
-
-}
-
-void UJS_SkillComponent::ReleaseButtonA()
-{
-	bIsReady = false;
-}
-
-void UJS_SkillComponent::OnButtonX()
-{
-	player->compAttack->currAttackState = EAttackState::AttackIdle;
-	player->OnLogRight("OnButtonX");
-	isPressedG = true;
-	switch (currSkillState)
-	{
-	case ESkillState::Bomb:
-		OnBomb();
-		break;
-	case ESkillState::TimeLock:
-		LookTimeLock();
-		LineColor = FColor::Yellow;
-		break;
-	case ESkillState::IceMaker:
-		LookIceMaker();
-		LineColor = FColor::Blue;
-		break;
-	case ESkillState::Margnet:
-		LookMagnet();
-		LineColor = FColor::Red;
-		break;
-	}
-}
-
-void UJS_SkillComponent::OnButtonY()
-{
-	player->OnLogRight("OnButtonY");
-	switch (currSkillState)
-	{
-	case ESkillState::TimeLock:
-		OffTimeLock();
-		break;
-	case ESkillState::IceMaker:
-		OffIceMaker();
-		break;
-	case ESkillState::Margnet:
-		OffMagnet();
-		break;
-	case ESkillState::Bomb:
-		OffBomb();
-		break;
-			
-	}
-	isPressedG = false;
-}
-
-// 스킬상태 변경
-void UJS_SkillComponent::ChangeSkill() 
-{
-	// 위젯의 X축에 따라 스킬 바꿈
-	float targetSkill = skillWidget->slotPos->GetPosition().X;
-	if (targetSkill == 0)
-	{
-		currSkillState = ESkillState::Margnet;
-		OffIceMaker();
-		OffTimeLock();
-		OffBomb();
-
-	}
-	else if (targetSkill == -350.f)
-	{
-		currSkillState = ESkillState::TimeLock;
-		OffIceMaker();
-		OffMagnet();
-		OffBomb();
-
-	}
-	else if (targetSkill == -700.f)
-	{
-		currSkillState = ESkillState::IceMaker;
-		OffTimeLock();
-		OffMagnet();
-		OffBomb();
-
-	}
-	else if (targetSkill == 350.f)
-	{
-		currSkillState = ESkillState::Bomb;
-		OffIceMaker();
-		OffTimeLock();
-		OffMagnet();
-	}
-	else 
-	{
-		currSkillState = ESkillState::Defalt;
-		OffIceMaker();
-		OffTimeLock();
-		OffMagnet();
-
-		OffBomb();
-
-	}
-
-	isPressedG = false;
-	hitMNActor = nullptr;
-	hitTLActor = nullptr;
-	hitIce = nullptr;
-	// UI 끔
-	SkillMenuOnOff(false);
 }
 
 
