@@ -35,16 +35,19 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UImage* Selected;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* skillName;
+	UPROPERTY(EditAnywhere)
 	FVector2D movePos;
 	
 
 public:
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere)
 	class UPanelSlot* widgetSlot;
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere)
 	class UCanvasPanelSlot * slotPos;
 
 public:
 	void SetUIInitPos(int32 value);
 	void MoveUI(int32 value);
+	void SetSkillText(float value);
 };

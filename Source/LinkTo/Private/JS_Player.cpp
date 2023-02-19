@@ -45,25 +45,25 @@ AJS_Player::AJS_Player()
 	leftController->SetupAttachment(RootComponent);
 	leftController->MotionSource = "Left";
 
-	leftLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LEFT LOG"));
-	leftLog->SetupAttachment(leftController);
-	leftLog->SetRelativeScale3D(FVector(0.5));
-	leftLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
-	leftLog->SetTextRenderColor(FColor::Yellow);
-	leftLog->SetHorizontalAlignment(EHTA_Center);
-	leftLog->SetVerticalAlignment(EVRTA_TextTop);
+// 	leftLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LEFT LOG"));
+// 	leftLog->SetupAttachment(leftController);
+// 	leftLog->SetRelativeScale3D(FVector(0.5));
+// 	leftLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
+// 	leftLog->SetTextRenderColor(FColor::Yellow);
+// 	leftLog->SetHorizontalAlignment(EHTA_Center);
+// 	leftLog->SetVerticalAlignment(EVRTA_TextTop);
 
-	moveLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("MOVE LOG"));
-	moveLog->SetupAttachment(leftController);
-	moveLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
-	moveLog->SetRelativeScale3D(FVector(0.3));
-	moveLog->SetTextRenderColor(FColor::Green);
-	moveLog->SetHorizontalAlignment(EHTA_Center);
-	moveLog->SetVerticalAlignment(EVRTA_TextBottom);
+// 	moveLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("MOVE LOG"));
+// 	moveLog->SetupAttachment(leftController);
+// 	moveLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
+// 	moveLog->SetRelativeScale3D(FVector(0.3));
+// 	moveLog->SetTextRenderColor(FColor::Green);
+// 	moveLog->SetHorizontalAlignment(EHTA_Center);
+// 	moveLog->SetVerticalAlignment(EVRTA_TextBottom);
 	
 	leftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LEFT HAND"));
 	leftHand->SetupAttachment(leftController);
-	leftLog->SetRelativeScale3D(FVector(0.5));
+/*	leftLog->SetRelativeScale3D(FVector(0.5));*/
 	leftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	leftHand->SetRelativeRotation(FRotator(-25.0f, 180.0f, 90.0f));
 
@@ -71,13 +71,13 @@ AJS_Player::AJS_Player()
 	rightController->SetupAttachment(RootComponent);
 	rightController->MotionSource = "Right";
 	
-	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("RIGHT LOG"));
-	rightLog->SetupAttachment(rightController);
-	rightLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
-	rightLog->SetRelativeScale3D(FVector(0.5));
-	rightLog->SetTextRenderColor(FColor::Yellow);
-	rightLog->SetHorizontalAlignment(EHTA_Center);
-	rightLog->SetVerticalAlignment(EVRTA_TextTop);
+// 	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("RIGHT LOG"));
+// 	rightLog->SetupAttachment(rightController);
+// 	rightLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
+// 	rightLog->SetRelativeScale3D(FVector(0.5));
+// 	rightLog->SetTextRenderColor(FColor::Yellow);
+// 	rightLog->SetHorizontalAlignment(EHTA_Center);
+// 	rightLog->SetVerticalAlignment(EVRTA_TextTop);
 
 	rightHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RIGHT HAND"));
 	rightHand->SetupAttachment(rightController);
@@ -140,6 +140,26 @@ AJS_Player::AJS_Player()
 	widgetComp->SetDrawSize(FVector2D(1920,1080));
 	widgetComp->SetRelativeRotation(FRotator(0,180,0));
 	widgetComp->SetRelativeLocation(FVector(628.0f, 0.0f, -51.0f));
+
+	leftWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("Left_Widget"));
+	ConstructorHelpers::FClassFinder <UUserWidget> templeftWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/MainUI.MainUI_C'"));
+	if (templeftWidget.Succeeded())
+	{
+		leftWidgetComp->SetWidgetClass(templeftWidget.Class);
+	}
+	leftWidgetComp->SetupAttachment(leftHand);
+	leftWidgetComp->SetDrawSize(FVector2D(60, 60));
+	leftWidgetComp->SetRelativeRotation(FRotator(0, 180, 0));
+
+	rightWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("Right_Widget"));
+	ConstructorHelpers::FClassFinder <UUserWidget> temprightWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/MainUI.MainUI_C'"));
+	if (temprightWidget.Succeeded())
+	{
+		rightWidgetComp->SetWidgetClass(temprightWidget.Class);
+	}
+	rightWidgetComp->SetupAttachment(rightHand);
+	rightWidgetComp->SetDrawSize(FVector2D(60, 60));
+	rightWidgetComp->SetRelativeRotation(FRotator(0, 0, 0));
 }
 
 // Called when the game starts or when spawned
@@ -154,7 +174,7 @@ void AJS_Player::BeginPlay()
 
 	MainWG = Cast<UPlayerMainWG>(widgetComp->GetWidget());
 
-	sword = GetWorld()->SpawnActor<AJS_Sword>(swordFactory, rightHand->GetComponentTransform());
+/*	sword = GetWorld()->SpawnActor<AJS_Sword>(swordFactory, rightHand->GetComponentTransform());*/
 	
 }
 

@@ -41,6 +41,8 @@ protected:
 	class UInputMappingContext* SHMapping;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
 	TArray <class UInputAction*> inputAction;
+
+public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
 	TArray<class AJS_Bomb*> bombArray;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")

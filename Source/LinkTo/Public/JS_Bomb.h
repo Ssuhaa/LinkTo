@@ -37,6 +37,7 @@ public:
 	
 	float currBombTime = 0;
 	float exploDelay = 3.0f;
+	bool canExplo = false;
 
 	void SetActiveBomb(bool isActive);
 	void Explose();
