@@ -126,7 +126,7 @@ void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	{
 		ratio += DeltaTime * 2;
 		ratio = FMath::Clamp(ratio, 0.0 ,1.0);
-		FVector magpos = FMath::Lerp(player->GetActorLocation(), GrabMagnetActor->GetActorLocation(), ratio);
+		FVector magpos = FMath::Lerp(player->MagNS ->GetComponentLocation(), GrabMagnetActor->GetActorLocation(), ratio);
 		player->MagNS->SetNiagaraVariableVec3(TEXT("EndLoc"),magpos);
 		if (ratio >= 1)
 		{
@@ -290,7 +290,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == -350.f)
+	else if (targetSkill == -120.f)
 	{
 		currSkillState = ESkillState::TimeLock;
 		OffIceMaker();
@@ -298,7 +298,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == -700.f)
+	else if (targetSkill == -240.f)
 	{
 		currSkillState = ESkillState::IceMaker;
 		OffTimeLock();
@@ -306,7 +306,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == 350.f)
+	else if (targetSkill == 120.f)
 	{
 		currSkillState = ESkillState::Bomb;
 		OffIceMaker();
@@ -387,7 +387,7 @@ void UJS_SkillComponent::LineTraceInteration()
 	else
 	{
 		Startpos = player->leftController->GetComponentLocation();
-		Endpos = Startpos + player->leftController->GetForwardVector() * 5000;
+		Endpos = Startpos + (player->leftController->GetForwardVector()+ player->leftController->GetUpVector()* -1) * 5000;
 	}
 	FCollisionQueryParams par;
 	par.AddIgnoredActor(GetOwner());
