@@ -268,7 +268,6 @@ void UJS_SkillComponent::OnButtonY()
 		OffMagnet();
 		break;
 	case ESkillState::Bomb:
-		OffBomb();
 		break;
 	}
 	isPressedG = false;
@@ -398,6 +397,8 @@ void UJS_SkillComponent::LineTraceInteration()
 		switch (currSkillState)
 		{
 		case ESkillState::TimeLock:
+
+			DrawDebugLine(GetWorld(),Startpos,Endpos,FColor::Green,false,0.1,1.f);
 			if (hitTLActor != nullptr && hitTLActor != Hitinfo.GetActor())
 			{
 				hitTLActor->InteractionTimeLock(true);
@@ -585,11 +586,11 @@ void UJS_SkillComponent::SkilMenuMove(int32 value)
 
 void UJS_SkillComponent::OffBomb()
 {
-	if (bombArray.IsEmpty()) return;
-	for (int32 i = 0; i < bombArray.Num(); i++)
+	if (bombArray[0] != nullptr)
 	{
-		bombArray[i]->SetActiveBomb(false);
+		bombArray[0]->SetActiveBomb(false);
 	}
+
 }
 
 void UJS_SkillComponent::OnBomb()
@@ -600,7 +601,7 @@ void UJS_SkillComponent::OnBomb()
 
 		// ÆøÅºÀ» ¼Õ¿¡ ÀåÂø
 		bombArray[0]->SetActiveBomb(true);
-		bombArray[0]->AttachToComponent(player->rightHand,FAttachmentTransformRules::KeepWorldTransform, FName("RightHandSocket"));
+		bombArray[0]->AttachToComponent(player->rightHand,FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("RightHandSocket"));
 		bGrabBomb = true;
 		grabbedBomb = Cast<AJS_Bomb>(bombArray[0]);
 	}
