@@ -13,7 +13,7 @@ ASH_BallFactory::ASH_BallFactory()
 		ballFactory = tempBall.Class;
 	}
 
-	ConstructorHelpers::FObjectFinder <UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Game/Geometry/Mesh/TempMap/SM_Map_SM_mesh57.SM_Map_SM_mesh57'"));
+	ConstructorHelpers::FObjectFinder <UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Game/Geometry/Mesh/SM_BallManager.SM_BallManager'"));
 	if (TempMesh.Succeeded())
 	{
 		InteractionMesh->SetStaticMesh(TempMesh.Object);

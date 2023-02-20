@@ -127,7 +127,7 @@ AJS_Player::AJS_Player()
 
 
 	MagNS = CreateDefaultSubobject<UNiagaraComponent>(TEXT("magNScomp"));
-	MagNS->SetupAttachment(GetCapsuleComponent());
+	MagNS->SetupAttachment(leftController);
 	MagNS->SetVisibility(false);
 
 	widgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
