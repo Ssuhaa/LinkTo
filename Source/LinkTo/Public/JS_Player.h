@@ -96,6 +96,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
 	class UWidgetComponent* widgetComp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component)
+	class UWidgetComponent* leftWidgetComp;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Component)
+	class UWidgetComponent* rightWidgetComp;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)
 	class UPlayerMainWG* MainWG;
 	void ovelayMenuMainWG(UUserWidget* widget);

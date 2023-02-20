@@ -125,7 +125,7 @@ void UAttackComponent::ChangeWeapon()
 	{
 		currAttackState = EAttackState::AttackSword;
 	}
-	else if (targetWeapon == -350.f)
+	else if (targetWeapon == -120.f)
 	{
 		currAttackState = EAttackState::AttackBow;
 	}
@@ -220,6 +220,7 @@ void UAttackComponent::OnWeaponUI()
 //웨폰 UI 열고 닫는 함수
 void UAttackComponent::WeaponMenuOnOff(bool value)
 {
+	bWeaponMenu = value;
 	if (value)
 	{
 		player->ovelayMenuMainWG(weaponWidget);
@@ -230,7 +231,7 @@ void UAttackComponent::WeaponMenuOnOff(bool value)
 		weaponWidget->RemoveFromParent();
 
 	}
-	bWeaponMenu = value;
+	
 }
 // UI 열려있을때 아이콘 이동시키는 함수
 void UAttackComponent::WeaponMenuMove(int32 value)

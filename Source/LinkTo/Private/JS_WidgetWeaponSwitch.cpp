@@ -11,6 +11,7 @@
 #include "AttackComponent.h"
 #include "Components/PanelSlot.h"
 #include <UMG/Public/Components/HorizontalBox.h>
+#include <UMG/Public/Components/TextBlock.h>
 
 
 
@@ -35,17 +36,42 @@ void UJS_WidgetWeaponSwitch::NativeTick(const FGeometry& MyGeometry, float InDel
 
 void UJS_WidgetWeaponSwitch::SetUIInitPos(int32 value)
 {
-	float locX = -350.f * value + 350.f;
+	float locX = -120.f * value + 120.f;
 	FVector2D currWeapon = FVector2D(locX, 0);
 	slotPos->SetPosition(currWeapon);
+	SetWeaponText(currWeapon.X);
 }
 
 void UJS_WidgetWeaponSwitch::MoveUI(int32 thumbstickAxis)
 {
 	
-	float locX = slotPos->GetPosition().X + thumbstickAxis * 350.f;
-	float clampX = FMath::Clamp(locX,-350.f,350.f);
+	float locX = slotPos->GetPosition().X + thumbstickAxis * 120.f;
+	float clampX = FMath::Clamp(locX,-120.f,120.f);
 	FVector2D currWeapon = FVector2D(clampX, 0);
 	slotPos->SetPosition(currWeapon);
+	SetWeaponText(currWeapon.X);
+}
+
+
+void UJS_WidgetWeaponSwitch::SetWeaponText(float value)
+{
+	if (value == 0)
+	{
+		FString weapon = FString::Printf(TEXT("Sword"));
+		FText weaponTex = FText::FromString(weapon);
+		WeaponName->SetText(weaponTex);
+	}
+	else if (value == -120.f)
+	{
+		FString weapon = FString::Printf(TEXT("Bow"));
+		FText weaponTex = FText::FromString(weapon);
+		WeaponName->SetText(weaponTex);
+	}
+	else if (value == 120.f)
+	{
+		FString weapon = FString::Printf(TEXT("Idle"));
+		FText weaponTex = FText::FromString(weapon);
+		WeaponName->SetText(weaponTex);
+	}
 }
 

@@ -34,6 +34,8 @@ public:
 	class UImage* ICE;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UImage* Selected;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* skillName;
 	UPROPERTY(EditAnywhere)
 	FVector2D movePos;
 	
@@ -47,4 +49,5 @@ public:
 public:
 	void SetUIInitPos(int32 value);
 	void MoveUI(int32 value);
+	void SetSkillText(float value);
 };

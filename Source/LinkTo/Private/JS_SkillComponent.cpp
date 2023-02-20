@@ -39,16 +39,15 @@ UJS_SkillComponent::UJS_SkillComponent()
 		iceFactory = tempice.Class;
 	}
 
-	ConstructorHelpers::FClassFinder <AJS_Bomb> tempBomb(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/JS_BP_Bomb.JS_BP_Bomb_c'"));
+	ConstructorHelpers::FClassFinder <AJS_Bomb> tempBomb(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/JS_BP_Bomb.JS_BP_Bomb_C'"));
 	if (tempBomb.Succeeded())
 	{
 		bombFactory = tempBomb.Class;
 	}
-	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSkillWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchSkill.JS_SwitchSkill_c'"));
+	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSkillWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/SwitchWeapon/JS_SwitchSkill.JS_SwitchSkill_C'"));
 	if (tempSkillWidget.Succeeded())
 	{
 		skillUIFactory = tempSkillWidget.Class;
-
 	}
 }
 
@@ -85,17 +84,7 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 	
 	if (enhancedInputComponent != nullptr)
 	{
-		//추후 삭제
-		enhancedInputComponent->BindAction(inputAction[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonX);
-		enhancedInputComponent->BindAction(inputAction[1], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnWS);
-		enhancedInputComponent->BindAction(inputAction[2], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnAD);
-		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonA);
-		enhancedInputComponent->BindAction(inputAction[4], ETriggerEvent::Triggered, this, &UJS_SkillComponent::LookUp);
-		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonY);
-		enhancedInputComponent->BindAction(inputAction[7], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTrigger);
-		enhancedInputComponent->BindAction(inputAction[8], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
-		enhancedInputComponent->BindAction(inputAction[9], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabLeft);
-
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTriggerRight);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonA);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Completed, this, &UJS_SkillComponent::ReleaseButtonA);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
@@ -110,6 +99,8 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow,FString::Printf(TEXT("%d"),currSkillState));
 	//플레이어 이동(추후 삭제)
 	player->dir = FTransform(player->GetControlRotation()).TransformVector(player->dir);
 	player->AddMovementInput(player->dir.GetSafeNormal());
@@ -169,6 +160,16 @@ void UJS_SkillComponent::OnButtonTrigger()
 {
 	OnSkillUI();
 }
+
+void UJS_SkillComponent::OnButtonTriggerRight()
+{
+	if (currSkillState == ESkillState::Bomb && canExplo == true)
+	{
+		bombArray[0]->Explose();
+	}
+
+}
+
 //스킬 사용 바인딩
 void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 {
@@ -182,6 +183,12 @@ void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 	{
 		switch (currSkillState)
 		{
+		case ESkillState::Bomb:
+		{
+			if(grabbedBomb != nullptr)
+			ReadyToThrowBomb();
+		}
+			break;
 		case ESkillState::TimeLock:
 			if (hitTLActor != nullptr)
 			{
@@ -237,7 +244,19 @@ void UJS_SkillComponent::OnButtonX()
 	switch (currSkillState)
 	{
 	case ESkillState::Bomb:
-		OnBomb();
+		if (bombArray.IsValidIndex(0))
+		{
+			OnBomb();
+		}
+		else
+		{
+			for (int32 i = 0; i < 2; i++)
+			{
+				AJS_Bomb* currBomb = GetWorld()->SpawnActor<AJS_Bomb>(bombFactory);
+				currBomb->SetActiveBomb(false);
+				bombArray.Add(currBomb);
+			}
+		}
 		break;
 	case ESkillState::TimeLock:
 		LookTimeLock();
@@ -275,7 +294,8 @@ void UJS_SkillComponent::OnButtonY()
 }
 void UJS_SkillComponent::ReleaseButtonA()
 {
-	bIsReady = false;
+	if(grabbedBomb != nullptr)
+	ReadyToThrowBomb();
 }
 // 스킬상태 변경
 void UJS_SkillComponent::ChangeSkill()
@@ -290,7 +310,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == -350.f)
+	else if (targetSkill == -120.f)
 	{
 		currSkillState = ESkillState::TimeLock;
 		OffIceMaker();
@@ -298,7 +318,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == -700.f)
+	else if (targetSkill == -240.f)
 	{
 		currSkillState = ESkillState::IceMaker;
 		OffTimeLock();
@@ -306,7 +326,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == 350.f)
+	else if (targetSkill == 120.f)
 	{
 		currSkillState = ESkillState::Bomb;
 		OffIceMaker();
@@ -319,7 +339,6 @@ void UJS_SkillComponent::ChangeSkill()
 		OffIceMaker();
 		OffTimeLock();
 		OffMagnet();
-
 		OffBomb();
 
 	}
@@ -378,8 +397,8 @@ void UJS_SkillComponent::AddArray()
 void UJS_SkillComponent::LineTraceInteration()
 {
 
-	FVector Startpos = player->compCam->GetComponentLocation();
-	FVector Endpos = Startpos + player->compCam->GetForwardVector() * 5000;
+	FVector Startpos = player->leftController->GetComponentLocation();
+	FVector Endpos = Startpos + player->leftController->GetUpVector() * -5000;
 	FCollisionQueryParams par;
 	par.AddIgnoredActor(GetOwner());
 	par.AddIgnoredActor(Ghostice);
@@ -542,8 +561,7 @@ void UJS_SkillComponent::OnSkillUI()
 	{
 		// 뷰포트에 UI 띄우기
 		SkillMenuOnOff(true);
-		//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
-		skillWidget->SetUIInitPos((int32)(currSkillState));
+	
 	}
 	else	// 현재 메뉴가 열려있을때 (bSwitch)
 	{
@@ -554,16 +572,18 @@ void UJS_SkillComponent::OnSkillUI()
 }
 void UJS_SkillComponent::SkillMenuOnOff(bool value)
 {
+	bSkillMenu = value;
 	if (value)
 	{
 		player->ovelayMenuMainWG(skillWidget);
+		//  상태에 따라 MovePanel x의 초기 위치를 세팅한다.
+		skillWidget->SetUIInitPos((int32)(currSkillState));
 	}
 	else
 	{
 		skillWidget->RemoveFromParent();
-
 	}
-	bSkillMenu = value;
+	
 }
 void UJS_SkillComponent::SkilMenuMove(int32 value)
 {
@@ -588,59 +608,67 @@ void UJS_SkillComponent::OnBomb()
 	if (player->compAttack->currAttackState != EAttackState::AttackIdle) // 손에 무기를 들고있으면
 	{
 		player->compAttack->currAttackState = EAttackState::AttackIdle; // 빈손으로
-
-		// 폭탄을 손에 장착
-		bombArray[0]->SetActiveBomb(true);
-		bombArray[0]->AttachToComponent(player->rightHand,FAttachmentTransformRules::KeepWorldTransform, FName("RightHandSocket"));
-		bGrabBomb = true;
-		grabbedBomb = Cast<AJS_Bomb>(bombArray[0]);
 	}
+	// 폭탄을 손에 장착
+	bombArray[0]->SetActiveBomb(true);
+	bombArray[0]->AttachToComponent(player->rightHand, FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("RightHandSocket"));
+	bGrabBomb = true;
+	grabbedBomb = Cast<AJS_Bomb>(bombArray[0]);
 }
 
 void UJS_SkillComponent::ReadyToThrowBomb()
 {
-	if (!bIsReady)
+	if (grabbedBomb != nullptr)
 	{
-		//DrawGrabRange();
-		prevLocation = player->rightController->GetComponentLocation();
-		prevForward = player->rightController->GetForwardVector();
-		UE_LOG(LogTemp, Log, TEXT("X Press!!!!!"));
+		if (!bIsReady)
+		{
+			//DrawGrabRange();
+			prevLocation = player->rightController->GetComponentLocation();
+			prevForward = player->rightController->GetForwardVector();
+			UE_LOG(LogTemp, Log, TEXT("X Press!!!!!"));
+		}
+		else
+		{
+			// 던질 방향
+			throwDirection = player->rightController->GetComponentLocation() - prevLocation;
+
+			// 회전값
+			FVector rotAxis = FVector::CrossProduct(prevForward, player->rightController->GetForwardVector());
+			float angle = FMath::Acos(FVector::DotProduct(prevForward, player->rightController->GetForwardVector()));
+			angle = FMath::RadiansToDegrees(angle);
+
+			ReleaseBomb(player->rightHand, rotAxis * angle);
+
+			UE_LOG(LogTemp, Log, TEXT("X Release!!!!!"));
+			DrawDebugLine(GetWorld(), player->rightController->GetComponentLocation(), player->rightController->GetComponentLocation() + throwDirection * 50, FColor::Red, false, 5, 0, 3);
+		}
+		bIsReady = !bIsReady;
 	}
-	else
-	{
-		// 던질 방향
-		throwDirection = player->rightController->GetComponentLocation() - prevLocation;
-
-		// 회전값
-		FVector rotAxis = FVector::CrossProduct(prevForward, player->rightController->GetForwardVector());
-		float angle = FMath::Acos(FVector::DotProduct(prevForward, player->rightController->GetForwardVector()));
-		angle = FMath::RadiansToDegrees(angle);
-
-		ReleaseBomb(player->rightHand, rotAxis * angle);
-
-		UE_LOG(LogTemp, Log, TEXT("X Release!!!!!"));
-		DrawDebugLine(GetWorld(), player->rightController->GetComponentLocation(), player->rightController->GetComponentLocation() + throwDirection * 50, FColor::Red, false, 5, 0, 3);
-	}
-	bIsReady = !bIsReady;
+	
 }
 
 void UJS_SkillComponent::ReleaseBomb(USkeletalMeshComponent* selectHand, FVector torque)
 {
-	// 잡고 있던 물체를 떼어낸다.
-	grabbedBomb->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-
-	// 물체의 본래 피직스 on/off 여부를 되돌려준다.
-	USphereComponent* compSphere = Cast<USphereComponent>(grabbedBomb->compSphere);
-	if (compSphere != nullptr)
+	if (grabbedBomb != nullptr)
 	{
-		compSphere->SetSimulatePhysics(true);
+		canExplo = true;
+		// 잡고 있던 물체를 떼어낸다.
+		grabbedBomb->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+		// 물체의 본래 피직스 on/off 여부를 되돌려준다.
+		USphereComponent* compSphere = Cast<USphereComponent>(grabbedBomb->compSphere);
+		if (compSphere != nullptr)
+		{
+			compSphere->SetSimulatePhysics(true);
+		}
+		throwDirection.Normalize();
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, FString::Printf(TEXT("%.3f, %.3f, %.3f"), throwDirection.X, throwDirection.Y, throwDirection.Z));
+		UE_LOG(LogTemp, Log, TEXT("%.3f, %.3f, %.3f"), throwDirection.X, throwDirection.Y, throwDirection.Z);
+		// 구한 방향대로 충격을 가한다.
+		compSphere->AddImpulse(throwDirection * throwPower);
+		compSphere->AddTorqueInDegrees(torque * torquePower, NAME_None, true);
+		bGrabBomb = false;
 	}
-	throwDirection.Normalize();
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Yellow, FString::Printf(TEXT("%.3f, %.3f, %.3f"), throwDirection.X, throwDirection.Y, throwDirection.Z));
-	UE_LOG(LogTemp, Log, TEXT("%.3f, %.3f, %.3f"), throwDirection.X, throwDirection.Y, throwDirection.Z);
-	// 구한 방향대로 충격을 가한다.
-	compSphere->AddImpulse(throwDirection * throwPower);
-	compSphere->AddTorqueInDegrees(torque * torquePower, NAME_None, true);
-	bGrabBomb = false;
+	
 }
 

@@ -37,6 +37,8 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UImage* Selected;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	class UTextBlock* WeaponName;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	FVector2D movePos;
 	
 
@@ -47,4 +49,5 @@ public:
 public:
 	void SetUIInitPos(int32 value);
 	void MoveUI(int32 thumbstickAxis);
+	void SetWeaponText(float value);
 };

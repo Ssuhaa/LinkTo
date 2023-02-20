@@ -34,10 +34,8 @@ public:
 	class UStaticMeshComponent* compMesh;
 	UPROPERTY(EditAnywhere)
 	class URadialForceComponent* compRadial;
-	
-	float currBombTime = 0;
-	float exploDelay = 3.0f;
 
+	
 	void SetActiveBomb(bool isActive);
 	void Explose();
 };

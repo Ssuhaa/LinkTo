@@ -8,6 +8,7 @@
 #include "JS_Player.h"
 #include <Kismet/GameplayStatics.h>
 #include <PhysicsEngine/RadialForceComponent.h>
+#include "JS_SkillComponent.h"
 
 // Sets default values
 AJS_Bomb::AJS_Bomb()
@@ -16,13 +17,13 @@ AJS_Bomb::AJS_Bomb()
 	PrimaryActorTick.bCanEverTick = true;
 
 	compSphere = CreateDefaultSubobject<USphereComponent>(TEXT("COMP SPHERE"));
-	compSphere->SetupAttachment(RootComponent);
+	SetRootComponent(compSphere);
 	compSphere->SetSphereRadius(20);
 
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("COMP MESH"));
 	compMesh->SetupAttachment(compSphere);
 	compMesh->SetSimulatePhysics(false);
-	
+
 	compRadial = CreateDefaultSubobject<URadialForceComponent>(TEXT("COMP RADIAL"));
 	compRadial->SetupAttachment(compSphere);
 	compRadial->Radius = 1000.0f;
@@ -53,29 +54,24 @@ void AJS_Bomb::SetActiveBomb(bool isActive)
 {
 	if (isActive)
 	{
-		compMesh->SetVisibility(isActive);
-		compMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		compMesh->SetVisibility(true);
+		compSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 		//ratioX = 1;
 	}
 	else
 	{
-		compMesh->SetVisibility(isActive);
-		compMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		compMesh->SetVisibility(false);
+		compSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		//ratioX = 0 ;
 	}
 }
 
 void AJS_Bomb::Explose()
 {
-	if (player->compSkill->bGrabBomb == false) // ÆøÅºÀÌ ¼Õ¿¡¼­ ¶³¾îÁö¸é
-	{
-		currBombTime += GetWorld()->DeltaTimeSeconds;
-		if (currBombTime >= exploDelay)
-		{
-			compSphere->SetSimulatePhysics(true);
-			compRadial->FireImpulse();
-		}
-	}
+		compRadial->FireImpulse();
+		SetActiveBomb(false);
+		player->compSkill->canExplo = false;
+		UE_LOG(LogTemp,Error,TEXT("BOOM"))
 }
 
