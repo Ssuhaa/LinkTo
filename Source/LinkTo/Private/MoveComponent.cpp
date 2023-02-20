@@ -22,6 +22,7 @@
 #include "SH_Ice.h"
 #include <Kismet/GameplayStatics.h>
 
+
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
 {
@@ -49,6 +50,7 @@ void UMoveComponent::BeginPlay()
 
 	canClimb = false;
 	bClimb = false;
+
 }
 
 
@@ -59,15 +61,7 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	playerState = player->compState->currState;
 
-
-
 	ClimbingLineTrace();
-
-	if (playerState == EPlayerState::bLanding)
-	{
-		lastLoc = player->GetActorLocation();
-	}
-	
 
 }
 

@@ -35,13 +35,13 @@ public:
 
 public:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FSM)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = FSM)
 	EPlayerState currState = EPlayerState::bLanding;
 
 	class AJS_Player* player;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
 	float HP = 10;
-	UPROPERTY(EditAnywhere, Category = "CharStatus")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "CharStatus")
 	float stamina = 100;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
 	bool bUseStamina = false;

@@ -290,7 +290,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == -350.f)
+	else if (targetSkill == -120.f)
 	{
 		currSkillState = ESkillState::TimeLock;
 		OffIceMaker();
@@ -298,7 +298,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == -700.f)
+	else if (targetSkill == -240.f)
 	{
 		currSkillState = ESkillState::IceMaker;
 		OffTimeLock();
@@ -306,7 +306,7 @@ void UJS_SkillComponent::ChangeSkill()
 		OffBomb();
 
 	}
-	else if (targetSkill == 350.f)
+	else if (targetSkill == 120.f)
 	{
 		currSkillState = ESkillState::Bomb;
 		OffIceMaker();
@@ -382,12 +382,12 @@ void UJS_SkillComponent::LineTraceInteration()
 	if (DebagKeyBorad)
 	{
 		Startpos = player->leftController->GetComponentLocation();
-		Endpos = Startpos + player->leftController->GetForwardVector() * 5000;
+		Endpos = Startpos + (player->leftController->GetRightVector() + player->leftController->GetUpVector()*(-1)) * 5000;
 	}
 	else
 	{
 		Startpos = player->leftController->GetComponentLocation();
-		Endpos = Startpos + player->leftController->GetForwardVector() * 5000;
+		Endpos = Startpos + (player->leftController->GetRightVector() + player->leftController->GetUpVector()*(-1)) * 5000;
 	}
 	FCollisionQueryParams par;
 	par.AddIgnoredActor(GetOwner());

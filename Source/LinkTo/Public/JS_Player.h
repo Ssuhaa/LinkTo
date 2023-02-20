@@ -74,11 +74,11 @@ public:
 	TArray<class UInputAction*> rightInputs; // 오른손 인풋들 배열
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UMoveComponent* compMove; // 움직임 컴포넌트
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "VR_Settings|Components")
 	class UJS_SkillComponent* compSkill;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UTextRenderComponent* moveLog;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "VR_Settings|Components")
 	class UPlayerStateComponent* compState;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UAttackComponent* compAttack;

@@ -55,7 +55,7 @@ void AJS_Bomb::SetActiveBomb(bool isActive)
 	if (isActive)
 	{
 		compMesh->SetVisibility(true);
-		compSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		compSphere->SetCollisionProfileName(TEXT("BombPreset"));
 
 		//ratioX = 1;
 	}

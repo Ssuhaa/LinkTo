@@ -28,6 +28,7 @@
 #include "PlayerMainWG.h"
 
 
+
 AJS_Player::AJS_Player()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -173,7 +174,6 @@ void AJS_Player::BeginPlay()
 	subsys->AddMappingContext(myMapping, 0);
 
 	MainWG = Cast<UPlayerMainWG>(widgetComp->GetWidget());
-
 /*	sword = GetWorld()->SpawnActor<AJS_Sword>(swordFactory, rightHand->GetComponentTransform());*/
 	
 }
@@ -182,6 +182,7 @@ void AJS_Player::BeginPlay()
 void AJS_Player::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 
 }
 
@@ -199,11 +200,10 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	}
 	
 }
-
 void AJS_Player::ContactKillZone()
 {
 	compState->HP -= 1;
-	SetActorLocation(compMove->lastLoc);
+	SetActorLocation(FVector(1300,-1300,300));
 }
 
 void AJS_Player::ovelayMenuMainWG(UUserWidget* widget)
