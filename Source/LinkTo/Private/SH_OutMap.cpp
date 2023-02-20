@@ -4,6 +4,9 @@
 #include "SH_OutMap.h"
 #include <Components/BoxComponent.h>
 #include "UI_OutGame.h"
+#include "JS_Player.h"
+#include "PlayerMainWG.h"
+#include <UMG/Public/Components/Overlay.h>
 
 ASH_OutMap::ASH_OutMap()
 {
@@ -34,8 +37,11 @@ void ASH_OutMap::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	AJS_Player* Player = Cast<AJS_Player>(OtherActor);
 	if (Player != nullptr)
-	{
-		WGOutGame->AddToViewport();
+	{	
+		if (!WGOutGame->IsInViewport())
+		{
+			Player->MainWG->Overlay_PlaceName->AddChildToOverlay(WGOutGame);
+		}
 	}
 }
 

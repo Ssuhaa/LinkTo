@@ -6,12 +6,12 @@
 ASH_HorizonMagnet::ASH_HorizonMagnet()
 {
 	SetRootComponent(InteractionMesh);
-	ConstructorHelpers::FObjectFinder <UStaticMesh> tempMash(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	ConstructorHelpers::FObjectFinder <UStaticMesh> tempMash(TEXT("/Script/Engine.StaticMesh'/Game/Geometry/Mesh/SM_Magnet.SM_Magnet'"));
 	if (tempMash.Succeeded())
 	{
 		InteractionMesh->SetStaticMesh(tempMash.Object);
 	}
-	InteractionMesh->SetRelativeScale3D(FVector(2.0f,2.0f,0.8f));
+	InteractionMesh->SetRelativeScale3D(FVector(0.8f));
 	SetRootComponent(InteractionMesh);
 
 }

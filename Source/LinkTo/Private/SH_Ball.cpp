@@ -10,13 +10,12 @@ ASH_Ball::ASH_Ball()
 {
 	SetRootComponent(InteractionMesh);
 	rootComp->DestroyComponent();
-	ConstructorHelpers::FObjectFinder <UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Sphere.Sphere'"));
+	ConstructorHelpers::FObjectFinder <UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Game/Geometry/Mesh/SM_Ball.SM_Ball'"));
 	if (TempMesh.Succeeded())
 	{
 		InteractionMesh->SetStaticMesh(TempMesh.Object);
 	}
 	InteractionMesh->SetMassOverrideInKg(FName(TEXT("NAME_None")),900.0f, true);
-	InteractionMesh->SetRelativeScale3D(FVector(1.7));
 
 	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_Ball.MI_Ball'"));
 	if (TempMat.Succeeded())

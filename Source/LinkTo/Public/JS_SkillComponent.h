@@ -149,4 +149,7 @@ public:
 	class AMagnetBase* hitMNActor;
 
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
+
+	UPROPERTY(EditAnywhere)
+	bool DebagKeyBorad = false;
 };

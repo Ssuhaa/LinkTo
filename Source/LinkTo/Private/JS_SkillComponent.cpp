@@ -377,9 +377,18 @@ void UJS_SkillComponent::AddArray()
 //라인트레이스
 void UJS_SkillComponent::LineTraceInteration()
 {
-
-	FVector Startpos = player->compCam->GetComponentLocation();
-	FVector Endpos = Startpos + player->compCam->GetForwardVector() * 5000;
+	FVector Startpos;
+	FVector Endpos;
+	if (DebagKeyBorad)
+	{
+		Startpos = player->leftController->GetComponentLocation();
+		Endpos = Startpos + player->leftController->GetForwardVector() * 5000;
+	}
+	else
+	{
+		Startpos = player->leftController->GetComponentLocation();
+		Endpos = Startpos + player->leftController->GetForwardVector() * 5000;
+	}
 	FCollisionQueryParams par;
 	par.AddIgnoredActor(GetOwner());
 	par.AddIgnoredActor(Ghostice);
