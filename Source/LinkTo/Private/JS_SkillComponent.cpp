@@ -48,7 +48,6 @@ UJS_SkillComponent::UJS_SkillComponent()
 	if (tempSkillWidget.Succeeded())
 	{
 		skillUIFactory = tempSkillWidget.Class;
-
 	}
 }
 
@@ -85,17 +84,7 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 	
 	if (enhancedInputComponent != nullptr)
 	{
-		//추후 삭제
-		enhancedInputComponent->BindAction(inputAction[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonX);
-		enhancedInputComponent->BindAction(inputAction[1], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnWS);
-		enhancedInputComponent->BindAction(inputAction[2], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnAD);
-		enhancedInputComponent->BindAction(inputAction[3], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonA);
-		enhancedInputComponent->BindAction(inputAction[4], ETriggerEvent::Triggered, this, &UJS_SkillComponent::LookUp);
-		enhancedInputComponent->BindAction(inputAction[6], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnButtonY);
-		enhancedInputComponent->BindAction(inputAction[7], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTrigger);
-		enhancedInputComponent->BindAction(inputAction[8], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
-		enhancedInputComponent->BindAction(inputAction[9], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabLeft);
-
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonTriggerRight);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonA);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Completed, this, &UJS_SkillComponent::ReleaseButtonA);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UJS_SkillComponent::OnGrabRight);
@@ -171,6 +160,16 @@ void UJS_SkillComponent::OnButtonTrigger()
 {
 	OnSkillUI();
 }
+
+void UJS_SkillComponent::OnButtonTriggerRight()
+{
+	if (currSkillState == ESkillState::Bomb && canExplo == true)
+	{
+		bombArray[0]->Explose();
+	}
+
+}
+
 //스킬 사용 바인딩
 void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 {
@@ -245,7 +244,19 @@ void UJS_SkillComponent::OnButtonX()
 	switch (currSkillState)
 	{
 	case ESkillState::Bomb:
-		OnBomb();
+		if (bombArray.IsValidIndex(0))
+		{
+			OnBomb();
+		}
+		else
+		{
+			for (int32 i = 0; i < 2; i++)
+			{
+				AJS_Bomb* currBomb = GetWorld()->SpawnActor<AJS_Bomb>(bombFactory);
+				currBomb->SetActiveBomb(false);
+				bombArray.Add(currBomb);
+			}
+		}
 		break;
 	case ESkillState::TimeLock:
 		LookTimeLock();
@@ -640,7 +651,7 @@ void UJS_SkillComponent::ReleaseBomb(USkeletalMeshComponent* selectHand, FVector
 {
 	if (grabbedBomb != nullptr)
 	{
-		bombArray[0]->canExplo = true;
+		canExplo = true;
 		// 잡고 있던 물체를 떼어낸다.
 		grabbedBomb->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
@@ -656,10 +667,7 @@ void UJS_SkillComponent::ReleaseBomb(USkeletalMeshComponent* selectHand, FVector
 		// 구한 방향대로 충격을 가한다.
 		compSphere->AddImpulse(throwDirection * throwPower);
 		compSphere->AddTorqueInDegrees(torque * torquePower, NAME_None, true);
-		bombArray[0]->Explose();
 		bGrabBomb = false;
-
-		bombArray.Swap(0,1);
 	}
 	
 }

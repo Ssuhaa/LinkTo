@@ -69,16 +69,9 @@ void AJS_Bomb::SetActiveBomb(bool isActive)
 
 void AJS_Bomb::Explose()
 {
-		compSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		currBombTime += GetWorld()->DeltaTimeSeconds;
-		if (currBombTime >= exploDelay)
-		{
-			compRadial->FireImpulse();
-			canExplo = false;
-			SetActiveBomb(false);
-			UE_LOG(LogTemp,Error,TEXT("BOOM"))
-			currBombTime = 0;
-			
-		}
+		compRadial->FireImpulse();
+		SetActiveBomb(false);
+		player->compSkill->canExplo = false;
+		UE_LOG(LogTemp,Error,TEXT("BOOM"))
 }
 

@@ -48,6 +48,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
 	TSubclassOf<class AJS_Bomb> bombFactory;
 
+	bool canExplo = false;
 
 
 private:
@@ -58,6 +59,7 @@ private:
 	void OnButtonY();
 	void ChangeSkill();
 	void OnButtonTrigger();
+	void OnButtonTriggerRight();
 	void OnSkillUI();
 	void OnGrabRight();
 	void OnGrabLeft();
@@ -71,8 +73,9 @@ private:
 	FVector prevForward;
 	FVector throwDirection;
 	bool bIsReady = false;
-	float torquePower = 3000;
-	float throwPower = 1500;
+	float torquePower = 6000;
+	float throwPower = 3000;
+	
 	class AJS_Bomb* grabbedBomb;
 
 	//타임락
@@ -130,7 +133,7 @@ public:
 	//스테이트
 	UPROPERTY(EditAnywhere, Category = Player)
 	bool bParasailing = false;
-	UPROPERTY(EditAnywhere, Category = Player)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	ESkillState currSkillState = ESkillState::Defalt;
 
 	bool isPressedG = false;
