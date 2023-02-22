@@ -9,6 +9,8 @@
 #include <Components/ArrowComponent.h>
 #include <Kismet/KismetMathLibrary.h>
 #include <Camera/CameraComponent.h>
+#include <Kismet/GameplayStatics.h>
+#include <Sound/SoundCue.h>
 
 ATimeLockBase::ATimeLockBase()
 {
@@ -22,12 +24,31 @@ ATimeLockBase::ATimeLockBase()
 	hitArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("HitArrow"));
 	hitArrow->SetupAttachment(InteractionMesh);
 	hitArrow->bHiddenInGame = false;
+	ConstructorHelpers::FObjectFinder<USoundBase> tempsound(TEXT("/Script/Engine.SoundWave'/Game/Sound/BitaLock_Timer03.BitaLock_Timer03'"));
+	if (tempsound.Succeeded())
+	{
+		timeCountSound = tempsound.Object;
+	}
+	ConstructorHelpers::FObjectFinder<USoundBase> tempsound1(TEXT("/Script/Engine.SoundWave'/Game/Sound/Bitalock_Start_02.Bitalock_Start_02'"));
+	if (tempsound1.Succeeded())
+	{
+		OnSound = tempsound1.Object;
+	}
+	ConstructorHelpers::FObjectFinder<USoundCue> tempsound2(TEXT("/Script/Engine.SoundCue'/Game/Sound/sc_hitTimelock.sc_hitTimelock'"));
+	if (tempsound2.Succeeded())
+	{
+		hitSound = tempsound2.Object;
+	}
+	ConstructorHelpers::FObjectFinder<USoundCue> tempsound3(TEXT("/Script/Engine.SoundCue'/Game/Sound/sc_ReleaseTimeLock.sc_ReleaseTimeLock'"));
+	if (tempsound3.Succeeded())
+	{
+		releaseSound = tempsound3.Object;
+	}
 }
 
 void ATimeLockBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ATimeLockBase::Tick(float DeltaTime)
@@ -45,9 +66,13 @@ void ATimeLockBase::Tick(float DeltaTime)
 		}
 		if (currentTime > 7)
 		{
+			playSoundTime+=DeltaTime;
+			if (playSoundTime > 1)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), timeCountSound);
+				playSoundTime = 0;
+			}
 			ChangeMaterial(TimeLockMatArray, 3, InteractionMesh);
-			countTime += DeltaTime;
-			UKismetMaterialLibrary::SetScalarParameterValue(GetWorld(), timeLockParm, TEXT("Speed"), countTime);
 		}
 	}
 }
@@ -83,6 +108,7 @@ void ATimeLockBase::OnTimeLock()
 	{
 		bTimeLock = true;
 		impulseVector = FVector::ZeroVector;
+		UGameplayStatics::PlaySound2D(GetWorld(), OnSound);
 	}
 }
 
@@ -100,6 +126,7 @@ void ATimeLockBase::releasedTimeLock()
 	countTime = 0;
 	bTimeLock = false;
 	bLookin = false;
+	UGameplayStatics::PlaySound2D(GetWorld(), releaseSound);
 	
 }
 
@@ -114,7 +141,7 @@ void ATimeLockBase::impulse(FVector impulsePos)
 
 void ATimeLockBase::impulseArrowUpdate()//기라
 {
-	if (player->compCam->GetForwardVector() + arrowloc != pos)
+	if (player->GetActorForwardVector() + arrowloc != pos)
 	{
 		hitCount = 0;
 	}
@@ -123,10 +150,10 @@ void ATimeLockBase::impulseArrowUpdate()//기라
 
 	hitArrow-> SetVisibility(true);
 
-	pos = player->compCam->GetForwardVector()+ arrowloc;
+	pos = player->GetActorForwardVector() + arrowloc;
 	hitArrow->SetRelativeRotation(UKismetMathLibrary::MakeRotFromX(pos));
 	impulseVector = UKismetMathLibrary::Conv_RotatorToVector(hitArrow->GetRelativeRotation());
-
+	UGameplayStatics::PlaySound2D(GetWorld(), hitSound);
 	hitArrow->SetRelativeScale3D(FVector(hitCount, 1, 1));
 	FLinearColor arrowcolor = FLinearColor::LerpUsingHSV(FLinearColor::Yellow, FLinearColor::Red, hitCount*0.2); 
 	hitArrow->SetArrowColor(arrowcolor);

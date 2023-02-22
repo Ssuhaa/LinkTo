@@ -57,7 +57,11 @@ UJS_SkillComponent::UJS_SkillComponent()
 	{
 		NSCrossHair = tempNS.Object;
 	}
-
+	ConstructorHelpers::FObjectFinder<USoundBase> tempsound(TEXT("/Script/Engine.SoundWave'/Game/Sound/Sys_Item_IceMaker_Making.Sys_Item_IceMaker_Making'"));
+	if (tempsound.Succeeded())
+	{
+		lookIcemakerSB = tempsound.Object;
+	}
 }
 
 
