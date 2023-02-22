@@ -94,6 +94,7 @@ private:
 	TArray<class ASH_Ice*> iceArray;
 	class ASH_IceGhost* Ghostice;
 	int32 iceNum = 0;
+	class USoundBase* lookIcemakerSB;
 
 	//¸¶±×³Ý
 	void Magnet();

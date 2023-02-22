@@ -38,6 +38,12 @@ protected:
 	FVector pos;
 	float ImpulseStrength = 500;
 
+	class USoundBase* timeCountSound;
+	class USoundBase* OnSound;
+	class USoundCue* releaseSound;
+	class USoundCue* hitSound;
+
+	float playSoundTime = 1;
 
 public:
 	virtual void InteractionTimeLock(bool isOn);
