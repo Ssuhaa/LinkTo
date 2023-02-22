@@ -84,6 +84,7 @@ private:
 	void OffTimeLock();
 	bool FindOnTimeLockActor();
 
+
 	//아이스메이커
 	void IceMaker();
 	void LookIceMaker();
@@ -102,6 +103,7 @@ private:
 	float MagnetLength = 1500;
 	class AMagnetBase* GrabMagnetActor;
 	float ratio = 0;
+
 
 	//키바인딩
 	void OnWS(const struct FInputActionValue& value);
@@ -123,6 +125,7 @@ private:
 	FHitResult Hitinfo;
 	class ASH_Ice* hitIce;
 	void LineTraceInteration();
+	class UNiagaraSystem* NSCrossHair;
 
 	bool isClickedLMouse = true;
 	bool isGrab = false;
@@ -137,6 +140,8 @@ public:
 	ESkillState currSkillState = ESkillState::Defalt;
 
 	bool isPressedG = false;
+	UPROPERTY(VisibleAnywhere)
+	class ATimeLockBase* OnTimeLockActor;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	class UJS_WidgetSkillSwitch* skillWidget;

@@ -3,6 +3,8 @@
 #include "MagnetBase.h"
 #include "JS_SkillComponent.h"
 #include "JS_Player.h"
+#include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
+#include <../Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h>
 
 AMagnetBase::AMagnetBase()
 {
@@ -10,11 +12,23 @@ AMagnetBase::AMagnetBase()
 	SetRootComponent(InteractionMesh);
 	rootComp->DestroyComponent();
 	InteractionMesh->SetSimulatePhysics(false);
+
+	NSOnMagnet = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Effect"));
+	NSOnMagnet->SetupAttachment(RootComponent);
+	ConstructorHelpers::FObjectFinder <UNiagaraSystem> tempNS(TEXT("/Script/Niagara.NiagaraSystem'/Game/FX/NS_OnMagnet.NS_OnMagnet'"));
+	if (tempNS.Succeeded())
+	{
+		NSOnMagnet->SetAsset(tempNS.Object);
+	}
+	NSOnMagnet->bAutoActivate = false;
+	
+
 }
 
 void AMagnetBase::BeginPlay()
 {
 	Super::BeginPlay();
+	NSOnMagnet->SetVisibility(false);
 }
 
 void AMagnetBase::Tick(float DeltaTime)
@@ -48,10 +62,13 @@ void AMagnetBase::LookInMagnet()
 	}
 }
 
-void AMagnetBase::OnMagnet()
+void AMagnetBase::OnMagnet(FVector hitpos)
 {
 	ChangeMaterial(MagnetMatarray, 3, InteractionMesh);
 	InteractionMesh->SetSimulatePhysics(true);
+	NSOnMagnet->SetWorldLocation(hitpos);
+	NSOnMagnet->SetVisibility(true);
+	NSOnMagnet->Activate(true);
 	bMagnet = true;
 }
 

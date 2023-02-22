@@ -23,11 +23,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Material")
 	TArray<class UMaterialInstance*> MagnetMatarray;
+	UPROPERTY(EditAnywhere)
+	class UNiagaraComponent* NSOnMagnet;
 
 public:
 	virtual void InteractionMagnet(bool isOn);
 	virtual void LookInMagnet();
-	virtual void OnMagnet();
+	virtual void OnMagnet(FVector hitpos);
 	virtual void releasedMagnet();
 
 	bool bMagnet = false;

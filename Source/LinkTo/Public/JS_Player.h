@@ -92,6 +92,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class UNiagaraComponent* MagNS;
 
+
 	FVector dir;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Component)

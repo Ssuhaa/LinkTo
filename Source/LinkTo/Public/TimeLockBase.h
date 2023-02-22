@@ -28,13 +28,29 @@ protected:
 	TArray<UMaterialInstance*> TimeLockMatArray;
 	UPROPERTY(VisibleAnywhere, Category = "TimeLock|Material")
 	class UMaterialParameterCollection* timeLockParm;
+	UPROPERTY(EditAnywhere)
+	class UArrowComponent* hitArrow;
+
+	int32 hitCount = 0;
+
+
+	FVector arrowloc = FVector(0,0,0.65);
+	FVector pos;
+	float ImpulseStrength = 500;
+
 
 public:
 	virtual void InteractionTimeLock(bool isOn);
 	virtual void LookInTimeLock();
 	virtual void OnTimeLock();
 	virtual void releasedTimeLock();
+	virtual void impulse(FVector impulsePos);
+	void impulseArrowUpdate();
 
 	UPROPERTY(VisibleAnywhere, Category = "TimeLock|Value")
 	bool bTimeLock = false;
+
+	UPROPERTY(VisibleAnywhere)
+	FVector impulseVector;
+
 };
