@@ -61,7 +61,7 @@ void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	playerState = player->compState->currState;
 
-	ClimbingLineTrace();
+//	ClimbingLineTrace();
 
 }
 
