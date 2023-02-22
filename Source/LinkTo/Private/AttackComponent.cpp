@@ -24,6 +24,7 @@
 #include "Components/PrimitiveComponent.h"
 #include <Kismet/KismetMathLibrary.h>
 #include "TimeLockBase.h"
+#include <MotionControllerComponent.h>
 
 // Sets default values for this component's properties
 UAttackComponent::UAttackComponent()
@@ -63,7 +64,7 @@ void UAttackComponent::BeginPlay()
 	bWeaponMenu = false;
 
 	// 타임락 액터 가져오기
-	timeLockActor = Cast<ATimeLockBase>(UGameplayStatics::GetActorOfClass(GetWorld(),ATimeLockBase::StaticClass()));
+	
 
 }
 
@@ -75,7 +76,7 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	playerState = player->compState->currState;
 
-	/*GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow, FString::Printf(TEXT("%d"),(int32)(currAttackState)));*/
+	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow, FString::Printf(TEXT("%d"),(int32)(currAttackState)));
 
 	switch (currAttackState)
 	{
@@ -85,7 +86,7 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	case EAttackState::AttackSword:
 	{
 		SwordState();
-		
+		player = Cast<AJS_Player>(GetOwner());
 		currHandPos = player->rightHand->GetComponentLocation();
 	
 		
@@ -96,24 +97,26 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 		
 
-		DrawDebugLine(GetWorld(),oldPos,currHandPos,FColor::Red,false,1,0,1);
-
+		DrawDebugLine(GetWorld(),oldPos,currHandPos,FColor::Green,false,1,0,1);
+		
 		// 라인트레이스 발사
 		FHitResult hitInfo;
-		FVector startPos = player->compSword->GetComponentLocation() + FVector(25, 0, 0);
-		FVector endPos = startPos.RightVector * 100.f;
+		FVector startPos = player->compSword->GetComponentLocation()+FVector(0,0,30);
+		FVector endPos = (startPos + (player->compSword->GetForwardVector()*-1) * 5000) + FVector(0,-10,20);
 		FCollisionQueryParams params;
 		params.AddIgnoredActor(GetOwner());
-
-		GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
-
+		timeLockActor = Cast<ATimeLockBase>(UGameplayStatics::GetActorOfClass(GetWorld(),ATimeLockBase::StaticClass()));
+		DrawDebugLine(GetWorld(),startPos,endPos,FColor::Red,false,0.1f,0,1.f);
+		bool isTrace = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
+		
+		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%d"),isTrace), false, FVector2D(10.0f));
 		// 만약 맞은 액터가 타임락이 걸려있으면
-		if (hitInfo.GetActor() == timeLockActor && timeLockActor->bTimeLock)
+		if (hitInfo.GetActor() == timeLockActor)
 		{
 
-			GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("hit")), true, FVector2D(10.f));
+			GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("hit")), false, FVector2D(10.f));
 
-			/*timeLockActor->impulseArrowUpdate();*/
+			timeLockActor->impulseArrowUpdate();
 
 			/*bCanHit = false;*/
 		}
