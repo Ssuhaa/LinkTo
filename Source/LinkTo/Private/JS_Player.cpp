@@ -130,6 +130,7 @@ AJS_Player::AJS_Player()
 	MagNS->SetupAttachment(leftController);
 	MagNS->SetVisibility(false);
 
+
 	widgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
 	ConstructorHelpers::FClassFinder <UUserWidget> tempWG(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/BluePrint/UI/MainUI.MainUI_C'"));
 	if (tempWG.Succeeded())
@@ -161,6 +162,7 @@ AJS_Player::AJS_Player()
 	rightWidgetComp->SetupAttachment(rightHand);
 	rightWidgetComp->SetDrawSize(FVector2D(60, 60));
 	rightWidgetComp->SetRelativeRotation(FRotator(0, 0, 0));
+
 }
 
 // Called when the game starts or when spawned

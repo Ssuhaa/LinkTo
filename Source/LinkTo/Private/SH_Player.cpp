@@ -420,7 +420,7 @@ void ASH_Player:: Magnet()
 	{
 		MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), hitMNActor->GetActorLocation());
 		MagnetGrabComp->SetWorldLocation(hitMNActor->GetActorLocation());
-		hitMNActor->OnMagnet();
+		hitMNActor->OnMagnet(Hitinfo.ImpactPoint);
 		GrabMagnetActor = hitMNActor;
 		isGrab = true;
 	}

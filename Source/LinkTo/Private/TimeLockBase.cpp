@@ -6,6 +6,9 @@
 #include <Materials/MaterialParameterCollection.h>
 #include <Kismet/KismetMaterialLibrary.h>
 #include "JS_Player.h"
+#include <Components/ArrowComponent.h>
+#include <Kismet/KismetMathLibrary.h>
+#include <Camera/CameraComponent.h>
 
 ATimeLockBase::ATimeLockBase()
 {
@@ -16,6 +19,9 @@ ATimeLockBase::ATimeLockBase()
 	{
 		timeLockParm = TempParm.Object;
 	}
+	hitArrow = CreateDefaultSubobject<UArrowComponent>(TEXT("HitArrow"));
+	hitArrow->SetupAttachment(InteractionMesh);
+	hitArrow->bHiddenInGame = false;
 }
 
 void ATimeLockBase::BeginPlay()
@@ -32,6 +38,10 @@ void ATimeLockBase::Tick(float DeltaTime)
 		if (isDelay(12))
 		{
 			releasedTimeLock();
+			if (InteractionMesh->IsSimulatingPhysics())
+			{
+				impulse(impulseVector*hitCount*ImpulseStrength);
+			}
 		}
 		if (currentTime > 7)
 		{
@@ -72,6 +82,7 @@ void ATimeLockBase::OnTimeLock()
 	if (bLookin)
 	{
 		bTimeLock = true;
+		impulseVector = FVector::ZeroVector;
 	}
 }
 
@@ -89,4 +100,34 @@ void ATimeLockBase::releasedTimeLock()
 	countTime = 0;
 	bTimeLock = false;
 	bLookin = false;
+	
+}
+
+void ATimeLockBase::impulse(FVector impulsePos)
+{
+	InteractionMesh->AddImpulse(impulsePos,FName(TEXT("No_Name")),true);
+	hitArrow->SetVisibility(false);
+	hitArrow->SetRelativeScale3D(FVector(1));
+	hitCount = 0;
+}
+
+
+void ATimeLockBase::impulseArrowUpdate()
+{
+	if (player->compCam->GetForwardVector() + arrowloc != pos)
+	{
+		hitCount = 0;
+	}
+	hitCount++;
+	hitCount = FMath::Clamp(hitCount,0, 5);
+
+	hitArrow-> SetVisibility(true);
+
+	pos = player->compCam->GetForwardVector()+ arrowloc;
+	hitArrow->SetRelativeRotation(UKismetMathLibrary::MakeRotFromX(pos));
+	impulseVector = UKismetMathLibrary::Conv_RotatorToVector(hitArrow->GetRelativeRotation());
+
+	hitArrow->SetRelativeScale3D(FVector(hitCount, 1, 1));
+	FLinearColor arrowcolor = FLinearColor::LerpUsingHSV(FLinearColor::Yellow, FLinearColor::Red, hitCount*0.2); 
+	hitArrow->SetArrowColor(arrowcolor);
 }

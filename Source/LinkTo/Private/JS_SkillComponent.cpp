@@ -24,6 +24,8 @@
 #include "JS_WidgetSkillSwitch.h"
 #include "PlayerMainWG.h"
 #include <Components/SphereComponent.h>
+#include <Kismet/KismetMathLibrary.h>
+#include "NiagaraFunctionLibrary.h"
 
 
 // Sets default values for this component's properties
@@ -49,7 +51,13 @@ UJS_SkillComponent::UJS_SkillComponent()
 	{
 		skillUIFactory = tempSkillWidget.Class;
 
+	}	
+	ConstructorHelpers::FObjectFinder <UNiagaraSystem> tempNS(TEXT("/Script/Niagara.NiagaraSystem'/Game/FX/NS_CrossHair.NS_CrossHair'"));
+	if (tempNS.Succeeded())
+	{
+		NSCrossHair = tempNS.Object;
 	}
+
 }
 
 
@@ -172,6 +180,12 @@ void UJS_SkillComponent::OnButtonTrigger()
 //스킬 사용 바인딩
 void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 {
+	if (OnTimeLockActor != nullptr)
+	{
+		
+		OnTimeLockActor->impulseArrowUpdate();
+
+	}
 	if (bSkillMenu)
 	{
 
@@ -381,8 +395,8 @@ void UJS_SkillComponent::LineTraceInteration()
 	FVector Endpos;
 	if (DebagKeyBorad)
 	{
-		Startpos = player->leftController->GetComponentLocation();
-		Endpos = Startpos + player->leftController->GetForwardVector() * 5000;
+		Startpos = player->compCam->GetComponentLocation();
+		Endpos = Startpos + player->compCam->GetForwardVector() * 5000;
 	}
 	else
 	{
@@ -395,6 +409,7 @@ void UJS_SkillComponent::LineTraceInteration()
 	bool bhit = GetWorld()->LineTraceSingleByChannel(Hitinfo, Startpos, Endpos, ECC_Visibility, par);
 	if (bhit)
 	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(),NSCrossHair, Hitinfo.ImpactPoint, UKismetMathLibrary::MakeRotFromZ(Hitinfo.ImpactNormal));
 		switch (currSkillState)
 		{
 		case ESkillState::TimeLock:
@@ -456,6 +471,7 @@ void UJS_SkillComponent::TimeLock()
 	if (!FindOnTimeLockActor())
 	{
 		hitTLActor->OnTimeLock();
+		OnTimeLockActor = hitTLActor;
 		OffTimeLock();
 		isPressedG = false;
 	}
@@ -534,7 +550,7 @@ void UJS_SkillComponent::Magnet()
 {
 	player->MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), hitMNActor->GetActorLocation());
 	player->MagnetGrabComp->SetWorldLocation(hitMNActor->GetActorLocation());
-	hitMNActor->OnMagnet();
+	hitMNActor->OnMagnet(Hitinfo.ImpactPoint);
 	GrabMagnetActor = hitMNActor;
 	player->MagNS->SetVisibility(true);
 	ratio = 0;
@@ -628,7 +644,7 @@ void UJS_SkillComponent::ReadyToThrowBomb()
 		ReleaseBomb(player->rightHand, rotAxis * angle);
 
 		UE_LOG(LogTemp, Log, TEXT("X Release!!!!!"));
-		DrawDebugLine(GetWorld(), player->rightController->GetComponentLocation(), player->rightController->GetComponentLocation() + throwDirection * 50, FColor::Red, false, 5, 0, 3);
+		//DrawDebugLine(GetWorld(), player->rightController->GetComponentLocation(), player->rightController->GetComponentLocation() + throwDirection * 50, FColor::Red, false, 5, 0, 3);
 	}
 	bIsReady = !bIsReady;
 }
