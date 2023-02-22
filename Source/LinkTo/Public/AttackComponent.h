@@ -8,8 +8,8 @@
 #include "AttackComponent.generated.h"
 
 
-UENUM()
-enum class EAttackState : int8
+UENUM(BlueprintType)
+enum class EAttackState : uint8
 {
 	AttackIdle,
 	AttackSword,
@@ -38,6 +38,7 @@ public:
 	class AobstacleBase* obstacleBase;
 	class AJS_Player* player;
 	class AJS_Arrow* arrow;
+	class ATimeLockBase* timeLockActor;
 	UPROPERTY(EditAnywhere, Category = Arrow)
 	TSubclassOf<class AJS_Arrow> arrowFactory;
 
@@ -49,13 +50,22 @@ public:
 	TArray <class UInputAction*> rightInputs;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
 	EPlayerState playerState;
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|AttackComponent")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = "VR_Settings|AttackComponent")
 	EAttackState currAttackState = EAttackState::AttackIdle;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	bool bWeaponMenu = false;
 	UPROPERTY(EditAnywhere, Category = Arrow)
 	float accArrowSpeed = 0; // 화살의 가속도
-
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Sword)
+	FVector currHandPos = FVector(0);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sword)
+	FVector oldPos = FVector(0);
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Sword)
+	bool bCanHit = true;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Sword)
+	float attackPower = 500.f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = Sword)
+	FVector hitNormal;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Widget")
 	TSubclassOf<class UJS_WidgetWeaponSwitch> weaponUIFactory;

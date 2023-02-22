@@ -21,6 +21,9 @@
 #include "JS_Arrow.h"
 #include <Kismet/GameplayStatics.h>
 #include <GameFramework/ProjectileMovementComponent.h>
+#include "Components/PrimitiveComponent.h"
+#include <Kismet/KismetMathLibrary.h>
+#include "TimeLockBase.h"
 
 // Sets default values for this component's properties
 UAttackComponent::UAttackComponent()
@@ -59,6 +62,9 @@ void UAttackComponent::BeginPlay()
 	// 무기 변경 메뉴 초기화
 	bWeaponMenu = false;
 
+	// 타임락 액터 가져오기
+	timeLockActor = Cast<ATimeLockBase>(UGameplayStatics::GetActorOfClass(GetWorld(),ATimeLockBase::StaticClass()));
+
 }
 
 
@@ -77,7 +83,64 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		IdleState();
 		break;
 	case EAttackState::AttackSword:
+	{
 		SwordState();
+		
+		currHandPos = player->rightHand->GetComponentLocation();
+	
+		
+		// 휘두르는 방향
+		FVector attackDir = oldPos - currHandPos;
+		// 휘두르는 속력(길이)
+		float swordSpeed = UKismetMathLibrary::Square(attackDir.Size());
+
+		
+
+		DrawDebugLine(GetWorld(),oldPos,currHandPos,FColor::Red,false,1,0,1);
+
+		// 라인트레이스 발사
+		FHitResult hitInfo;
+		FVector startPos = player->compSword->GetComponentLocation() + FVector(25, 0, 0);
+		FVector endPos = startPos.RightVector * 100.f;
+		FCollisionQueryParams params;
+		params.AddIgnoredActor(GetOwner());
+
+		GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
+
+		// 만약 맞은 액터가 타임락이 걸려있으면
+		if (hitInfo.GetActor() == timeLockActor && timeLockActor->bTimeLock)
+		{
+
+			GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("hit")), true, FVector2D(10.f));
+
+			/*timeLockActor->impulseArrowUpdate();*/
+
+			/*bCanHit = false;*/
+		}
+
+		// 오른손의 속력이 일정 속력 이상이면
+		//if (swordSpeed >= 3.f)
+		//{
+			// 칼의 콜리젼을 공격으로 변경
+			// player->compSword->SetCollisionProfileName(TEXT("AttackSwordState"));
+
+
+		
+		//}
+		// 칼의 속력이 일정속력 이하면
+		//else
+		//{
+			// player->compSword->SetCollisionProfileName(TEXT("NoCollision"));
+			
+			//bCanHit = true;
+		//}
+
+		// FString swordState = player->compSword->GetCollisionProfileName().ToString();
+		// GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow,swordState,true,FVector2D(10.f));
+		
+		// 다음 틱에서 사용할 이전 위치
+		oldPos = currHandPos;
+	}
 		break;
 	case EAttackState::AttackBow:
 		BowState();
@@ -90,6 +153,7 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 {
 	PlayerInputComponent->BindAction(leftInputs[5], ETriggerEvent::Started, this, &UAttackComponent::OnButtonMenu);
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UAttackComponent::OnButtonA); 
+	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &UAttackComponent::FireSword); 
 	PlayerInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabRight);
 	PlayerInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabLeft);
 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerArrow);
@@ -105,7 +169,6 @@ void UAttackComponent::OnButtonA()
 		case EAttackState::AttackIdle:
 			break;
 		case EAttackState::AttackSword:
-			FireSword(); // 칼 공격
 			break;
 		case EAttackState::AttackBow:
 			break;
@@ -174,7 +237,8 @@ void UAttackComponent::BowState()
 // 칼 공격
 void UAttackComponent::FireSword() 
 {
-	
+
+
 }
 // 화살 조준
 void UAttackComponent::OnTriggerArrow() 

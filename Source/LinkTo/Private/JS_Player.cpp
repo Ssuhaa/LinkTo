@@ -116,8 +116,7 @@ AJS_Player::AJS_Player()
 
 	compSword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SWORD"));
 	compSword->SetupAttachment(rightHand);
-	compSword->SetCollisionObjectType(ECC_GameTraceChannel1);
-	compSword->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	compSword->SetCollisionProfileName(TEXT("NoCollision"));
 
 // 	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSword(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/BP_Sword.BP_Sword_C'"));
 // 	if (tempSword.Succeeded())
