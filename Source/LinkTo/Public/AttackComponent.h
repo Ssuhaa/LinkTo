@@ -81,6 +81,7 @@ private:
 	void IdleState();
 	void SwordState();
 	void BowState();
+	void SwordLineTrace();
 
 	void OnButtonMenu();
 	void FireSword();

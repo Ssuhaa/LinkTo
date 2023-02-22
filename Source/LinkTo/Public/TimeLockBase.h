@@ -45,9 +45,10 @@ public:
 	virtual void OnTimeLock();
 	virtual void releasedTimeLock();
 	virtual void impulse(FVector impulsePos);
+	UFUNCTION(BlueprintCallable)
 	void impulseArrowUpdate();
 
-	UPROPERTY(VisibleAnywhere, Category = "TimeLock|Value")
+	UPROPERTY(VisibleAnywhere,BlueprintReadWrite, Category = "TimeLock|Value")
 	bool bTimeLock = false;
 
 	UPROPERTY(VisibleAnywhere)

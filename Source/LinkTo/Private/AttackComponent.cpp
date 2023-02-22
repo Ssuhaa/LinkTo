@@ -63,7 +63,6 @@ void UAttackComponent::BeginPlay()
 	// 무기 변경 메뉴 초기화
 	bWeaponMenu = false;
 
-	// 타임락 액터 가져오기
 	
 
 }
@@ -86,7 +85,7 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	case EAttackState::AttackSword:
 	{
 		SwordState();
-		player = Cast<AJS_Player>(GetOwner());
+		
 		currHandPos = player->rightHand->GetComponentLocation();
 	
 		
@@ -94,32 +93,26 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		FVector attackDir = oldPos - currHandPos;
 		// 휘두르는 속력(길이)
 		float swordSpeed = UKismetMathLibrary::Square(attackDir.Size());
+		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%f"),swordSpeed), false, FVector2D(3.f));
 
-		
-
-		DrawDebugLine(GetWorld(),oldPos,currHandPos,FColor::Green,false,1,0,1);
-		
-		// 라인트레이스 발사
-		FHitResult hitInfo;
-		FVector startPos = player->compSword->GetComponentLocation()+FVector(0,0,30);
-		FVector endPos = (startPos + (player->compSword->GetForwardVector()*-1) * 5000) + FVector(0,-10,20);
-		FCollisionQueryParams params;
-		params.AddIgnoredActor(GetOwner());
-		timeLockActor = Cast<ATimeLockBase>(UGameplayStatics::GetActorOfClass(GetWorld(),ATimeLockBase::StaticClass()));
-		DrawDebugLine(GetWorld(),startPos,endPos,FColor::Red,false,0.1f,0,1.f);
-		bool isTrace = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
-		
-		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%d"),isTrace), false, FVector2D(10.0f));
-		// 만약 맞은 액터가 타임락이 걸려있으면
-		if (hitInfo.GetActor() == timeLockActor)
+		if (bCanHit == true)
 		{
+			if (swordSpeed >= 3.f)
+			{
+				SwordLineTrace();
+			}
 
-			GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("hit")), false, FVector2D(10.f));
-
-			timeLockActor->impulseArrowUpdate();
-
-			/*bCanHit = false;*/
 		}
+		else
+		{
+			if (swordSpeed <= 0.1f)
+			{
+				bCanHit = true;
+			}
+		}
+		
+		
+		
 
 		// 오른손의 속력이 일정 속력 이상이면
 		//if (swordSpeed >= 3.f)
@@ -237,6 +230,36 @@ void UAttackComponent::BowState()
 	player->compSword->SetVisibility(false);
 	player->compBow->SetVisibility(true);
 }
+
+void UAttackComponent::SwordLineTrace()
+{
+	// 라인트레이스 발사
+	FHitResult hitInfo;
+	FVector startPos = player->compSword->GetComponentLocation() + FVector(0, 0, 15);
+	FVector endPos = (startPos + (player->compSword->GetForwardVector() * -1) * 100) + FVector(0, 0, 15);
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(GetOwner());
+
+	DrawDebugLine(GetWorld(), startPos, endPos, FColor::Red, false, 0.1f, 0, 1.f);
+	bool isTrace = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
+
+	// 만약 맞은 액터가 타임락이 걸려있으면
+	if (isTrace)
+	{
+		if (hitInfo.GetActor()->GetName().Contains(TEXT("Ball")))
+		{
+			timeLockActor = Cast<ATimeLockBase>(hitInfo.GetActor());
+			if (timeLockActor->bTimeLock)
+			{
+				GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("hit")), false, FVector2D(3.f));
+				timeLockActor->impulseArrowUpdate();
+				bCanHit=false;
+			}
+
+		}
+	}
+}
+
 // 칼 공격
 void UAttackComponent::FireSword() 
 {

@@ -114,7 +114,7 @@ void ATimeLockBase::impulse(FVector impulsePos)
 
 void ATimeLockBase::impulseArrowUpdate()//기라
 {
-	if (player->compCam->GetForwardVector() + arrowloc != pos)
+	if (player->GetActorForwardVector() + arrowloc != pos)
 	{
 		hitCount = 0;
 	}
@@ -123,7 +123,7 @@ void ATimeLockBase::impulseArrowUpdate()//기라
 
 	hitArrow-> SetVisibility(true);
 
-	pos = player->compCam->GetForwardVector()+ arrowloc;
+	pos = player->GetActorForwardVector()+ arrowloc;
 	hitArrow->SetRelativeRotation(UKismetMathLibrary::MakeRotFromX(pos));
 	impulseVector = UKismetMathLibrary::Conv_RotatorToVector(hitArrow->GetRelativeRotation());
 
