@@ -184,6 +184,7 @@ void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 	{
 		
 		OnTimeLockActor->impulseArrowUpdate();
+		//°¡¶ó
 
 	}
 	if (bSkillMenu)

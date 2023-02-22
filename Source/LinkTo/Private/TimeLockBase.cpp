@@ -112,7 +112,7 @@ void ATimeLockBase::impulse(FVector impulsePos)
 }
 
 
-void ATimeLockBase::impulseArrowUpdate()
+void ATimeLockBase::impulseArrowUpdate()//±â¶ó
 {
 	if (player->compCam->GetForwardVector() + arrowloc != pos)
 	{
