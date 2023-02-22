@@ -112,28 +112,6 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		}
 		
 		
-		
-
-		// 오른손의 속력이 일정 속력 이상이면
-		//if (swordSpeed >= 3.f)
-		//{
-			// 칼의 콜리젼을 공격으로 변경
-			// player->compSword->SetCollisionProfileName(TEXT("AttackSwordState"));
-
-
-		
-		//}
-		// 칼의 속력이 일정속력 이하면
-		//else
-		//{
-			// player->compSword->SetCollisionProfileName(TEXT("NoCollision"));
-			
-			//bCanHit = true;
-		//}
-
-		// FString swordState = player->compSword->GetCollisionProfileName().ToString();
-		// GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow,swordState,true,FVector2D(10.f));
-		
 		// 다음 틱에서 사용할 이전 위치
 		oldPos = currHandPos;
 	}

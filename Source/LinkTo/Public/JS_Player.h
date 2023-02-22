@@ -45,6 +45,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	TSubclassOf<AJS_Sword> swordFactory;
 
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class UJS_LinkSound* compSound;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	TArray<class UInputAction*> keyInputs;

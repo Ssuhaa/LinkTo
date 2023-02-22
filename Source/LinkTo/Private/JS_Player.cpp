@@ -26,6 +26,7 @@
 #include <UMG/Public/Blueprint/UserWidget.h>
 #include <UMG/Public/Components/Overlay.h>
 #include "PlayerMainWG.h"
+#include "JS_LinkSound.h"
 
 
 
@@ -109,6 +110,7 @@ AJS_Player::AJS_Player()
 	compState = CreateDefaultSubobject<UPlayerStateComponent>(TEXT("STATE COMP"));
 	compAttack = CreateDefaultSubobject<UAttackComponent>(TEXT("ATTACK COMP"));
 	compSkill = CreateDefaultSubobject<UJS_SkillComponent>(TEXT("SKILL COMP"));
+	compSound = CreateDefaultSubobject<UJS_LinkSound>(TEXT("SOUND COMP"));
 	
 	compBow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BOW"));
 	compBow->SetupAttachment(RootComponent);
@@ -117,6 +119,9 @@ AJS_Player::AJS_Player()
 	compSword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SWORD"));
 	compSword->SetupAttachment(rightHand);
 	compSword->SetCollisionProfileName(TEXT("NoCollision"));
+
+
+	
 
 // 	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSword(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/BP_Sword.BP_Sword_C'"));
 // 	if (tempSword.Succeeded())
