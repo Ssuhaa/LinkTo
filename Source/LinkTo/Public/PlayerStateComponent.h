@@ -35,6 +35,7 @@ public:
 
 public:
 
+	class UJS_LinkSound* sounds;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = FSM)
 	EPlayerState currState = EPlayerState::bLanding;
 
@@ -49,7 +50,7 @@ public:
 	float currTime = 0;
 	UPROPERTY(EditAnywhere, Category = "CharStatus")
 	bool bInAir = false;
-
+	bool landingSound = false;
 
 	void LandsingState();
 	void FallingState();

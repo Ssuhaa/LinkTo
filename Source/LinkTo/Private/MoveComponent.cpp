@@ -172,6 +172,7 @@ void UMoveComponent::OnDash() // 달리기
 	{
 		player->GetCharacterMovement()->MaxWalkSpeed = 1000; 
 		player->compState->SetStaminaState(true); // 스태미나의 상태를 사용으로
+		if(player->compState->currState != EPlayerState::bFalling)
 		sounds->PlayDashSound();
 	}
 	else
@@ -185,6 +186,7 @@ void UMoveComponent::OnWalk() // 걷기
 {
 	player->GetCharacterMovement()->MaxWalkSpeed = 300;
 	player->compState->SetStaminaState(false); // 스태미나의 상태를 사용 안함으로
+	if (player->compState->currState != EPlayerState::bFalling)
 	sounds->PlayWalkSound();
 }
 void UMoveComponent::StartButtonA() 

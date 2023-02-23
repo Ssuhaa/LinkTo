@@ -6,6 +6,7 @@
 #include "JS_Player.h"
 #include <Components/CapsuleComponent.h>
 #include <GameFramework/CharacterMovementComponent.h>
+#include "JS_LinkSound.h"
 
 // Sets default values for this component's properties
 UPlayerStateComponent::UPlayerStateComponent()
@@ -22,8 +23,9 @@ UPlayerStateComponent::UPlayerStateComponent()
 void UPlayerStateComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	player = Cast<AJS_Player>(GetOwner());
+	sounds = player->compSound;
 	// ...
 
 	stamina = 100; // 스태미나 100으로 초기화
@@ -51,8 +53,6 @@ void UPlayerStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	}
 
 	CurrStamina(bUseStamina); // 현재 스태미나 사용하는지 판별
-	// ...
-
 }
 
 void UPlayerStateComponent::FallingState() // 떨어지고 있는 상태
@@ -65,6 +65,7 @@ void UPlayerStateComponent::LandsingState() // 땅 상태
 {
 	player->compMove->canParasale = false; // 패러세일 사용 가능 여부
 		IsInAir(); // 땅/공중 판별
+		
 }
 
 void UPlayerStateComponent::ClimbingState() // 벽타기 상태
@@ -73,8 +74,12 @@ void UPlayerStateComponent::ClimbingState() // 벽타기 상태
 }
 
 void UPlayerStateComponent::ChangeState(EPlayerState state)
-{
+{	
 	currState = state; // 상태 전환 함수
+	if (currState == EPlayerState::bLanding)
+	{
+		sounds->PlayLandingSound();
+	}
 }
 
 
@@ -126,9 +131,20 @@ void UPlayerStateComponent::CurrStamina(bool value)
 void UPlayerStateComponent::IsInAir()
 {
 	if (player->GetCharacterMovement()->IsFalling() == true)
+	{
 		ChangeState(EPlayerState::bFalling);
+		landingSound = true;
+	}
 	else
+	{
 		ChangeState(EPlayerState::bLanding);
+		if (landingSound)
+		{
+			sounds->PlayLandingSound();
+			landingSound = false;
+		}
+	}
+		
 }
 
 void UPlayerStateComponent::SetStaminaState(bool value)

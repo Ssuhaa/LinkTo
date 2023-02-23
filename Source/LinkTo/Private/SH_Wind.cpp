@@ -47,9 +47,9 @@ void ASH_Wind::Tick(float DeltaTime)
 			float result = FMath::Sin(currentTime * PI);
 			FVector offset = dirComp->GetForwardVector() * DeltaTime * WindValue;
 			offset.Z += result;
-			player->AddActorWorldOffset(offset);
+			/*player->AddActorWorldOffset(offset);*/
 			FVector Vel = player->GetMovementComponent()->Velocity;
-			player->GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
+			player->GetMovementComponent()->Velocity.Z = Vel.Z + WindValue;
 		}
 	}
 

@@ -103,6 +103,11 @@ void UJS_LinkSound::PlaySwitchSound()
 	UGameplayStatics::PlaySound2D(this,switchUI);
 }
 
+void UJS_LinkSound::PlayLandingSound()
+{
+	UGameplayStatics::PlaySound2D(this, Landing);
+}
+
 void UJS_LinkSound::PlayWalkSound()
 {
 	currTime += GetWorld()->DeltaTimeSeconds;
@@ -111,7 +116,7 @@ void UJS_LinkSound::PlayWalkSound()
 		if (player->compState->currState == EPlayerState::bLanding)
 		{
 
-			UGameplayStatics::PlaySound2D(this, moveSlow, 2.0f, 1.f, 0.f);
+			UGameplayStatics::PlaySound2D(this, moveSlow);
 			currTime = 0;
 		}
 	}
@@ -125,7 +130,7 @@ void UJS_LinkSound::PlayDashSound()
 	{
 		if (player->compState->currState == EPlayerState::bLanding)
 		{
-			UGameplayStatics::PlaySound2D(this, moveFast, 2.0f, 1.f, 0.f);
+			UGameplayStatics::PlaySound2D(this, moveFast);
 			currTime = 0;
 		}
 	}
@@ -150,6 +155,6 @@ void UJS_LinkSound::PlayJumpSound()
 
 void UJS_LinkSound::PlayParaSound()
 {
-	UGameplayStatics::PlaySound2D(this, parasailOpen);
+	UGameplayStatics::SpawnSound2D(this, parasailOpen);
 }
 

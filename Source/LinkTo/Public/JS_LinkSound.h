@@ -70,6 +70,8 @@ public:
 	class USoundBase* shrineOpen;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* parasailOpen;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
+	class USoundBase* Landing;
 
 	float walkDelay = 0.5f;
 	float dashDelay = 0.3f;
@@ -88,5 +90,5 @@ public:
 	void PlayOpenStoneSound();
 	void PlayCloseStoneSound();
 	void PlaySwitchSound();
-		
+	void PlayLandingSound();
 };
