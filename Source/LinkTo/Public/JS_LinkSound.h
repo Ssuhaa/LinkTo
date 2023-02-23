@@ -75,6 +75,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* parasailOpen;
 
+	float walkDelay = 0.5f;
+	float dashDelay = 0.3f;
+	float currTime = 0;
 
 	void PlayWalkSound();
 	void PlayDashSound();

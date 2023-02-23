@@ -28,7 +28,6 @@ void UJS_LinkSound::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(bgmTimer,this,&UJS_LinkSound::PlayBGM,1,false,4.f);
 	
-	
 }
 
 
@@ -106,17 +105,29 @@ void UJS_LinkSound::PlaySwitchSound()
 
 void UJS_LinkSound::PlayWalkSound()
 {
-	if (player->compState->currState ==  EPlayerState::bLanding)
+	currTime += GetWorld()->DeltaTimeSeconds;
+	if (currTime >= walkDelay)
 	{
-		UGameplayStatics::PlaySound2D(this,moveSlow,2.0f,1.f,0.f);
+		if (player->compState->currState == EPlayerState::bLanding)
+		{
+
+			UGameplayStatics::PlaySound2D(this, moveSlow, 2.0f, 1.f, 0.f);
+			currTime = 0;
+		}
 	}
 	
+
 }
 void UJS_LinkSound::PlayDashSound()
 {
-	if (player->compState->currState == EPlayerState::bLanding)
+	currTime += GetWorld()->DeltaTimeSeconds;
+	if (currTime >= dashDelay)
 	{
-		UGameplayStatics::PlaySound2D(this,moveFast,2.0f,1.f,0.f);
+		if (player->compState->currState == EPlayerState::bLanding)
+		{
+			UGameplayStatics::PlaySound2D(this, moveFast, 2.0f, 1.f, 0.f);
+			currTime = 0;
+		}
 	}
 }
 void UJS_LinkSound::PlayJumpSound()

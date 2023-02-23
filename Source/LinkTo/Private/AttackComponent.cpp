@@ -99,7 +99,7 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 
 		
-			if (swordSpeed >= 50.f && !bHit)
+			if (swordSpeed >= 30.f && !bHit)
 			{
 				SwordLineTrace();
 				sounds->PlayAttackSwordSound();
@@ -123,13 +123,13 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction(leftInputs[5], ETriggerEvent::Started, this, &UAttackComponent::OnButtonMenu);
+	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &UAttackComponent::OnButtonMenu);
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UAttackComponent::OnButtonA); 
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &UAttackComponent::FireSword); 
 	PlayerInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabRight);
 	PlayerInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabLeft);
-	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerArrow);
-	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseArrow);
+// 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerArrow);
+// 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseArrow);
 }
 
 void UAttackComponent::OnButtonA()
@@ -218,7 +218,7 @@ void UAttackComponent::SwordLineTrace()
 		FTimerHandle AttackHandle;
 
 		GetWorld()->GetTimerManager().ClearTimer(AttackHandle);
-		GetWorld()->GetTimerManager().SetTimer(AttackHandle, this, &UAttackComponent::SetLineTrace, 0.3f, false);
+		GetWorld()->GetTimerManager().SetTimer(AttackHandle, this, &UAttackComponent::SetLineTrace, 0.2f, false);
 		// 라인트레이스 발사
 		FHitResult hitInfo;
 		FVector startPos = player->compSword->GetComponentLocation() + FVector(0, 0, 15);
