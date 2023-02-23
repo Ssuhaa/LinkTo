@@ -20,4 +20,6 @@ public:
  	class UOverlay* Overlay_PlaceName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UOverlay* Overlay_Skill;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UChainWG* Chain;
 };

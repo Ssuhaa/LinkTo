@@ -5,6 +5,8 @@
 #include "JS_Player.h"
 #include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraComponent.h>
 #include <../Plugins/FX/Niagara/Source/Niagara/Classes/NiagaraSystem.h>
+#include <Sound/SoundCue.h>
+#include <Components/AudioComponent.h>
 
 AMagnetBase::AMagnetBase()
 {
@@ -21,7 +23,16 @@ AMagnetBase::AMagnetBase()
 		NSOnMagnet->SetAsset(tempNS.Object);
 	}
 	NSOnMagnet->bAutoActivate = false;
-	
+	ConstructorHelpers::FObjectFinder<USoundBase> tempsound(TEXT("/Script/Engine.SoundWave'/Game/Sound/SE_MagneCatch_Stop.SE_MagneCatch_Stop'"));
+	if (tempsound.Succeeded())
+	{
+		MreleasedSound = tempsound.Object;
+	}
+	ConstructorHelpers::FObjectFinder<USoundCue> tempsound1(TEXT("/Script/Engine.SoundCue'/Game/Sound/SC_MagnetMove.SC_MagnetMove'"));
+	if (tempsound1.Succeeded())
+	{
+		MmovingSound = tempsound1.Object;
+	}
 
 }
 
@@ -64,6 +75,7 @@ void AMagnetBase::LookInMagnet()
 
 void AMagnetBase::OnMagnet(FVector hitpos)
 {
+	MovingSound = UGameplayStatics::SpawnSound2D(GetWorld(), MmovingSound);
 	ChangeMaterial(MagnetMatarray, 3, InteractionMesh);
 	InteractionMesh->SetSimulatePhysics(true);
 	NSOnMagnet->SetWorldLocation(hitpos);
@@ -74,10 +86,11 @@ void AMagnetBase::OnMagnet(FVector hitpos)
 
 void AMagnetBase::releasedMagnet()
 {
+	MovingSound->Stop();
+	//UGameplayStatics::PlaySound2D(GetWorld(), MreleasedSound);
 	if (player->compSkill->isPressedG)
 	{
 		ChangeMaterial(MagnetMatarray, 1, InteractionMesh);
-		
 	}
 	else
 	{

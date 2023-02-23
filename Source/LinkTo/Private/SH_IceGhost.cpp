@@ -28,7 +28,7 @@ ASH_IceGhost::ASH_IceGhost()
 	boxComp->SetBoxExtent(FVector(65, 65, 105));
 	boxComp->SetRelativeLocation(FVector(0, 0, 100));
 
-	ConstructorHelpers::FObjectFinder <UAnimationAsset> tempanim(TEXT("/Script/Engine.AnimSequence'/Game/Geometry/Mesh/CryonisIce_Anim.CryonisIce_Anim'"));
+	ConstructorHelpers::FObjectFinder <UAnimationAsset> tempanim(TEXT("/Script/Engine.AnimSequence'/Game/Geometry/Mesh/Ghostce_Anim.Ghostce_Anim'"));
 	if (tempanim.Succeeded())
 	{
 		iceMotion = tempanim.Object;
@@ -49,7 +49,7 @@ void ASH_IceGhost::BeginPlay()
 {
 	Super::BeginPlay();
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASH_WaterWall::StaticClass(), IgnoreArray);
-	iceMesh->PlayAnimation(iceMotion, true);
+	
 	SetVisibleIce(false);
 }
 
@@ -88,5 +88,14 @@ void ASH_IceGhost::SetVisibleIce(bool visible)
 {
 	bActive = visible;
 	iceMesh->SetVisibility(visible);
+	if (visible)
+	{
+		iceMesh->PlayAnimation(iceMotion, true);
+	}
+	else
+	{
+		iceMesh->Stop();
+	}
+	
 }
 

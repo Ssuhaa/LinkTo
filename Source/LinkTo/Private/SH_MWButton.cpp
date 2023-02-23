@@ -43,6 +43,7 @@ ASH_MWButton::ASH_MWButton()
 	{
 		TimeLockMatArray.Add(TempMat3.Object);
 	}
+
 }
 
 void ASH_MWButton::BeginPlay()
@@ -68,6 +69,7 @@ void ASH_MWButton::NotifyActorBeginOverlap(AActor* OtherActor)
 		{
 			binButton = true;
 			Z = currZ;
+			
 		}
 		else
 		{

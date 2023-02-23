@@ -13,7 +13,9 @@
 
 ASH_MovingWalk::ASH_MovingWalk()
 {
+
 	SetRootComponent(rootComp);
+	WGcomp->SetupAttachment(RootComponent);
 	ConstructorHelpers::FObjectFinder <UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	if (tempMesh.Succeeded())
 	{

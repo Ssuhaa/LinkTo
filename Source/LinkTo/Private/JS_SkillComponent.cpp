@@ -22,11 +22,11 @@
 #include <UMG/Public/Components/CanvasPanelSlot.h>
 #include <Camera/CameraComponent.h>
 #include "JS_WidgetSkillSwitch.h"
-#include "PlayerMainWG.h"
 #include <Components/SphereComponent.h>
 #include <Kismet/KismetMathLibrary.h>
 #include "NiagaraFunctionLibrary.h"
 #include "JS_LinkSound.h"
+#include <Sound/SoundCue.h>
 
 
 // Sets default values for this component's properties
@@ -58,10 +58,26 @@ UJS_SkillComponent::UJS_SkillComponent()
 	{
 		NSCrossHair = tempNS.Object;
 	}
-	ConstructorHelpers::FObjectFinder<USoundBase> tempsound(TEXT("/Script/Engine.SoundWave'/Game/Sound/Sys_Item_IceMaker_Making.Sys_Item_IceMaker_Making'"));
+
+	ConstructorHelpers::FObjectFinder<USoundCue> tempsound(TEXT("/Script/Engine.SoundCue'/Game/Sound/SC_Look.SC_Look'"));
 	if (tempsound.Succeeded())
 	{
-		lookIcemakerSB = tempsound.Object;
+		LookSound = tempsound.Object;
+	}
+	ConstructorHelpers::FObjectFinder<USoundBase> tempsound1(TEXT("/Script/Engine.SoundWave'/Game/Sound/IceMakerBlock_Crush.IceMakerBlock_Crush'"));
+	if (tempsound1.Succeeded())
+	{
+		iceBrakeSound = tempsound1.Object;
+	}
+	ConstructorHelpers::FObjectFinder<USoundBase> tempsound2(TEXT("/Script/Engine.SoundWave'/Game/Sound/IceMakerBlock_TouchMaking.IceMakerBlock_TouchMaking'"));
+	if (tempsound2.Succeeded())
+	{
+		icemakingSound = tempsound2.Object;
+	}
+	ConstructorHelpers::FObjectFinder<USoundBase> tempsound3(TEXT("/Script/Engine.SoundWave'/Game/Sound/SE_MagneCatch_Catch.SE_MagneCatch_Catch'"));
+	if (tempsound3.Succeeded())
+	{
+		MCatchSound = tempsound3.Object;
 	}
 }
 
@@ -188,11 +204,13 @@ void UJS_SkillComponent::OnButtonTrigger()
 //스킬 사용 바인딩
 void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 {
-	if (OnTimeLockActor != nullptr)
+	//디버그용
+	if (DebagKeyBorad)
 	{
-		
-		OnTimeLockActor->impulseArrowUpdate();
-		//가라
+		if (OnTimeLockActor != nullptr && OnTimeLockActor->bTimeLock)
+		{
+			OnTimeLockActor->impulseArrowUpdate();
+		}
 
 	}
 	if (bSkillMenu)
@@ -202,7 +220,7 @@ void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 
 	}
 	else
-	{
+	{	
 		switch (currSkillState)
 		{
 		case ESkillState::TimeLock:
@@ -256,6 +274,10 @@ void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 void UJS_SkillComponent::OnButtonX()
 {
 	player->compAttack->currAttackState = EAttackState::AttackIdle;
+	if (!isPressedG)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), LookSound);
+	}
 	isPressedG = true;
 	switch (currSkillState)
 	{
@@ -421,8 +443,6 @@ void UJS_SkillComponent::LineTraceInteration()
 		switch (currSkillState)
 		{
 		case ESkillState::TimeLock:
-
-			DrawDebugLine(GetWorld(),Startpos,Endpos,FColor::Green,false,0.1,1.f);
 			if (hitTLActor != nullptr && hitTLActor != Hitinfo.GetActor())
 			{
 				hitTLActor->InteractionTimeLock(true);
@@ -460,6 +480,7 @@ void UJS_SkillComponent::LineTraceInteration()
 //타임락 액터 보기
 void UJS_SkillComponent::LookTimeLock()
 {
+
 	if (timelockActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < timelockActorarr.Num(); i++)
 	{
@@ -520,7 +541,6 @@ void UJS_SkillComponent::OffIceMaker()
 //얼음 생성
 void UJS_SkillComponent::IceMaker()
 {
-	
 	if (iceArray[iceNum]->isIceVisible())
 	{
 		iceNum = ++iceNum % iceArray.Num();
@@ -528,12 +548,14 @@ void UJS_SkillComponent::IceMaker()
 	iceArray[iceNum]->SetActorLocation(Hitinfo.ImpactPoint);
 	iceArray[iceNum]->SetRotation(Hitinfo.ImpactNormal);
 	iceArray[iceNum]->SetActiveIce(true);
+	UGameplayStatics::PlaySound2D(GetWorld(),icemakingSound);
 	
 }
 //얼음 제거
 void UJS_SkillComponent::IceBrake()
 {
 	iceArray[iceArray.Find(hitIce)]->SetActiveIce(false);
+	UGameplayStatics::PlaySound2D(GetWorld(), iceBrakeSound);
 }
 
 
@@ -558,6 +580,7 @@ void UJS_SkillComponent::OffMagnet()
 //마그넷 선택
 void UJS_SkillComponent::Magnet()
 {
+	UGameplayStatics::PlaySound2D(GetWorld(),MCatchSound);
 	player->MagnetHandle->GrabComponentAtLocation(hitMNActor->InteractionMesh, FName(TEXT("None")), hitMNActor->GetActorLocation());
 	player->MagnetGrabComp->SetWorldLocation(hitMNActor->GetActorLocation());
 	hitMNActor->OnMagnet(Hitinfo.ImpactPoint);

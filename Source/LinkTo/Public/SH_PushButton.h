@@ -34,6 +34,7 @@ protected:
 	float currZ = 0;
 	UPROPERTY(EditAnywhere, Category = Value)
 	float pressZ = -30.0f;
+	class USoundBase* PushSound;
 
 public:
 

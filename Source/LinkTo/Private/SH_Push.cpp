@@ -15,6 +15,7 @@ ASH_Push::ASH_Push()
 		InteractionMesh->SetStaticMesh(tempMash.Object);
 	}
 	InteractionMesh->SetupAttachment(RootComponent);
+
 }
 
 void ASH_Push::BeginPlay()

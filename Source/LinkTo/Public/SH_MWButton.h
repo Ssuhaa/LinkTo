@@ -38,6 +38,7 @@ protected:
 	float currZ = 0;
 	float Z;
 
+
 public:
 
 	UPROPERTY(EditAnywhere, Category = Value)

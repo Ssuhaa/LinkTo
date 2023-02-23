@@ -25,6 +25,9 @@ protected:
 	TArray<class UMaterialInstance*> MagnetMatarray;
 	UPROPERTY(EditAnywhere)
 	class UNiagaraComponent* NSOnMagnet;
+	class USoundBase* MreleasedSound;
+	class USoundCue* MmovingSound;
+	class UAudioComponent* MovingSound;
 
 public:
 	virtual void InteractionMagnet(bool isOn);
