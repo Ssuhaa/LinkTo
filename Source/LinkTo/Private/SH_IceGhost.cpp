@@ -58,11 +58,12 @@ void ASH_IceGhost::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if(bActive)
 	{
-		bool bhit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), boxComp->GetComponentLocation(), boxComp->GetComponentLocation(), boxComp->GetScaledBoxExtent(), boxComp->GetComponentRotation(), ETraceTypeQuery::TraceTypeQuery12, false, IgnoreArray, EDrawDebugTrace::None, hitinfo, true);
+		bool bhit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), boxComp->GetComponentLocation(), boxComp->GetComponentLocation(), boxComp->GetScaledBoxExtent(), boxComp->GetComponentRotation(), ETraceTypeQuery::TraceTypeQuery15, false, IgnoreArray, EDrawDebugTrace::None, hitinfo, true);
 		if (bhit)
 		{
 			if (!iceMatArray.IsEmpty())
 			{
+				
 				iceMesh->SetMaterial(0, iceMatArray[1]);
 				bSpawn = false;
 			}
@@ -71,8 +72,9 @@ void ASH_IceGhost::Tick(float DeltaTime)
 		{
 			if (!iceMatArray.IsEmpty())
 			{
-				iceMesh->SetMaterial(0, iceMatArray[0]);
-				bSpawn = true;
+				
+					iceMesh->SetMaterial(0, iceMatArray[0]);
+					bSpawn = true;
 			}
 		}
 	

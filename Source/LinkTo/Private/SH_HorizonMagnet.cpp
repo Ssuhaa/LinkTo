@@ -12,6 +12,7 @@ ASH_HorizonMagnet::ASH_HorizonMagnet()
 		InteractionMesh->SetStaticMesh(tempMash.Object);
 	}
 	InteractionMesh->SetRelativeScale3D(FVector(0.8f));
+	InteractionMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
 	SetRootComponent(InteractionMesh);
 
 }
