@@ -22,6 +22,11 @@ ASH_Goal::ASH_Goal()
 	BoxComp->SetBoxExtent(FVector(50));
 	BoxComp->SetCollisionProfileName(TEXT("OverlapAll"));
 	BoxComp->SetRelativeLocation(FVector(0,0,-132));
+	ConstructorHelpers::FObjectFinder <USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/Sound/RemainsLithograph_TurnBlue.RemainsLithograph_TurnBlue'"));
+	if (tempSound.Succeeded())
+	{
+		GoalSound = tempSound.Object;
+	}
 }
 
 void ASH_Goal::BeginPlay()
@@ -53,6 +58,7 @@ void ASH_Goal::CheckGoal(UPrimitiveComponent* OverlappedComponent, AActor* Other
 	{
 		//currball->Goal(false);
 		bisGoal = true;
+		UGameplayStatics::PlaySound2D(GetWorld(),GoalSound);
 	}
 }
 

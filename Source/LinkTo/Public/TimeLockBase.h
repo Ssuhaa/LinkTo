@@ -30,6 +30,9 @@ protected:
 	class UMaterialParameterCollection* timeLockParm;
 	UPROPERTY(EditAnywhere)
 	class UArrowComponent* hitArrow;
+	UPROPERTY(EditAnywhere)
+	class UWidgetComponent* WGcomp;
+	class UChainWG* chaineffect;
 
 	int32 hitCount = 0;
 
@@ -39,7 +42,6 @@ protected:
 	float ImpulseStrength = 500;
 
 	class USoundBase* timeCountSound;
-	class USoundBase* OnSound;
 	class USoundCue* releaseSound;
 	class USoundCue* hitSound;
 

@@ -36,4 +36,6 @@ protected:
 	float Z = 0.0f;
 	float ratioZ = 0.0f;
 	FVector OriginPos;
+
+
 };

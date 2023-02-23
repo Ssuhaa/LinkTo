@@ -45,7 +45,11 @@ ASH_PushButton::ASH_PushButton()
 	{
 		TimeLockMatArray.Add(TempMat3.Object);
 	}
-
+	ConstructorHelpers::FObjectFinder<USoundBase> tempsound(TEXT("/Script/Engine.SoundWave'/Game/Sound/DgnObj_SliderBlockStone_ReachedLimit00.DgnObj_SliderBlockStone_ReachedLimit00'"));
+	if (tempsound.Succeeded())
+	{
+		PushSound = tempsound.Object;
+	}
 
 }
 
@@ -54,7 +58,6 @@ void ASH_PushButton::BeginPlay()
 	Super::BeginPlay();
 	OriginPos = InteractionMesh->GetRelativeLocation();
 
-	
 }
 
 void ASH_PushButton::Tick(float DeltaTime)
@@ -72,6 +75,7 @@ void ASH_PushButton::NotifyActorBeginOverlap(AActor* OtherActor)
 		{
 			binButton = true;
 			Z = currZ;
+			UGameplayStatics::PlaySound2D(GetWorld(), PushSound);
 		}
 		else
 		{

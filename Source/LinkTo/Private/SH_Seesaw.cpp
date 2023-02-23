@@ -10,6 +10,7 @@ ASH_Seesaw::ASH_Seesaw()
 {
 	SetRootComponent(rootComp);
 
+	WGcomp->SetupAttachment(RootComponent);
 	AxisComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AxisMesh"));
 	ConstructorHelpers::FObjectFinder <UStaticMesh> tempAxis(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
 	if(tempAxis.Succeeded())
@@ -19,7 +20,7 @@ ASH_Seesaw::ASH_Seesaw()
 	AxisComp->SetupAttachment(RootComponent);
 	AxisComp->SetRelativeLocation(FVector(0,0,-38));
 	AxisComp->SetRelativeRotation(FRotator(0,0,90));
-	AxisComp->SetRelativeScale3D(FVector(0.5,0.5,2.0));
+	AxisComp->SetRelativeScale3D(FVector(0.5,0.5,2.8));
 
 	InteractionMesh->SetupAttachment(RootComponent);
 	ConstructorHelpers::FObjectFinder <UStaticMesh> tempMash(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
@@ -27,7 +28,7 @@ ASH_Seesaw::ASH_Seesaw()
 	{
 		InteractionMesh->SetStaticMesh(tempMash.Object);
 	}
-	InteractionMesh->SetRelativeScale3D(FVector(1.5, 4.0, 0.25));
+	InteractionMesh->SetRelativeScale3D(FVector(3.0, 6.0, 0.3));
 	InteractionMesh->SetRelativeRotation(FRotator(0,90,0));
 	InteractionMesh->SetSimulatePhysics(true);
 
@@ -52,24 +53,24 @@ ASH_Seesaw::ASH_Seesaw()
 	PhyComp->SetOrientationDriveTwistAndSwing(false, true);
 	PhyComp->SetAngularDriveParams(20, 2, 0);
 
-	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_Ball.MI_Ball'"));
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_Seesew.MI_Seesew'"));
 	if (TempMat.Succeeded())
 	{
 		TimeLockMatArray.Add(TempMat.Object);
 		InteractionMesh->SetMaterial(0, TempMat.Object);
 		AxisComp->SetMaterial(0, TempMat.Object);
 	}
-	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat1(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_BallTimeLockOn.MI_BallTimeLockOn'"));
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat1(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_SeeSewTimeLockOn.MI_SeeSewTimeLockOn'"));
 	if (TempMat1.Succeeded())
 	{
 		TimeLockMatArray.Add(TempMat1.Object);
 	}
-	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat2(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_BallTimeLockSelect.MI_BallTimeLockSelect'"));
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat2(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_SeesewTimeLockSelect.MI_SeesewTimeLockSelect'"));
 	if (TempMat2.Succeeded())
 	{
 		TimeLockMatArray.Add(TempMat2.Object);
 	}
-	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat3(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_BallTimeLockCount.MI_BallTimeLockCount'"));
+	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat3(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_SeesewlTimeLockCount.MI_SeesewlTimeLockCount'"));
 	if (TempMat3.Succeeded())
 	{
 		TimeLockMatArray.Add(TempMat3.Object);

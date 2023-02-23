@@ -64,6 +64,8 @@ private:
 	void OnGrabRight();
 	void OnGrabLeft();
 
+	class USoundCue* LookSound;
+
 	//ÆøÅº
 	void OffBomb();
 	void OnBomb();
@@ -94,7 +96,8 @@ private:
 	TArray<class ASH_Ice*> iceArray;
 	class ASH_IceGhost* Ghostice;
 	int32 iceNum = 0;
-	class USoundBase* lookIcemakerSB;
+	class USoundBase* iceBrakeSound;
+	class USoundBase* icemakingSound;
 
 	//¸¶±×³Ý
 	void Magnet();
@@ -104,6 +107,8 @@ private:
 	float MagnetLength = 1500;
 	class AMagnetBase* GrabMagnetActor;
 	float ratio = 0;
+	class USoundBase* MCatchSound;
+
 
 
 	//Å°¹ÙÀÎµù
