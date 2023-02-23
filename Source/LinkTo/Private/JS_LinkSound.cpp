@@ -37,7 +37,7 @@ void UJS_LinkSound::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-
+	
 }
 
 void UJS_LinkSound::PlayBGM()
@@ -146,5 +146,10 @@ void UJS_LinkSound::PlayJumpSound()
 		break;
 	}
 
+}
+
+void UJS_LinkSound::PlayParaSound()
+{
+	UGameplayStatics::PlaySound2D(this, parasailOpen);
 }
 

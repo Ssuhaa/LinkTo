@@ -59,15 +59,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* moveSlow;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
-	class USoundBase* seesaw;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* sheikerClose;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* shikerOpen;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* slideSelect;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
-	class USoundBase* wind1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* wind2;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)

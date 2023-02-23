@@ -5,6 +5,7 @@
 #include <PhysicsEngine/PhysicsConstraintComponent.h>
 #include <Components/StaticMeshComponent.h>
 #include <Components/BoxComponent.h>
+#include <UMG/Public/Components/WidgetComponent.h>
 
 ASH_Seesaw::ASH_Seesaw()
 {

@@ -226,6 +226,7 @@ void UMoveComponent::StartButtonB() // 점프
 		case EPlayerState::bFalling:
 			canParasale = true; // 패러세일을 사용 가능한 상태로 
 			player->LaunchCharacter(FVector(0,0,100.f),false,false);
+			sounds->PlayParaSound();
 			break;
 		}
 	}

@@ -9,6 +9,7 @@
 #include "SH_Ball.h"
 #include <Materials/MaterialParameterCollection.h>
 #include <Kismet/KismetMaterialLibrary.h>
+#include <UMG/Public/Components/WidgetComponent.h>
 
 
 ASH_MovingWalk::ASH_MovingWalk()

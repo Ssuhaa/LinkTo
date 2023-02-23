@@ -99,7 +99,7 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 
 		
-			if (swordSpeed >= 30.f && !bHit)
+			if (swordSpeed >= 15.f && !bHit)
 			{
 				SwordLineTrace();
 				sounds->PlayAttackSwordSound();

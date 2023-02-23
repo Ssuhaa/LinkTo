@@ -46,40 +46,15 @@ AJS_Player::AJS_Player()
 	leftController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LEFT CONTROLLER"));
 	leftController->SetupAttachment(RootComponent);
 	leftController->MotionSource = "Left";
-
-// 	leftLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("LEFT LOG"));
-// 	leftLog->SetupAttachment(leftController);
-// 	leftLog->SetRelativeScale3D(FVector(0.5));
-// 	leftLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
-// 	leftLog->SetTextRenderColor(FColor::Yellow);
-// 	leftLog->SetHorizontalAlignment(EHTA_Center);
-// 	leftLog->SetVerticalAlignment(EVRTA_TextTop);
-
-// 	moveLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("MOVE LOG"));
-// 	moveLog->SetupAttachment(leftController);
-// 	moveLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
-// 	moveLog->SetRelativeScale3D(FVector(0.3));
-// 	moveLog->SetTextRenderColor(FColor::Green);
-// 	moveLog->SetHorizontalAlignment(EHTA_Center);
-// 	moveLog->SetVerticalAlignment(EVRTA_TextBottom);
 	
 	leftHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LEFT HAND"));
 	leftHand->SetupAttachment(leftController);
-/*	leftLog->SetRelativeScale3D(FVector(0.5));*/
 	leftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	leftHand->SetRelativeRotation(FRotator(-25.0f, 180.0f, 90.0f));
 
 	rightController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RIGHT CONTROLLER"));
 	rightController->SetupAttachment(RootComponent);
 	rightController->MotionSource = "Right";
-	
-// 	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("RIGHT LOG"));
-// 	rightLog->SetupAttachment(rightController);
-// 	rightLog->SetRelativeRotation(FRotator(90.0f, 180.0f, 0.0f));
-// 	rightLog->SetRelativeScale3D(FVector(0.5));
-// 	rightLog->SetTextRenderColor(FColor::Yellow);
-// 	rightLog->SetHorizontalAlignment(EHTA_Center);
-// 	rightLog->SetVerticalAlignment(EVRTA_TextTop);
 
 	rightHand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RIGHT HAND"));
 	rightHand->SetupAttachment(rightController);
