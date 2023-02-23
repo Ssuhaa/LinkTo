@@ -116,18 +116,13 @@ AJS_Player::AJS_Player()
 	compBow->SetupAttachment(RootComponent);
 	compBow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+
+
 	compSword = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SWORD"));
 	compSword->SetupAttachment(rightHand);
 	compSword->SetCollisionProfileName(TEXT("NoCollision"));
-
-
-	
-
-// 	ConstructorHelpers::FClassFinder<UJS_WidgetSkillSwitch>tempSword(TEXT("/Script/Engine.Blueprint'/Game/BluePrint/Actors/Weapon/BP_Sword.BP_Sword_C'"));
-// 	if (tempSword.Succeeded())
-// 	{
-// 		swordFactory = tempSword.Class;
-// 	}
+	compSword->SetRelativeLocation(FVector(30,8,0));
+	compSword->SetRelativeRotation(FRotator(0,90,90));
 
 
 	MagNS = CreateDefaultSubobject<UNiagaraComponent>(TEXT("magNScomp"));

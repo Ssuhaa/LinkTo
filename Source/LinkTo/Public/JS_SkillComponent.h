@@ -28,6 +28,7 @@ protected:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	class AJS_Player* player;
+	class UJS_LinkSound* sounds;
 	//ÄÄÆ÷³ÍÆ®
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|SkillComponent")
 	int32 selectContext = 0;

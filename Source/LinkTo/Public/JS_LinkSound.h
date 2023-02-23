@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
+#include "Components/AudioComponent.h"
 #include "JS_LinkSound.generated.h"
 
 
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class LINKTO_API UJS_LinkSound : public UActorComponent
+class LINKTO_API UJS_LinkSound : public UAudioComponent
 {
 	GENERATED_BODY()
 
@@ -28,7 +29,7 @@ public:
 public:
 
 	class AJS_Player* player;
-
+	FTimerHandle bgmTimer;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* attack1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
@@ -40,7 +41,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* BGM;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
-	class USoundBase* iceFail;
+	class USoundBase* switchUI;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* iceMaking;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
@@ -50,9 +51,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* jump3;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
-	class USoundBase* magnetHold;
+	class USoundBase* equipSword;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
-	class USoundBase* magnetShot;
+	class USoundBase* unequipSword;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* moveFast;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
@@ -75,8 +76,18 @@ public:
 	class USoundBase* parasailOpen;
 
 
-
-	
-
+	void PlayWalkSound();
+	void PlayDashSound();
+	void PlayJumpSound();
+	void PlayParaSound();
+	void PlayBGM();
+	void TimerClear(FTimerHandle timerName);
+	void PlayWindSound();
+	void PlaySwordEquipSound();
+	void PlaySwordUnEquipSound();
+	void PlayAttackSwordSound();
+	void PlayOpenStoneSound();
+	void PlayCloseStoneSound();
+	void PlaySwitchSound();
 		
 };

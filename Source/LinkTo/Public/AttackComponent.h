@@ -39,6 +39,7 @@ public:
 	class AJS_Player* player;
 	class AJS_Arrow* arrow;
 	class ATimeLockBase* timeLockActor;
+	class UJS_LinkSound* sounds;
 	UPROPERTY(EditAnywhere, Category = Arrow)
 	TSubclassOf<class AJS_Arrow> arrowFactory;
 
@@ -61,7 +62,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sword)
 	FVector oldPos = FVector(0);
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Sword)
-	bool bCanHit = true;
+	bool bHit = false;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category = Sword)
 	float attackPower = 500.f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = Sword)
@@ -82,6 +83,8 @@ private:
 	void SwordState();
 	void BowState();
 	void SwordLineTrace();
+	void SetLineTrace();
+
 
 	void OnButtonMenu();
 	void FireSword();

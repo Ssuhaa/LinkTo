@@ -36,7 +36,7 @@ public:
 
 public:
 
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UStaticMeshComponent* compSword;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	class UStaticMeshComponent* compBow;
