@@ -25,6 +25,8 @@
 #include <Kismet/KismetMathLibrary.h>
 #include "TimeLockBase.h"
 #include <MotionControllerComponent.h>
+#include "JS_LinkSound.h"
+
 
 // Sets default values for this component's properties
 UAttackComponent::UAttackComponent()
@@ -63,7 +65,7 @@ void UAttackComponent::BeginPlay()
 	// 무기 변경 메뉴 초기화
 	bWeaponMenu = false;
 
-	
+	sounds = player->compSound;
 
 }
 
@@ -86,57 +88,31 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	{
 		SwordState();
 		
-		currHandPos = player->rightHand->GetComponentLocation();
-	
-		
+		if (player->compMove->bMove == false)
+		{
+			currHandPos = player->rightHand->GetComponentLocation();
 		// 휘두르는 방향
 		FVector attackDir = oldPos - currHandPos;
 		// 휘두르는 속력(길이)
 		float swordSpeed = UKismetMathLibrary::Square(attackDir.Size());
 		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%f"),swordSpeed), false, FVector2D(3.f));
 
-		if (bCanHit == true)
-		{
-			if (swordSpeed >= 3.f)
+
+		
+			if (swordSpeed >= 30.f && !bHit)
 			{
 				SwordLineTrace();
+				sounds->PlayAttackSwordSound();
 			}
-
-		}
-		else
-		{
-			if (swordSpeed <= 0.1f)
-			{
-				bCanHit = true;
-			}
-		}
-		
-		
-		
-
-		// 오른손의 속력이 일정 속력 이상이면
-		//if (swordSpeed >= 3.f)
-		//{
-			// 칼의 콜리젼을 공격으로 변경
-			// player->compSword->SetCollisionProfileName(TEXT("AttackSwordState"));
-
-
-		
-		//}
-		// 칼의 속력이 일정속력 이하면
-		//else
-		//{
-			// player->compSword->SetCollisionProfileName(TEXT("NoCollision"));
 			
-			//bCanHit = true;
-		//}
-
-		// FString swordState = player->compSword->GetCollisionProfileName().ToString();
-		// GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow,swordState,true,FVector2D(10.f));
+		
+		
 		
 		// 다음 틱에서 사용할 이전 위치
 		oldPos = currHandPos;
 	}
+		}
+		
 		break;
 	case EAttackState::AttackBow:
 		BowState();
@@ -147,13 +123,13 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent)
 {
-	PlayerInputComponent->BindAction(leftInputs[5], ETriggerEvent::Started, this, &UAttackComponent::OnButtonMenu);
+	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &UAttackComponent::OnButtonMenu);
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UAttackComponent::OnButtonA); 
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &UAttackComponent::FireSword); 
 	PlayerInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabRight);
 	PlayerInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabLeft);
-	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerArrow);
-	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseArrow);
+// 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerArrow);
+// 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &UAttackComponent::OnReleaseArrow);
 }
 
 void UAttackComponent::OnButtonA()
@@ -231,33 +207,50 @@ void UAttackComponent::BowState()
 	player->compBow->SetVisibility(true);
 }
 
+
+
+
 void UAttackComponent::SwordLineTrace()
 {
-	// 라인트레이스 발사
-	FHitResult hitInfo;
-	FVector startPos = player->compSword->GetComponentLocation() + FVector(0, 0, 15);
-	FVector endPos = (startPos + (player->compSword->GetForwardVector() * -1) * 100) + FVector(0, 0, 15);
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(GetOwner());
-
-	DrawDebugLine(GetWorld(), startPos, endPos, FColor::Red, false, 0.1f, 0, 1.f);
-	bool isTrace = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
-
-	// 만약 맞은 액터가 타임락이 걸려있으면
-	if (isTrace)
+	if (!bHit)
 	{
-		if (hitInfo.GetActor()->GetName().Contains(TEXT("Ball")))
-		{
-			timeLockActor = Cast<ATimeLockBase>(hitInfo.GetActor());
-			if (timeLockActor->bTimeLock)
-			{
-				GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("hit")), false, FVector2D(3.f));
-				timeLockActor->impulseArrowUpdate();
-				bCanHit=false;
-			}
+		bHit = true;
+		FTimerHandle AttackHandle;
 
+		GetWorld()->GetTimerManager().ClearTimer(AttackHandle);
+		GetWorld()->GetTimerManager().SetTimer(AttackHandle, this, &UAttackComponent::SetLineTrace, 0.2f, false);
+		// 라인트레이스 발사
+		FHitResult hitInfo;
+		FVector startPos = player->compSword->GetComponentLocation() + FVector(0, 0, 15);
+		FVector endPos = (startPos + (player->compSword->GetForwardVector() * -1) * 100) + FVector(0, 0, 15);
+		FCollisionShape shape = FCollisionShape::MakeSphere(25.f);
+	
+		FCollisionQueryParams params;
+		params.AddIgnoredActor(GetOwner());
+
+		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Red, false, 0.1f, 0, 1.f);
+		
+/*		bool isTrace = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);*/
+	
+		// 만약 맞은 액터가 타임락이 걸려있으면
+		if (GetWorld()->SweepSingleByChannel(hitInfo,startPos,endPos,FQuat::Identity,ECC_Visibility,shape,params))
+		{
+			if (hitInfo.GetActor()->GetName().Contains(TEXT("Ball")))
+			{
+				timeLockActor = Cast<ATimeLockBase>(hitInfo.GetActor());
+				if (timeLockActor->bTimeLock)
+				{
+					GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("hit")), false, FVector2D(3.f));
+					timeLockActor->impulseArrowUpdate();
+				}
+			}
 		}
 	}
+}
+
+void UAttackComponent::SetLineTrace()
+{
+	bHit = false;
 }
 
 // 칼 공격
@@ -314,12 +307,13 @@ void UAttackComponent::WeaponMenuOnOff(bool value)
 	if (value)
 	{
 		player->ovelayMenuMainWG(weaponWidget);
+		sounds->PlayOpenStoneSound();
 		weaponWidget->SetUIInitPos((int32)(currAttackState));
 	}
 	else
 	{
 		weaponWidget->RemoveFromParent();
-
+		sounds->PlayCloseStoneSound();
 	}
 	
 }

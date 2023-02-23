@@ -26,7 +26,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void SetupPlayerInputComponent(class UEnhancedInputComponent* PlayerInputComponent);
 	
-
+	class UJS_LinkSound* sounds;
 	class AJS_Player* player;
 	class ASH_Ice* ice;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|MoveComponent")
@@ -54,8 +54,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bClimb = false;
 	UPROPERTY(EditAnywhere)
+	bool bMove = false;
+	UPROPERTY(EditAnywhere)
 	FVector lastLoc;
-
+	FVector2D MovementVector = FVector2D(0,0);
 	UPROPERTY()
 	FHitResult hitInfo;
 private:

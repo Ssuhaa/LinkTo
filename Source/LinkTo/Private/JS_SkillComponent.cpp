@@ -26,6 +26,7 @@
 #include <Components/SphereComponent.h>
 #include <Kismet/KismetMathLibrary.h>
 #include "NiagaraFunctionLibrary.h"
+#include "JS_LinkSound.h"
 
 
 // Sets default values for this component's properties
@@ -87,6 +88,9 @@ void UJS_SkillComponent::BeginPlay()
 	skillWidget = CreateWidget<UJS_WidgetSkillSwitch>(GetWorld(), skillUIFactory);
 	AddArray();
 	bSkillMenu = false;
+	player = Cast<AJS_Player>(GetOwner());
+	sounds = player->compSound;
+	
 }
 
 
@@ -588,10 +592,12 @@ void UJS_SkillComponent::SkillMenuOnOff(bool value)
 	if (value)
 	{
 		player->ovelayMenuMainWG(skillWidget);
+		sounds->PlayOpenStoneSound();
 	}
 	else
 	{
 		skillWidget->RemoveFromParent();
+		sounds->PlayCloseStoneSound();
 
 	}
 	bSkillMenu = value;

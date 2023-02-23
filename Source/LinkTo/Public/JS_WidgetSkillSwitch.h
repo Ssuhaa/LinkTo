@@ -20,6 +20,7 @@ public:
 
 public:
 	class AJS_Player* player;
+	class UJS_LinkSound* sounds;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UHorizontalBox* SwitchPanel;
 	UPROPERTY(EditAnywhere, meta = (BindWidget))

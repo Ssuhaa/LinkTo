@@ -11,6 +11,7 @@
 #include <UMG/Public/Components/HorizontalBox.h>
 #include <UMG/Public/Components/TextBlock.h>
 #include "JS_Player.h"
+#include "JS_LinkSound.h"
 
 
 void UJS_WidgetSkillSwitch::NativeConstruct()
@@ -19,8 +20,8 @@ void UJS_WidgetSkillSwitch::NativeConstruct()
 	widgetSlot = Cast<UPanelSlot>(SwitchPanel->Slot);
 	slotPos = Cast<UCanvasPanelSlot>(widgetSlot);
 
-
 	player = Cast<AJS_Player>(UGameplayStatics::GetActorOfClass(GetWorld(),AJS_Player::StaticClass()));
+	sounds = player->compSound;
 }
 
 void UJS_WidgetSkillSwitch::NativeDestruct()
@@ -40,6 +41,7 @@ void UJS_WidgetSkillSwitch::SetUIInitPos(int32 value)
 	FVector2D currSkill = FVector2D(locX, 0);
 	slotPos->SetPosition(currSkill);
 	SetSkillText(currSkill.X);
+	
 }
 
 void UJS_WidgetSkillSwitch::MoveUI(int32 value)
@@ -49,7 +51,9 @@ void UJS_WidgetSkillSwitch::MoveUI(int32 value)
 	float clampX = FMath::Clamp(locX, -240.f, 240.f);
 	FVector2D currSkill = FVector2D(clampX, 0);
 	slotPos->SetPosition(currSkill);
+	sounds->PlaySwitchSound();
 	SetSkillText(currSkill.X);
+	
 }
 
 void UJS_WidgetSkillSwitch::SetSkillText(float value)

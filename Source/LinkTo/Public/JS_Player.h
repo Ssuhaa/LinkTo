@@ -36,7 +36,7 @@ public:
 
 public:
 
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Components")
 	class UStaticMeshComponent* compSword;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	class UStaticMeshComponent* compBow;
@@ -44,6 +44,9 @@ public:
 	class AJS_Sword* sword;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	TSubclassOf<AJS_Sword> swordFactory;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	class UJS_LinkSound* compSound;
 
 
 	UPROPERTY(EditDefaultsOnly, Category = Component)

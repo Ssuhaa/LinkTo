@@ -12,6 +12,7 @@
 #include "Components/PanelSlot.h"
 #include <UMG/Public/Components/HorizontalBox.h>
 #include <UMG/Public/Components/TextBlock.h>
+#include "JS_LinkSound.h"
 
 
 
@@ -21,6 +22,9 @@ void UJS_WidgetWeaponSwitch::NativeConstruct()
 
 	widgetSlot = Cast<UPanelSlot>(SwitchPanel->Slot);
 	slotPos = Cast<UCanvasPanelSlot>(widgetSlot);
+
+	player = Cast<AJS_Player>(UGameplayStatics::GetActorOfClass(GetWorld(), AJS_Player::StaticClass()));
+	sounds = player->compSound;
 }
 
 void UJS_WidgetWeaponSwitch::NativeDestruct()
@@ -49,6 +53,7 @@ void UJS_WidgetWeaponSwitch::MoveUI(int32 thumbstickAxis)
 	float clampX = FMath::Clamp(locX,-120.f,120.f);
 	FVector2D currWeapon = FVector2D(clampX, 0);
 	slotPos->SetPosition(currWeapon);
+	sounds->PlaySwitchSound();
 	SetWeaponText(currWeapon.X);
 }
 

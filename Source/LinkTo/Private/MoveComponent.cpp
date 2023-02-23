@@ -21,6 +21,7 @@
 #include <Kismet/KismetSystemLibrary.h>
 #include "SH_Ice.h"
 #include <Kismet/GameplayStatics.h>
+#include "JS_LinkSound.h"
 
 
 // Sets default values for this component's properties
@@ -47,6 +48,7 @@ void UMoveComponent::BeginPlay()
 	moveSubsys->AddMappingContext(moveMapping, 0);
 
 	player = Cast<AJS_Player>(GetOwner());
+	sounds = player->compSound;
 
 	canClimb = false;
 	bClimb = false;
@@ -99,8 +101,8 @@ void UMoveComponent::RotateCamera(const FInputActionValue& value)
 
 void UMoveComponent::Move(const FInputActionValue& value)
 {
-	FVector2D MovementVector = value.Get<FVector2D>();
-	
+	bMove = true;
+	MovementVector = value.Get<FVector2D>();
 	if(canClimb)
 	{
 	
@@ -135,8 +137,10 @@ void UMoveComponent::Move(const FInputActionValue& value)
 
 			if (FMath::Abs(MovementVector.X) >= 0.7 || FMath::Abs(MovementVector.Y) >= 0.7) // X,Y의 절대값에 따라 달리기, 걷기 전환
 				OnDash();
-			else
+			else if(FMath::Abs(MovementVector.X) > 0 || FMath::Abs(MovementVector.Y) > 0)
 				OnWalk();
+			else
+				bMove = false;
 		}
 		break;
 		case EPlayerState::bFalling:
@@ -168,6 +172,7 @@ void UMoveComponent::OnDash() // 달리기
 	{
 		player->GetCharacterMovement()->MaxWalkSpeed = 1000; 
 		player->compState->SetStaminaState(true); // 스태미나의 상태를 사용으로
+		sounds->PlayDashSound();
 	}
 	else
 	{
@@ -180,6 +185,7 @@ void UMoveComponent::OnWalk() // 걷기
 {
 	player->GetCharacterMovement()->MaxWalkSpeed = 300;
 	player->compState->SetStaminaState(false); // 스태미나의 상태를 사용 안함으로
+	sounds->PlayWalkSound();
 }
 void UMoveComponent::StartButtonA() 
 {
@@ -211,7 +217,11 @@ void UMoveComponent::StartButtonB() // 점프
 		switch (playerState)
 		{
 		case EPlayerState::bLanding:
+		{
+			sounds->PlayJumpSound();
 			player->Jump(); // 점프
+		}
+			
 			break;
 		case EPlayerState::bFalling:
 			canParasale = true; // 패러세일을 사용 가능한 상태로 
