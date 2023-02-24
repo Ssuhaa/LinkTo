@@ -16,6 +16,7 @@ ASH_Ball::ASH_Ball()
 		InteractionMesh->SetStaticMesh(TempMesh.Object);
 	}
 	InteractionMesh->SetMassOverrideInKg(FName(TEXT("NAME_None")),900.0f, true);
+	InteractionMesh->SetCollisionProfileName(TEXT("BlockAll"));
 
 	ConstructorHelpers::FObjectFinder <UMaterialInstance> TempMat(TEXT("/Script/Engine.MaterialInstanceConstant'/Game/Geometry/Material/MI_Ball.MI_Ball'"));
 	if (TempMat.Succeeded())

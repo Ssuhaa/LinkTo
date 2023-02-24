@@ -117,7 +117,7 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 	
 	if (enhancedInputComponent != nullptr)
 	{
-		//추후 삭제
+		
 		enhancedInputComponent->BindAction(inputAction[0], ETriggerEvent::Started, this, &UJS_SkillComponent::OnButtonX);
 		enhancedInputComponent->BindAction(inputAction[1], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnWS);
 		enhancedInputComponent->BindAction(inputAction[2], ETriggerEvent::Triggered, this, &UJS_SkillComponent::OnAD);
@@ -142,10 +142,14 @@ void UJS_SkillComponent::SetupPlayerInputComponent(class UInputComponent* Player
 void UJS_SkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	//플레이어 이동(추후 삭제)
-	player->dir = FTransform(player->GetControlRotation()).TransformVector(player->dir);
-	player->AddMovementInput(player->dir.GetSafeNormal());
-	player->dir = FVector::ZeroVector;
+	if (DebagKeyBorad)
+	{
+		//플레이어 이동(추후 삭제)
+		player->dir = FTransform(player->GetControlRotation()).TransformVector(player->dir);
+		player->AddMovementInput(player->dir.GetSafeNormal());
+		player->dir = FVector::ZeroVector;
+
+	}
 
 	//X/G키 눌렀을때 라인트레이스 활성화
 	if (isPressedG)
@@ -183,8 +187,11 @@ void UJS_SkillComponent::LookUp(const FInputActionValue& value)
 {
 	FVector2D MouseAxis = value.Get<FVector2D>();
 
-	player->AddControllerYawInput(MouseAxis.X);
-	player->AddControllerPitchInput(MouseAxis.Y);
+	if (DebagKeyBorad)
+	{
+		player->AddControllerYawInput(MouseAxis.X);
+		player->AddControllerPitchInput(MouseAxis.Y);
+	}
 }
 
 // 위젯 이동 바인딩
@@ -484,7 +491,10 @@ void UJS_SkillComponent::LookTimeLock()
 	if (timelockActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < timelockActorarr.Num(); i++)
 	{
-		timelockActorarr[i]->InteractionTimeLock(true);
+		if (timelockActorarr[i] != nullptr)
+		{
+			timelockActorarr[i]->InteractionTimeLock(true);
+		}
 	}
 }
 //타임락 표시 끄기
@@ -493,7 +503,11 @@ void UJS_SkillComponent::OffTimeLock()
 	if (timelockActorarr.IsEmpty()) return;
 	for (int32 i = 0; i < timelockActorarr.Num(); i++)
 	{
-		timelockActorarr[i]->InteractionTimeLock(false);
+		if (timelockActorarr[i]!=nullptr)
+		{
+			timelockActorarr[i]->InteractionTimeLock(false);
+
+		}
 	}
 }
 //타임락 걸기

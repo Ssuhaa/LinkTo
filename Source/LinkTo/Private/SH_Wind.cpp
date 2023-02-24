@@ -39,17 +39,17 @@ void ASH_Wind::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (Target != nullptr&&player != nullptr)
+	if (Target != nullptr)
 	{
 		if (Target->compMove->bParasale)
 		{
-			currentTime += DeltaTime;
-			float result = FMath::Sin(currentTime * PI);
-			FVector offset = dirComp->GetForwardVector() * DeltaTime * WindValue;
-			offset.Z += result;
-			player->AddActorWorldOffset(offset);
-			FVector Vel = player->GetMovementComponent()->Velocity;
-			player->GetMovementComponent()->Velocity = FVector(Vel.X, Vel.Y, Vel.Z + WindValue);
+			//currentTime += DeltaTime;
+			//float result = FMath::Sin(currentTime * PI);
+// 			FVector offset = dirComp->GetForwardVector() * DeltaTime * WindValue;
+// 			offset.Z += result;
+// 			player->AddActorWorldOffset(offset);
+			FVector Vel = Target->GetMovementComponent()->Velocity;
+			Target->GetMovementComponent()->Velocity.Z = Vel.Z + WindValue;
 		}
 	}
 

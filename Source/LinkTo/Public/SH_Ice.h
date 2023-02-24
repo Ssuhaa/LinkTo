@@ -24,6 +24,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Component)
 	class USkeletalMeshComponent* iceMesh; 
 	class UAnimationAsset* iceMotion;
+	UPROPERTY(EditDefaultsOnly, Category = Component)
+	class UBoxComponent* BoxComp;
 
 	bool bIsActiveIce = false;
 	float ratioX = 0.0f;

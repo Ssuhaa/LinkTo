@@ -33,7 +33,7 @@ protected:
 	class AJS_Player* Target;
 
 	UPROPERTY(EditAnywhere, Category = Wind)
-	float WindValue = 30.0f;
+	float WindValue = 15.0f;
 
 	bool binWind = false;
 };
