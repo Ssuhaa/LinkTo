@@ -27,7 +27,8 @@
 #include <UMG/Public/Components/Overlay.h>
 #include "PlayerMainWG.h"
 #include "JS_LinkSound.h"
-
+#include <UMG/Public/Components/WidgetInteractionComponent.h>
+#include "JS_WidgetPointComponent.h"
 
 
 AJS_Player::AJS_Player()
@@ -136,6 +137,13 @@ AJS_Player::AJS_Player()
 	rightWidgetComp->SetupAttachment(rightHand);
 	rightWidgetComp->SetDrawSize(FVector2D(60, 60));
 	rightWidgetComp->SetRelativeRotation(FRotator(0, 0, 0));
+	
+	compWidgetInter = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WIDGET INTERACTION"));
+	compWidgetInter->SetupAttachment(rightController);
+	
+	compWidgetPoint = CreateDefaultSubobject<UJS_WidgetPointComponent>(TEXT("WIDGET POINT"));
+
+	
 
 }
 
@@ -173,6 +181,7 @@ void AJS_Player::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 		compMove->SetupPlayerInputComponent(enhancedInputComponent);
 		compAttack->SetupPlayerInputComponent(enhancedInputComponent);
 		compSkill->SetupPlayerInputComponent(PlayerInputComponent);
+		compWidgetPoint->SetupPlayerInputComponent(enhancedInputComponent);
 	}
 	
 }

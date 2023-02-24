@@ -44,7 +44,10 @@ public:
 	class AJS_Sword* sword;
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Weapon")
 	TSubclassOf<AJS_Sword> swordFactory;
-
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "VR_Settings|Components")
+	class UWidgetInteractionComponent* compWidgetInter;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "VR_Settings|Components")
+	class UJS_WidgetPointComponent* compWidgetPoint;
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	class UJS_LinkSound* compSound;
 
