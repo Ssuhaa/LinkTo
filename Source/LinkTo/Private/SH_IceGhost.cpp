@@ -16,6 +16,7 @@ ASH_IceGhost::ASH_IceGhost()
 	iceMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	iceMesh->SetupAttachment(RootComponent);
 	iceMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	iceMesh->SetRelativeScale3D(FVector(1,1,1.2));
 	ConstructorHelpers::FObjectFinder <USkeletalMesh> tempMash(TEXT("/Script/Engine.SkeletalMesh'/Game/Geometry/Mesh/CryonisIce.CryonisIce'"));
 	if (tempMash.Succeeded())
 	{

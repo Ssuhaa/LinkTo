@@ -87,7 +87,7 @@ void AMagnetBase::OnMagnet(FVector hitpos)
 void AMagnetBase::releasedMagnet()
 {
 	MovingSound->Stop();
-	//UGameplayStatics::PlaySound2D(GetWorld(), MreleasedSound);
+	InteractionMesh->SetSimulatePhysics(false);
 	if (player->compSkill->isPressedG)
 	{
 		ChangeMaterial(MagnetMatarray, 1, InteractionMesh);
@@ -95,7 +95,6 @@ void AMagnetBase::releasedMagnet()
 	else
 	{
 		ChangeMaterial(MagnetMatarray, 0, InteractionMesh);
-		InteractionMesh->SetSimulatePhysics(false);
 	}
 	bMagnet = false;
 }

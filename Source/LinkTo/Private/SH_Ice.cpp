@@ -4,6 +4,7 @@
 #include "SH_Ice.h"
 #include <Kismet/KismetMathLibrary.h>
 #include <Components/SkeletalMeshComponent.h>
+#include <Components/BoxComponent.h>
 
 
 ASH_Ice::ASH_Ice()
@@ -13,7 +14,15 @@ ASH_Ice::ASH_Ice()
 	
 	iceMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	iceMesh->SetupAttachment(RootComponent);
-	iceMesh->SetCollisionProfileName(TEXT("BlockAll"));
+	iceMesh->SetCollisionProfileName(TEXT("NoCollision"));
+	iceMesh->SetRelativeScale3D(FVector(1,1,1.2));
+
+	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
+	BoxComp->SetupAttachment(iceMesh);
+	BoxComp->SetCollisionProfileName(TEXT("BlockAll"));
+	BoxComp->SetBoxExtent(FVector(60, 60, 100));
+	BoxComp->SetRelativeLocation(FVector(0, 0, 100));
+
 	ConstructorHelpers::FObjectFinder <USkeletalMesh> tempMash(TEXT("/Script/Engine.SkeletalMesh'/Game/Geometry/Mesh/CryonisIce.CryonisIce'"));
 	if (tempMash.Succeeded())
 	{
@@ -51,13 +60,14 @@ void ASH_Ice::SetActiveIce(bool isActive)
 	if (isActive)
 	{
 		iceMesh->SetVisibility(isActive);
-		iceMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		BoxComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		iceMesh->PlayAnimation(iceMotion, false);
 	}
 	else
 	{
 		iceMesh->SetVisibility(isActive);
-		iceMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		BoxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		iceMesh->Stop();
 	}
 }
 
