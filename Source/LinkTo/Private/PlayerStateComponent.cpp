@@ -76,10 +76,6 @@ void UPlayerStateComponent::ClimbingState() // 벽타기 상태
 void UPlayerStateComponent::ChangeState(EPlayerState state)
 {	
 	currState = state; // 상태 전환 함수
-	if (currState == EPlayerState::bLanding)
-	{
-		sounds->PlayLandingSound();
-	}
 }
 
 

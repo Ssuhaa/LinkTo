@@ -215,7 +215,7 @@ void UJS_SkillComponent::OnButtonA(const FInputActionValue& value)
 	}
 	if (bSkillMenu)
 	{
-
+		OnButtonY();
 		ChangeSkill();
 
 	}

@@ -73,6 +73,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sounds)
 	class USoundBase* Landing;
 
+
 	float walkDelay = 0.5f;
 	float dashDelay = 0.3f;
 	float currTime = 0;

@@ -75,7 +75,7 @@ AJS_Player::AJS_Player()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
-	GetCharacterMovement()->MaxFlySpeed = 800.f;
+	GetCharacterMovement()->MaxFlySpeed = 700.f;
 	GetCharacterMovement()->BrakingDecelerationFlying = 1000.f;
 	GetCharacterMovement()->JumpZVelocity = 400.f; 
 	GetCharacterMovement()->AirControl = 0.2;

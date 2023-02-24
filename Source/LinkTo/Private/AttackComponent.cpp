@@ -77,8 +77,6 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	playerState = player->compState->currState;
 
-	GEngine->AddOnScreenDebugMessage(1,1.0f,FColor::Yellow, FString::Printf(TEXT("%d"),(int32)(currAttackState)));
-
 	switch (currAttackState)
 	{
 	case EAttackState::AttackIdle:
@@ -95,24 +93,16 @@ void UAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 		FVector attackDir = oldPos - currHandPos;
 		// 휘두르는 속력(길이)
 		float swordSpeed = UKismetMathLibrary::Square(attackDir.Size());
-		GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("%f"),swordSpeed), false, FVector2D(3.f));
 
-
-		
-			if (swordSpeed >= 15.f && !bHit)
+			if (swordSpeed >= 30.f && !bHit)
 			{
 				SwordLineTrace();
 				sounds->PlayAttackSwordSound();
 			}
-			
-		
-		
-		
 		// 다음 틱에서 사용할 이전 위치
 		oldPos = currHandPos;
 	}
 		}
-		
 		break;
 	case EAttackState::AttackBow:
 		BowState();
@@ -125,7 +115,6 @@ void UAttackComponent::SetupPlayerInputComponent(class UEnhancedInputComponent* 
 {
 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &UAttackComponent::OnButtonMenu);
 	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &UAttackComponent::OnButtonA); 
-	PlayerInputComponent->BindAction(rightInputs[3], ETriggerEvent::Triggered, this, &UAttackComponent::FireSword); 
 	PlayerInputComponent->BindAction(rightInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabRight);
 	PlayerInputComponent->BindAction(leftInputs[2], ETriggerEvent::Started, this, &UAttackComponent::OnGrabLeft);
 // 	PlayerInputComponent->BindAction(rightInputs[0], ETriggerEvent::Triggered, this, &UAttackComponent::OnTriggerArrow);
@@ -159,14 +148,17 @@ void UAttackComponent::ChangeWeapon()
 	if (targetWeapon == 0)
 	{
 		currAttackState = EAttackState::AttackSword;
+		sounds->PlaySwordEquipSound();
 	}
 	else if (targetWeapon == -120.f)
 	{
 		currAttackState = EAttackState::AttackBow;
 	}
 	else
+	{
 		currAttackState = EAttackState::AttackIdle;
-
+		sounds->PlaySwordUnEquipSound();
+	}
 	// UI 끔
 	WeaponMenuOnOff(false);
 }
@@ -182,7 +174,6 @@ void UAttackComponent::OnButtonMenu()
 	player->compSkill->SkillMenuOnOff(false);
 	OnWeaponUI();
 }
-
 //오른쪽 그랩버튼 눌렀을때
 void UAttackComponent::OnGrabRight()
 {
@@ -191,8 +182,8 @@ void UAttackComponent::OnGrabRight()
 // 왼쪽 그랩 버튼 눌렀을 때
 void UAttackComponent::OnGrabLeft()
 {
-
 	WeaponMenuMove(1);
+
 }
 // 무기 상태일때
 void UAttackComponent::SwordState() 
@@ -206,9 +197,6 @@ void UAttackComponent::BowState()
 	player->compSword->SetVisibility(false);
 	player->compBow->SetVisibility(true);
 }
-
-
-
 
 void UAttackComponent::SwordLineTrace()
 {
@@ -228,10 +216,6 @@ void UAttackComponent::SwordLineTrace()
 		FCollisionQueryParams params;
 		params.AddIgnoredActor(GetOwner());
 
-		DrawDebugLine(GetWorld(), startPos, endPos, FColor::Red, false, 0.1f, 0, 1.f);
-		
-/*		bool isTrace = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);*/
-	
 		// 만약 맞은 액터가 타임락이 걸려있으면
 		if (GetWorld()->SweepSingleByChannel(hitInfo,startPos,endPos,FQuat::Identity,ECC_Visibility,shape,params))
 		{
@@ -240,7 +224,6 @@ void UAttackComponent::SwordLineTrace()
 				timeLockActor = Cast<ATimeLockBase>(hitInfo.GetActor());
 				if (timeLockActor->bTimeLock)
 				{
-					GEngine->AddOnScreenDebugMessage(1, 1.0f, FColor::Yellow, FString::Printf(TEXT("hit")), false, FVector2D(3.f));
 					timeLockActor->impulseArrowUpdate();
 				}
 			}
@@ -253,12 +236,6 @@ void UAttackComponent::SetLineTrace()
 	bHit = false;
 }
 
-// 칼 공격
-void UAttackComponent::FireSword() 
-{
-
-
-}
 // 화살 조준
 void UAttackComponent::OnTriggerArrow() 
 { 
@@ -323,5 +300,6 @@ void UAttackComponent::WeaponMenuMove(int32 value)
 	if (bWeaponMenu)
 	{
 		weaponWidget->MoveUI(value);
+		sounds->PlaySwitchSound();
 	}
 }

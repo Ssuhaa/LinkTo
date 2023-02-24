@@ -120,8 +120,6 @@ void UMoveComponent::Move(const FInputActionValue& value)
 		{
 		case EPlayerState::bLanding:
 		{
-
-
 			const FRotator Rotation = player->GetControlRotation();
 			const FRotator YawRotation(0, Rotation.Yaw, 0);
 
@@ -158,11 +156,9 @@ void UMoveComponent::Move(const FInputActionValue& value)
 			player->AddMovementInput(ForwardDirection, MovementVector.Y);
 			player->AddMovementInput(RightDirection, MovementVector.X);
 
-			player->GetCharacterMovement()->MaxWalkSpeed = 800.f;
+			player->GetCharacterMovement()->MaxWalkSpeed = 700.f;
 			break;
-
 		}
-
 	}
 }
 
@@ -179,8 +175,6 @@ void UMoveComponent::OnDash() // ´Þ¸®±â
 	{
 		OnWalk();
 	}
-
-
 }
 void UMoveComponent::OnWalk() // °È±â
 {
@@ -351,8 +345,6 @@ void UMoveComponent::ClimbingLineTrace()
 			playerState = EPlayerState::bFalling;
 
 		}
-
-
  	}
  }
 
@@ -372,9 +364,6 @@ void UMoveComponent::ClimbingLineTrace()
 			player->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 		}
 		
-
-		
- 
 			FVector HangingLoc = player->GetActorLocation();
 			FRotator HangingRot = FRotator(player->GetActorRotation().Roll, player->GetActorRotation().Yaw, player->GetActorRotation().Pitch);
 			FLatentActionInfo Info;

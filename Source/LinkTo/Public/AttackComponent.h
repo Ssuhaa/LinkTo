@@ -87,7 +87,6 @@ private:
 
 
 	void OnButtonMenu();
-	void FireSword();
 	void OnTriggerArrow();
 	void OnReleaseArrow();
 	void OnWeaponUI();

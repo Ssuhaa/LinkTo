@@ -51,7 +51,6 @@ void UJS_WidgetSkillSwitch::MoveUI(int32 value)
 	float clampX = FMath::Clamp(locX, -240.f, 240.f);
 	FVector2D currSkill = FVector2D(clampX, 0);
 	slotPos->SetPosition(currSkill);
-	sounds->PlaySwitchSound();
 	SetSkillText(currSkill.X);
 	
 }
